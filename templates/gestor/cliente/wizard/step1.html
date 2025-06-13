@@ -1,0 +1,585 @@
+{% extends 'gestor/base_gestor.html' %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Novo{% endif %} Cliente - Informações Básicas | Portal Marketing{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+  <!-- Header com Progress Bar -->
+  <div class="card-header bg-light">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="card-title mb-0">
+        <i class="fas {% if form.instance.pk %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+        {% if form.instance.pk %}Editar{% else %}Novo{% endif %} Cliente de Marketing
+      </h5>
+      <div>
+        <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-arrow-left me-1"></i> Voltar
+        </a>
+      </div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress mb-3" style="height: 8px;">
+      <div class="progress-bar bg-primary" role="progressbar" style="width: 16.66%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="6"></div>
+    </div>
+    
+    <!-- Steps Navigation -->
+    <div class="d-flex justify-content-between text-center">
+      <div class="flex-fill">
+        <div class="badge bg-primary rounded-pill mb-1">1</div>
+        <div class="small fw-bold text-primary">Básicas</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">2</div>
+        <div class="small text-muted">Público</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">3</div>
+        <div class="small text-muted">Posicionamento</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">4</div>
+        <div class="small text-muted">Objetivos</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">5</div>
+        <div class="small text-muted">Recursos</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">6</div>
+        <div class="small text-muted">Revisão</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card-body">
+    <form method="post" novalidate id="step1Form">
+      {% csrf_token %}
+      <input type="hidden" name="wizard_step" value="1">
+
+      <!-- Erros Gerais -->
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger alert-dismissible fade show">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Erros de Validação:</strong>
+          <ul class="mb-0 mt-2">
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endif %}
+
+      <!-- Seção: Informações da Empresa -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-building me-2"></i>
+            Informações da Empresa
+            {% if form.nome_empresa.errors or form.cnpj_cpf.errors %}
+              <span class="badge bg-danger ms-2">
+                <i class="fas fa-exclamation-triangle"></i> 
+                {{ form.nome_empresa.errors|length|add:form.cnpj_cpf.errors|length }} erro(s)
+              </span>
+            {% endif %}
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label for="{{ form.nome_empresa.id_for_label }}" class="form-label">
+                Nome da Empresa/Marca *
+                {% if form.nome_empresa.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.nome_empresa }}
+              {% if form.nome_empresa.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.nome_empresa.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-4">
+              <label for="{{ form.ativo.id_for_label }}" class="form-label">Status</label>
+              <div class="form-check form-switch mt-2">
+                {{ form.ativo }}
+                <label class="form-check-label" for="{{ form.ativo.id_for_label }}">
+                  Cliente Ativo
+                </label>
+              </div>
+              {% if form.ativo.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.ativo.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-4">
+              <label for="{{ form.cnpj_cpf.id_for_label }}" class="form-label">CNPJ/CPF</label>
+              {{ form.cnpj_cpf }}
+              {% if form.cnpj_cpf.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.cnpj_cpf.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-8">
+              <label for="{{ form.endereco_completo.id_for_label }}" class="form-label">Endereço Completo</label>
+              {{ form.endereco_completo }}
+              {% if form.endereco_completo.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.endereco_completo.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Responsáveis e Contatos -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-user-tie me-2"></i>
+            Responsáveis e Contatos
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="{{ form.responsavel_contrato.id_for_label }}" class="form-label">
+                Responsável pelo Contrato *
+                {% if form.responsavel_contrato.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.responsavel_contrato }}
+              {% if form.responsavel_contrato.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.responsavel_contrato.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.cargo_responsavel.id_for_label }}" class="form-label">
+                Cargo do Responsável *
+                {% if form.cargo_responsavel.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.cargo_responsavel }}
+              {% if form.cargo_responsavel.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.cargo_responsavel.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.contato_responsavel.id_for_label }}" class="form-label">
+                Contato do Responsável *
+                {% if form.contato_responsavel.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.contato_responsavel }}
+              {% if form.contato_responsavel.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.contato_responsavel.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.pessoa_contato_tecnico.id_for_label }}" class="form-label">Pessoa de Contato Técnico</label>
+              {{ form.pessoa_contato_tecnico }}
+              {% if form.pessoa_contato_tecnico.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.pessoa_contato_tecnico.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.contato_tecnico.id_for_label }}" class="form-label">Contato da Pessoa Técnica</label>
+              {{ form.contato_tecnico }}
+              {% if form.contato_tecnico.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.contato_tecnico.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.faturamento_anual.id_for_label }}" class="form-label">Faturamento Anual Estimado (R$)</label>
+              {{ form.faturamento_anual }}
+              {% if form.faturamento_anual.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.faturamento_anual.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Produtos ou Serviços -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-box me-2"></i>
+            Produtos ou Serviços
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.produtos_servicos.id_for_label }}" class="form-label">
+                Produtos ou Serviços Oferecidos *
+                {% if form.produtos_servicos.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.produtos_servicos }}
+              <div class="form-text">Descreva os principais produtos ou serviços que a empresa oferece</div>
+              {% if form.produtos_servicos.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.produtos_servicos.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.website_principal.id_for_label }}" class="form-label">Website Principal</label>
+              {{ form.website_principal }}
+              {% if form.website_principal.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.website_principal.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.outros_dominios.id_for_label }}" class="form-label">Outros Domínios</label>
+              {{ form.outros_dominios }}
+              <div class="form-text">Outros sites ou domínios da empresa</div>
+              {% if form.outros_dominios.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.outros_dominios.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botões de Navegação -->
+      <div class="d-flex justify-content-between mt-4">
+        <div>
+          <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-times me-1"></i> Cancelar
+          </a>
+        </div>
+        <div>
+          <button type="button" class="btn btn-outline-primary me-2" id="saveDraft">
+            <i class="fas fa-save me-1"></i> Salvar Rascunho
+          </button>
+          <button type="submit" class="btn btn-primary" name="action" value="next">
+            Próximo: Público-Alvo
+            <i class="fas fa-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Ajuda -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="helpModalLabel">
+          <i class="fas fa-question-circle me-2"></i>Ajuda - Informações Básicas
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6><i class="fas fa-building me-2"></i>Informações da Empresa</h6>
+            <ul class="list-unstyled">
+              <li><strong>Nome da Empresa:</strong> Razão social ou nome fantasia principal</li>
+              <li><strong>CNPJ/CPF:</strong> Documento fiscal da empresa</li>
+              <li><strong>Endereço:</strong> Endereço principal para correspondência</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6><i class="fas fa-user-tie me-2"></i>Responsáveis</h6>
+            <ul class="list-unstyled">
+              <li><strong>Responsável pelo Contrato:</strong> Pessoa que assina contratos</li>
+              <li><strong>Contato Técnico:</strong> Pessoa para questões técnicas/operacionais</li>
+              <li><strong>Faturamento:</strong> Estimativa anual para dimensionar projeto</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // ===== VALIDAÇÃO EM TEMPO REAL =====
+  const form = document.getElementById('step1Form');
+  const requiredFields = ['nome_empresa', 'responsavel_contrato', 'cargo_responsavel', 'contato_responsavel', 'produtos_servicos'];
+  
+  // Validar campos obrigatórios
+  function validateRequiredFields() {
+    let allValid = true;
+    
+    requiredFields.forEach(fieldName => {
+      const field = document.getElementById(`id_${fieldName}`);
+      if (field) {
+        const value = field.value.trim();
+        const isValid = value.length > 0;
+        
+        if (isValid) {
+          field.classList.remove('is-invalid');
+          field.classList.add('is-valid');
+        } else {
+          field.classList.remove('is-valid');
+          field.classList.add('is-invalid');
+          allValid = false;
+        }
+      }
+    });
+    
+    // Habilitar/desabilitar botão de próximo
+    const nextBtn = document.querySelector('button[value="next"]');
+    if (nextBtn) {
+      nextBtn.disabled = !allValid;
+      if (allValid) {
+        nextBtn.classList.remove('btn-outline-primary');
+        nextBtn.classList.add('btn-primary');
+      } else {
+        nextBtn.classList.remove('btn-primary');
+        nextBtn.classList.add('btn-outline-primary');
+      }
+    }
+    
+    return allValid;
+  }
+  
+  // Event listeners para validação
+  requiredFields.forEach(fieldName => {
+    const field = document.getElementById(`id_${fieldName}`);
+    if (field) {
+      field.addEventListener('blur', validateRequiredFields);
+      field.addEventListener('input', function() {
+        // Validação com delay para não ficar muito agressivo
+        clearTimeout(field.validationTimeout);
+        field.validationTimeout = setTimeout(validateRequiredFields, 500);
+      });
+    }
+  });
+  
+  // Validação inicial
+  setTimeout(validateRequiredFields, 100);
+  
+  // ===== SALVAR RASCUNHO =====
+  const saveDraftBtn = document.getElementById('saveDraft');
+  if (saveDraftBtn) {
+    saveDraftBtn.addEventListener('click', function() {
+      const formData = new FormData(form);
+      formData.set('action', 'save_draft');
+      
+      // Feedback visual
+      const originalText = this.innerHTML;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Salvando...';
+      this.disabled = true;
+      
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Mostrar toast de sucesso
+          showToast('Rascunho salvo com sucesso!', 'success');
+          
+          // Se retornou um ID, atualizar a URL para edit
+          if (data.cliente_id && !form.action.includes('editar')) {
+            const newUrl = window.location.href.replace('/novo/', `/${data.cliente_id}/editar/`);
+            window.history.replaceState({}, '', newUrl);
+          }
+        } else {
+          showToast('Erro ao salvar rascunho', 'danger');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        showToast('Erro ao salvar rascunho', 'danger');
+      })
+      .finally(() => {
+        this.innerHTML = originalText;
+        this.disabled = false;
+      });
+    });
+  }
+  
+  // ===== FUNÇÃO PARA MOSTRAR TOAST =====
+  function showToast(message, type = 'info') {
+    // Criar toast dinamicamente
+    const toastHtml = `
+      <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    
+    // Container para toasts (criar se não existir)
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '1056';
+      document.body.appendChild(toastContainer);
+    }
+    
+    // Adicionar toast
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    // Inicializar e mostrar
+    const toastElement = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    // Remover do DOM após esconder
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+  
+  // ===== MÁSCARAS DE ENTRADA =====
+  // Máscara para CNPJ/CPF
+  const cnpjCpfField = document.getElementById('id_cnpj_cpf');
+  if (cnpjCpfField) {
+    cnpjCpfField.addEventListener('input', function() {
+      let value = this.value.replace(/\D/g, '');
+      
+      if (value.length <= 11) {
+        // CPF: 000.000.000-00
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+      } else {
+        // CNPJ: 00.000.000/0000-00
+        value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+        value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+        value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+        value = value.replace(/(\d{4})(\d)/, '$1-$2');
+      }
+      
+      this.value = value;
+    });
+  }
+  
+  // Máscara para telefone
+  const telefoneFields = document.querySelectorAll('input[type="text"]');
+  telefoneFields.forEach(field => {
+    if (field.name.includes('contato') || field.name.includes('telefone')) {
+      field.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        if (value.length > 0) {
+          if (value.length <= 2) {
+            value = `(${value}`;
+          } else if (value.length <= 7) {
+            value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
+          } else {
+            value = `(${value.substring(0, 2)}) ${value.substring(2, 7)}-${value.substring(7, 11)}`;
+          }
+        }
+        this.value = value;
+      });
+    }
+  });
+  
+  // ===== SUBMIT FORM VALIDATION =====
+  form.addEventListener('submit', function(e) {
+    if (!validateRequiredFields()) {
+      e.preventDefault();
+      showToast('Preencha todos os campos obrigatórios antes de continuar', 'warning');
+      
+      // Focar no primeiro campo inválido
+      const firstInvalid = form.querySelector('.is-invalid');
+      if (firstInvalid) {
+        firstInvalid.focus();
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  });
+  
+  // ===== HELP MODAL =====
+  // Adicionar botão de ajuda se não existir
+  if (!document.getElementById('helpBtn')) {
+    const helpBtn = document.createElement('button');
+    helpBtn.id = 'helpBtn';
+    helpBtn.type = 'button';
+    helpBtn.className = 'btn btn-outline-info btn-sm position-fixed';
+    helpBtn.style.cssText = 'bottom: 20px; right: 20px; z-index: 1050; border-radius: 50%; width: 50px; height: 50px;';
+    helpBtn.innerHTML = '<i class="fas fa-question"></i>';
+    helpBtn.setAttribute('data-bs-toggle', 'modal');
+    helpBtn.setAttribute('data-bs-target', '#helpModal');
+    helpBtn.setAttribute('title', 'Ajuda');
+    document.body.appendChild(helpBtn);
+    
+    // Inicializar tooltip
+    new bootstrap.Tooltip(helpBtn);
+  }
+  
+  // ===== LOG PARA DEBUG =====
+  console.log('🚀 Cliente Form Step 1 carregado com sucesso!');
+  console.log('📋 Campos obrigatórios:', requiredFields);
+  console.log('✅ Validação inicial:', validateRequiredFields());
+});
+</script>
+{% endblock %}

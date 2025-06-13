@@ -1,0 +1,494 @@
+{% extends 'gestor/base_gestor.html' %}
+
+{% block title %}Cliente - Recursos e Expectativas | Portal Marketing{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+  <!-- Header com Progress Bar -->
+  <div class="card-header bg-light">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="card-title mb-0">
+        <i class="fas fa-cogs me-2"></i>
+        Recursos e Expectativas - {{ cliente.nome_empresa }}
+      </h5>
+      <div>
+        <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-arrow-left me-1"></i> Voltar
+        </a>
+      </div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress mb-3" style="height: 8px;">
+      <div class="progress-bar bg-primary" role="progressbar" style="width: 83.33%" aria-valuenow="5" aria-valuemin="0" aria-valuemax="6"></div>
+    </div>
+    
+    <!-- Steps Navigation -->
+    <div class="d-flex justify-content-between text-center">
+      <div class="flex-fill">
+        <div class="badge bg-success rounded-pill mb-1">✓</div>
+        <div class="small text-success">Básicas</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-success rounded-pill mb-1">✓</div>
+        <div class="small text-success">Público</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-success rounded-pill mb-1">✓</div>
+        <div class="small text-success">Posicionamento</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-success rounded-pill mb-1">✓</div>
+        <div class="small text-success">Objetivos</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-primary rounded-pill mb-1">5</div>
+        <div class="small fw-bold text-primary">Recursos</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">6</div>
+        <div class="small text-muted">Revisão</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card-body">
+    <form method="post" novalidate id="step5Form">
+      {% csrf_token %}
+      <input type="hidden" name="wizard_step" value="5">
+
+      <!-- Seção: Recursos -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-dollar-sign me-2"></i>
+            Recursos
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="{{ form.orcamento_marketing.id_for_label }}" class="form-label">Orçamento de Marketing (R$)</label>
+              {{ form.orcamento_marketing }}
+              <div class="form-text">Orçamento disponível para campanhas de marketing</div>
+              {% if form.orcamento_marketing.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.orcamento_marketing.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.crm_utilizado.id_for_label }}" class="form-label">CRM Utilizado</label>
+              {{ form.crm_utilizado }}
+              <div class="form-text">Ex: Pipedrive, Salesforce, RD Station</div>
+              {% if form.crm_utilizado.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.crm_utilizado.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.equipe_marketing.id_for_label }}" class="form-label">
+                Equipe de Marketing *
+                {% if form.equipe_marketing.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.equipe_marketing }}
+              <div class="form-text">Quem é a equipe responsável pelo marketing?</div>
+              {% if form.equipe_marketing.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.equipe_marketing.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.recursos_tecnologicos.id_for_label }}" class="form-label">
+                Recursos Tecnológicos *
+                {% if form.recursos_tecnologicos.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.recursos_tecnologicos }}
+              <div class="form-text">Ferramentas e tecnologias disponíveis</div>
+              {% if form.recursos_tecnologicos.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.recursos_tecnologicos.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Configurações Digitais -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-laptop me-2"></i>
+            Configurações Digitais
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="form-check form-switch">
+                {{ form.google_analytics }}
+                <label class="form-check-label" for="{{ form.google_analytics.id_for_label }}">
+                  Google Analytics Configurado?
+                </label>
+              </div>
+              {% if form.google_analytics.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.google_analytics.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-4">
+              <div class="form-check form-switch">
+                {{ form.tag_manager }}
+                <label class="form-check-label" for="{{ form.tag_manager.id_for_label }}">
+                  Google Tag Manager Configurado?
+                </label>
+              </div>
+              {% if form.tag_manager.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.tag_manager.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-4">
+              <div class="form-check form-switch">
+                {{ form.pixel_facebook }}
+                <label class="form-check-label" for="{{ form.pixel_facebook.id_for_label }}">
+                  Pixel do Facebook Instalado?
+                </label>
+              </div>
+              {% if form.pixel_facebook.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.pixel_facebook.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Expectativas -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-star me-2"></i>
+            Expectativas
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.expectativas_agencia.id_for_label }}" class="form-label">
+                Expectativas da Agência *
+                {% if form.expectativas_agencia.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.expectativas_agencia }}
+              <div class="form-text">O que esperam da parceria com a agência?</div>
+              {% if form.expectativas_agencia.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.expectativas_agencia.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.resultados_esperados.id_for_label }}" class="form-label">
+                Resultados Esperados *
+                {% if form.resultados_esperados.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.resultados_esperados }}
+              <div class="form-text">Que resultados esperam da campanha de marketing?</div>
+              {% if form.resultados_esperados.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.resultados_esperados.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Experiência Anterior -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-history me-2"></i>
+            Experiência Anterior
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.experiencia_agencias.id_for_label }}" class="form-label">Experiência com Agências de Tráfego</label>
+              {{ form.experiencia_agencias }}
+              <div class="form-text">Já trabalharam com outras agências? Como foi a experiência?</div>
+              {% if form.experiencia_agencias.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.experiencia_agencias.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.criativos_performaram.id_for_label }}" class="form-label">Criativos que Performaram Melhor</label>
+              {{ form.criativos_performaram }}
+              <div class="form-text">Quais materiais funcionaram bem? Tem prints ou vídeos de referência?</div>
+              {% if form.criativos_performaram.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.criativos_performaram.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.analise_campanhas_anteriores.id_for_label }}" class="form-label">O que Funcionou/Não Funcionou</label>
+              {{ form.analise_campanhas_anteriores }}
+              <div class="form-text">O que acreditam que funcionou ou não funcionou nessas campanhas?</div>
+              {% if form.analise_campanhas_anteriores.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.analise_campanhas_anteriores.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dicas de Orçamento -->
+      <div class="alert alert-warning">
+        <h6><i class="fas fa-info-circle me-2"></i>Dicas sobre orçamento de marketing:</h6>
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Empresas B2C:</strong> 5-10% do faturamento<br>
+            <strong>Empresas B2B:</strong> 2-5% do faturamento<br>
+            <strong>Startups:</strong> 10-20% do faturamento
+          </div>
+          <div class="col-md-6">
+            <strong>Lembre-se:</strong> O orçamento deve considerar:<br>
+            • Mídia paga (Google, Facebook, etc.)<br>
+            • Ferramentas e tecnologia<br>
+            • Criação de conteúdo
+          </div>
+        </div>
+      </div>
+
+      <!-- Botões de Navegação -->
+      <div class="d-flex justify-content-between mt-4">
+        <div>
+          <button type="submit" class="btn btn-outline-secondary" name="action" value="previous">
+            <i class="fas fa-arrow-left me-1"></i> Anterior: Objetivos
+          </button>
+        </div>
+        <div>
+          <button type="button" class="btn btn-outline-primary me-2" id="saveDraft">
+            <i class="fas fa-save me-1"></i> Salvar Rascunho
+          </button>
+          <button type="submit" class="btn btn-primary" name="action" value="next">
+            Próximo: Revisão Final
+            <i class="fas fa-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // ===== VALIDAÇÃO EM TEMPO REAL =====
+  const form = document.getElementById('step5Form');
+  const requiredFields = ['equipe_marketing', 'recursos_tecnologicos', 'expectativas_agencia', 'resultados_esperados'];
+  
+  function validateRequiredFields() {
+    let allValid = true;
+    
+    requiredFields.forEach(fieldName => {
+      const field = document.getElementById(`id_${fieldName}`);
+      if (field) {
+        const value = field.value.trim();
+        const isValid = value.length >= 5;
+        
+        if (isValid) {
+          field.classList.remove('is-invalid');
+          field.classList.add('is-valid');
+        } else {
+          field.classList.remove('is-valid');
+          if (value.length > 0) {
+            field.classList.add('is-invalid');
+          }
+          allValid = false;
+        }
+      }
+    });
+    
+    const nextBtn = document.querySelector('button[value="next"]');
+    if (nextBtn) {
+      nextBtn.disabled = !allValid;
+      if (allValid) {
+        nextBtn.classList.remove('btn-outline-primary');
+        nextBtn.classList.add('btn-primary');
+      } else {
+        nextBtn.classList.remove('btn-primary');
+        nextBtn.classList.add('btn-outline-primary');
+      }
+    }
+    
+    return allValid;
+  }
+  
+  // Event listeners para validação
+  requiredFields.forEach(fieldName => {
+    const field = document.getElementById(`id_${fieldName}`);
+    if (field) {
+      field.addEventListener('blur', validateRequiredFields);
+      field.addEventListener('input', function() {
+        clearTimeout(field.validationTimeout);
+        field.validationTimeout = setTimeout(validateRequiredFields, 500);
+      });
+    }
+  });
+  
+  // ===== MÁSCARA PARA ORÇAMENTO =====
+  const orcamentoField = document.getElementById('id_orcamento_marketing');
+  if (orcamentoField) {
+    orcamentoField.addEventListener('input', function() {
+      let value = this.value.replace(/\D/g, '');
+      if (value) {
+        value = (parseFloat(value) / 100).toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        }).replace('R, '').trim();
+      }
+      this.value = value;
+    });
+  }
+  
+  // ===== SALVAR RASCUNHO =====
+  const saveDraftBtn = document.getElementById('saveDraft');
+  if (saveDraftBtn) {
+    saveDraftBtn.addEventListener('click', function() {
+      const formData = new FormData(form);
+      formData.set('action', 'save_draft');
+      
+      const originalText = this.innerHTML;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Salvando...';
+      this.disabled = true;
+      
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showToast('Rascunho salvo com sucesso!', 'success');
+        } else {
+          showToast('Erro ao salvar rascunho', 'danger');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        showToast('Erro ao salvar rascunho', 'danger');
+      })
+      .finally(() => {
+        this.innerHTML = originalText;
+        this.disabled = false;
+      });
+    });
+  }
+  
+  // ===== FUNÇÃO TOAST =====
+  function showToast(message, type = 'info') {
+    const toastHtml = `
+      <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '1056';
+      document.body.appendChild(toastContainer);
+    }
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+  
+  // ===== SUBMIT VALIDATION =====
+  form.addEventListener('submit', function(e) {
+    const action = e.submitter?.value;
+    
+    if (action === 'next' && !validateRequiredFields()) {
+      e.preventDefault();
+      showToast('Preencha todos os campos obrigatórios antes de continuar', 'warning');
+      
+      const firstInvalid = form.querySelector('.is-invalid');
+      if (firstInvalid) {
+        firstInvalid.focus();
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  });
+  
+  // Inicialização
+  setTimeout(validateRequiredFields, 100);
+  
+  console.log('💰 Cliente Form Step 5 carregado com sucesso!');
+});
+</script>
+{% endblock %}

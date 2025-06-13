@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Portal de Marketing | Margaretas{% endblock %}
+
+{% block navbar_title %}
+<span class="app-title-text">Portal do Gestor</span>
+{% endblock %}
+
+{% block nav_items %}
+
+<!-- Divisor vertical -->
+<li class="nav-item">
+  <span class="nav-link" style="border-left: 2px solid #60a5fa; height: 24px; margin: 8px 15px;"></span>
+</li>
+
+
+
+<!-- Menu de Clientes -->
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Clientes
+  </a>
+  <ul class="dropdown-menu dropdown-menu-dark">
+    <li>
+      <a class="dropdown-item {% if request.resolver_match.url_name == 'cliente_list' %}active{% endif %}" href="{% url 'gestor:cliente_list' %}">
+        <i class="fas fa-list me-2"></i> Todos os Clientes
+      </a>
+    </li>
+
+  </ul>
+</li>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Estilo customizado para o portal de marketing */
+.app-title-text {
+  background: linear-gradient(45deg, #60a5fa, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+}
+
+/* Badge roxo para eventos */
+.badge.bg-purple {
+  background-color: #8b5cf6 !important;
+}
+
+/* Dropdown headers personalizados */
+.dropdown-header {
+  color: #cbd5e1 !important;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Active state para dropdowns */
+.dropdown-item.active {
+  background-color: #3b82f6 !important;
+}
+
+/* Hover state melhorado */
+.dropdown-item:hover {
+  background-color: #475569 !important;
+}
+
+/* Espaçamento dos ícones */
+.dropdown-item i {
+  width: 20px;
+  text-align: center;
+}
+
+/* Badge nos menu items */
+.dropdown-item .badge {
+  font-size: 0.6rem;
+  padding: 0.2em 0.4em;
+}
+
+/* Responsive navbar adjustments */
+@media (max-width: 991px) {
+  .navbar-nav .dropdown-menu {
+    position: static !important;
+    float: none !important;
+    width: auto !important;
+    margin-top: 0 !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .dropdown-item {
+    color: rgba(255, 255, 255, 0.75) !important;
+    padding-left: 2rem !important;
+  }
+  
+  .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+  }
+}
+
+/* Animação suave para dropdowns */
+.dropdown-menu {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Status indicators no menu */
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // ===== AUTO-CLOSE DROPDOWNS ON MOBILE =====
+  if (window.innerWidth <= 991) {
+    const dropdownItems = document.querySelectorAll('.dropdown-item');
+    dropdownItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const navbarToggler = document.querySelector('.navbar-toggler');
+        const navbarCollapse = document.querySelector('.navbar-collapse');
+        
+        if (navbarCollapse.classList.contains('show')) {
+          navbarToggler.click();
+        }
+      });
+    });
+  }
+  
+  // ===== HIGHLIGHT CURRENT PAGE =====
+  const currentPath = window.location.pathname;
+  const navLinks = document.querySelectorAll('.nav-link, .dropdown-item');
+  
+  navLinks.forEach(link => {
+    if (link.getAttribute('href') === currentPath) {
+      link.classList.add('active');
+      
+      // Se for um dropdown item, também marcar o dropdown pai
+      const dropdown = link.closest('.dropdown');
+      if (dropdown) {
+        const dropdownToggle = dropdown.querySelector('.dropdown-toggle');
+        if (dropdownToggle) {
+          dropdownToggle.classList.add('active');
+        }
+      }
+    }
+  });
+  
+  // ===== ADICIONAR TOOLTIPS PARA ITENS PEQUENOS =====
+  const badges = document.querySelectorAll('.dropdown-item .badge');
+  badges.forEach(badge => {
+    if (badge.textContent.trim() === '●') {
+      const item = badge.closest('.dropdown-item');
+      const tooltip = new bootstrap.Tooltip(item, {
+        title: 'Filtro rápido',
+        placement: 'right'
+      });
+    }
+  });
+  
+  // ===== LOG PARA DEBUG =====
+  console.log('🎨 Portal de Marketing navigation loaded successfully!');
+  console.log('📍 Current path:', currentPath);
+});
+</script>
+{% endblock %}

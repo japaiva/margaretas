@@ -1,0 +1,543 @@
+{% extends 'gestor/base_gestor.html' %}
+
+{% block title %}Cliente - Posicionamento e Comunicação | Portal Marketing{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+  <!-- Header com Progress Bar -->
+  <div class="card-header bg-light">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="card-title mb-0">
+        <i class="fas fa-bullseye me-2"></i>
+        Posicionamento e Comunicação - {{ cliente.nome_empresa }}
+      </h5>
+      <div>
+        <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-arrow-left me-1"></i> Voltar
+        </a>
+      </div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress mb-3" style="height: 8px;">
+      <div class="progress-bar bg-primary" role="progressbar" style="width: 50%" aria-valuenow="3" aria-valuemin="0" aria-valuemax="6"></div>
+    </div>
+    
+    <!-- Steps Navigation -->
+    <div class="d-flex justify-content-between text-center">
+      <div class="flex-fill">
+        <div class="badge bg-success rounded-pill mb-1">✓</div>
+        <div class="small text-success">Básicas</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-success rounded-pill mb-1">✓</div>
+        <div class="small text-success">Público</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-primary rounded-pill mb-1">3</div>
+        <div class="small fw-bold text-primary">Posicionamento</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">4</div>
+        <div class="small text-muted">Objetivos</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">5</div>
+        <div class="small text-muted">Recursos</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">6</div>
+        <div class="small text-muted">Revisão</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card-body">
+    <form method="post" novalidate id="step3Form">
+      {% csrf_token %}
+      <input type="hidden" name="wizard_step" value="3">
+
+      <!-- Seção: Posicionamento da Marca -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-compass me-2"></i>
+            Posicionamento da Marca
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.posicionamento_atual.id_for_label }}" class="form-label">
+                Posicionamento Atual *
+                {% if form.posicionamento_atual.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.posicionamento_atual }}
+              <div class="form-text">Como a marca está posicionada hoje no mercado?</div>
+              {% if form.posicionamento_atual.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.posicionamento_atual.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.objetivos_posicionamento.id_for_label }}" class="form-label">
+                Objetivos de Posicionamento *
+                {% if form.objetivos_posicionamento.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.objetivos_posicionamento }}
+              <div class="form-text">Como querem ser percebidos pelo público?</div>
+              {% if form.objetivos_posicionamento.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.objetivos_posicionamento.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.diferenciacao.id_for_label }}" class="form-label">Diferenciação vs Concorrência</label>
+              {{ form.diferenciacao }}
+              <div class="form-text">O que os diferencia dos concorrentes?</div>
+              {% if form.diferenciacao.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.diferenciacao.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Comunicação -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-comments me-2"></i>
+            Comunicação
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="{{ form.tom_voz.id_for_label }}" class="form-label">
+                Tom e Voz da Marca *
+                {% if form.tom_voz.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.tom_voz }}
+              <div class="form-text">Formal, descontraído, técnico, amigável...</div>
+              {% if form.tom_voz.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.tom_voz.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.mensagem_principal.id_for_label }}" class="form-label">
+                Mensagem Principal *
+                {% if form.mensagem_principal.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.mensagem_principal }}
+              <div class="form-text">Qual mensagem principal querem transmitir?</div>
+              {% if form.mensagem_principal.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.mensagem_principal.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.manifesto_marca.id_for_label }}" class="form-label">Manifesto da Marca</label>
+              {{ form.manifesto_marca }}
+              <div class="form-text">Manifesto ou propósito da marca</div>
+              {% if form.manifesto_marca.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.manifesto_marca.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.canais_comunicacao.id_for_label }}" class="form-label">
+                Canais de Comunicação e Perfis *
+                {% if form.canais_comunicacao.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.canais_comunicacao }}
+              <div class="form-text">Redes sociais, site, email... (inclua links/perfis)</div>
+              {% if form.canais_comunicacao.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.canais_comunicacao.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <div class="form-check form-switch mt-3">
+                {{ form.manual_marca }}
+                <label class="form-check-label" for="{{ form.manual_marca.id_for_label }}">
+                  Possui Manual de Marca?
+                </label>
+              </div>
+              {% if form.manual_marca.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.manual_marca.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Arquétipos da Marca -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-masks-theater me-2"></i>
+            Arquétipos da Marca
+          </h6>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-3">Se sua marca fosse uma pessoa, ela seria mais: <span class="fw-bold">(selecione até 3 opções)</span></p>
+          
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="card h-100 arquetipo-card" data-value="mestre_sabio">
+                <div class="card-body text-center">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="arquetipos" value="mestre_sabio" id="arquetipo_mestre">
+                    <label class="form-check-label w-100" for="arquetipo_mestre">
+                      <i class="fas fa-graduation-cap fa-2x text-primary mb-2 d-block"></i>
+                      <strong>Um Mestre Sábio</strong>
+                      <div class="small text-muted mt-1">Conhecimento, ensino, orientação</div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="card h-100 arquetipo-card" data-value="rebelde_provocador">
+                <div class="card-body text-center">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="arquetipos" value="rebelde_provocador" id="arquetipo_rebelde">
+                    <label class="form-check-label w-100" for="arquetipo_rebelde">
+                      <i class="fas fa-fist-raised fa-2x text-danger mb-2 d-block"></i>
+                      <strong>Um Rebelde Provocador</strong>
+                      <div class="small text-muted mt-1">Revolução, mudança, quebra de padrões</div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="card h-100 arquetipo-card" data-value="cuidador_acolhedor">
+                <div class="card-body text-center">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="arquetipos" value="cuidador_acolhedor" id="arquetipo_cuidador">
+                    <label class="form-check-label w-100" for="arquetipo_cuidador">
+                      <i class="fas fa-heart fa-2x text-success mb-2 d-block"></i>
+                      <strong>Um Cuidador Acolhedor</strong>
+                      <div class="small text-muted mt-1">Cuidado, proteção, serviço</div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="card h-100 arquetipo-card" data-value="heroi_determinado">
+                <div class="card-body text-center">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="arquetipos" value="heroi_determinado" id="arquetipo_heroi">
+                    <label class="form-check-label w-100" for="arquetipo_heroi">
+                      <i class="fas fa-shield-alt fa-2x text-warning mb-2 d-block"></i>
+                      <strong>Um Herói Determinado</strong>
+                      <div class="small text-muted mt-1">Coragem, determinação, superação</div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="card h-100 arquetipo-card" data-value="artista_criativo">
+                <div class="card-body text-center">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="arquetipos" value="artista_criativo" id="arquetipo_artista">
+                    <label class="form-check-label w-100" for="arquetipo_artista">
+                      <i class="fas fa-palette fa-2x text-info mb-2 d-block"></i>
+                      <strong>Um Artista Criativo</strong>
+                      <div class="small text-muted mt-1">Criatividade, expressão, inovação</div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="card h-100 arquetipo-card" data-value="explorador_curioso">
+                <div class="card-body text-center">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="arquetipos" value="explorador_curioso" id="arquetipo_explorador">
+                    <label class="form-check-label w-100" for="arquetipo_explorador">
+                      <i class="fas fa-compass fa-2x text-secondary mb-2 d-block"></i>
+                      <strong>Um Explorador Curioso</strong>
+                      <div class="small text-muted mt-1">Aventura, descoberta, liberdade</div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div id="arquetipos-selected" class="mt-3"></div>
+        </div>
+      </div>
+
+      <!-- Botões de Navegação -->
+      <div class="d-flex justify-content-between mt-4">
+        <div>
+          <button type="submit" class="btn btn-outline-secondary" name="action" value="previous">
+            <i class="fas fa-arrow-left me-1"></i> Anterior: Público-Alvo
+          </button>
+        </div>
+        <div>
+          <button type="button" class="btn btn-outline-primary me-2" id="saveDraft">
+            <i class="fas fa-save me-1"></i> Salvar Rascunho
+          </button>
+          <button type="submit" class="btn btn-primary" name="action" value="next">
+            Próximo: Objetivos
+            <i class="fas fa-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // ===== VALIDAÇÃO EM TEMPO REAL =====
+  const form = document.getElementById('step3Form');
+  const requiredFields = ['posicionamento_atual', 'objetivos_posicionamento', 'tom_voz', 'mensagem_principal', 'canais_comunicacao'];
+  
+  function validateRequiredFields() {
+    let allValid = true;
+    
+    requiredFields.forEach(fieldName => {
+      const field = document.getElementById(`id_${fieldName}`);
+      if (field) {
+        const value = field.value.trim();
+        const isValid = value.length >= 5;
+        
+        if (isValid) {
+          field.classList.remove('is-invalid');
+          field.classList.add('is-valid');
+        } else {
+          field.classList.remove('is-valid');
+          if (value.length > 0) {
+            field.classList.add('is-invalid');
+          }
+          allValid = false;
+        }
+      }
+    });
+    
+    const nextBtn = document.querySelector('button[value="next"]');
+    if (nextBtn) {
+      nextBtn.disabled = !allValid;
+      if (allValid) {
+        nextBtn.classList.remove('btn-outline-primary');
+        nextBtn.classList.add('btn-primary');
+      } else {
+        nextBtn.classList.remove('btn-primary');
+        nextBtn.classList.add('btn-outline-primary');
+      }
+    }
+    
+    return allValid;
+  }
+  
+  // Event listeners para validação
+  requiredFields.forEach(fieldName => {
+    const field = document.getElementById(`id_${fieldName}`);
+    if (field) {
+      field.addEventListener('blur', validateRequiredFields);
+      field.addEventListener('input', function() {
+        clearTimeout(field.validationTimeout);
+        field.validationTimeout = setTimeout(validateRequiredFields, 500);
+      });
+    }
+  });
+  
+  // ===== GERENCIAR ARQUÉTIPOS =====
+  const arquetipoCheckboxes = document.querySelectorAll('input[name="arquetipos"]');
+  const arquetiposSelected = document.getElementById('arquetipos-selected');
+  const maxArquetipos = 3;
+  
+  function updateArquetipos() {
+    const selected = Array.from(arquetipoCheckboxes).filter(cb => cb.checked);
+    
+    // Limitar seleção
+    if (selected.length > maxArquetipos) {
+      const lastChecked = selected[selected.length - 1];
+      lastChecked.checked = false;
+      selected.pop();
+      
+      showToast(`Máximo ${maxArquetipos} arquétipos permitidos`, 'warning');
+    }
+    
+    // Atualizar visual dos cards
+    arquetipoCheckboxes.forEach(checkbox => {
+      const card = checkbox.closest('.arquetipo-card');
+      if (checkbox.checked) {
+        card.classList.add('border-primary', 'bg-light');
+      } else {
+        card.classList.remove('border-primary', 'bg-light');
+      }
+      
+      // Desabilitar outros se já tem 3 selecionados
+      checkbox.disabled = !checkbox.checked && selected.length >= maxArquetipos;
+    });
+    
+    // Mostrar selecionados
+    if (selected.length > 0) {
+      const labels = selected.map(cb => {
+        const label = cb.nextElementSibling.querySelector('strong').textContent;
+        return `<span class="badge bg-primary me-1">${label}</span>`;
+      }).join('');
+      
+      arquetiposSelected.innerHTML = `
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>Arquétipos Selecionados (${selected.length}/${maxArquetipos}):</strong><br>
+          ${labels}
+        </div>
+      `;
+    } else {
+      arquetiposSelected.innerHTML = '';
+    }
+  }
+  
+  arquetipoCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateArquetipos);
+  });
+  
+  // ===== SALVAR RASCUNHO =====
+  const saveDraftBtn = document.getElementById('saveDraft');
+  if (saveDraftBtn) {
+    saveDraftBtn.addEventListener('click', function() {
+      const formData = new FormData(form);
+      formData.set('action', 'save_draft');
+      
+      const originalText = this.innerHTML;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Salvando...';
+      this.disabled = true;
+      
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showToast('Rascunho salvo com sucesso!', 'success');
+        } else {
+          showToast('Erro ao salvar rascunho', 'danger');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        showToast('Erro ao salvar rascunho', 'danger');
+      })
+      .finally(() => {
+        this.innerHTML = originalText;
+        this.disabled = false;
+      });
+    });
+  }
+  
+  // ===== FUNÇÃO TOAST =====
+  function showToast(message, type = 'info') {
+    const toastHtml = `
+      <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '1056';
+      document.body.appendChild(toastContainer);
+    }
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+  
+  // ===== SUBMIT VALIDATION =====
+  form.addEventListener('submit', function(e) {
+    const action = e.submitter?.value;
+    
+    if (action === 'next' && !validateRequiredFields()) {
+      e.preventDefault();
+      showToast('Preencha todos os campos obrigatórios antes de continuar', 'warning');
+      
+      const firstInvalid = form.querySelector('.is-invalid');
+      if (firstInvalid) {
+        firstInvalid.focus();
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  });
+  
+  // Inicialização
+  setTimeout(() => {
+    validateRequiredFields();
+    updateArquetipos();
+  }, 100);
+  
+  console.log('🎨 Cliente Form Step 3 carregado com sucesso!');
+});
+</script>
+{% endblock %}
