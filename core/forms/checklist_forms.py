@@ -1,4 +1,4 @@
-# core/forms/checklist_forms.py - NOVO ARQUIVO
+# core/forms/checklist_forms.py - SEM PLACEHOLDERS
 
 from django import forms
 from core.models import ClienteChecklist
@@ -13,9 +13,9 @@ class ClienteChecklistForm(forms.ModelForm):
         widgets = {
             # === REFERÊNCIAS E MATERIAIS ===
             'banco_imagens_videos': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'responsavel_conteudo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome do responsável'}),
+            'responsavel_conteudo': forms.TextInput(attrs={'class': 'form-control'}),
             'acesso_criativos': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'pasta_materiais': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://drive.google.com/...'}),
+            'pasta_materiais': forms.URLInput(attrs={'class': 'form-control'}),
             
             # === PERMISSÕES E ACESSOS META ===
             'liberacao_meta': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -30,11 +30,7 @@ class ClienteChecklistForm(forms.ModelForm):
             'search_console': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             
             # === OBSERVAÇÕES ===
-            'observacoes': forms.Textarea(attrs={
-                'class': 'form-control', 
-                'rows': 4, 
-                'placeholder': 'Observações sobre o checklist, pendências, etc.'
-            }),
+            'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
         
         labels = {

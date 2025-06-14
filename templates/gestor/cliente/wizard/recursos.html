@@ -284,23 +284,6 @@
         </div>
       </div>
 
-      <div class="alert alert-warning">
-        <h6><i class="fas fa-info-circle me-2"></i>Dicas sobre orçamento de marketing:</h6>
-        <div class="row">
-          <div class="col-md-6">
-            <strong>Empresas B2C:</strong> 5-10% do faturamento<br>
-            <strong>Empresas B2B:</strong> 2-5% do faturamento<br>
-            <strong>Startups:</strong> 10-20% do faturamento
-          </div>
-          <div class="col-md-6">
-            <strong>Lembre-se:</strong> O orçamento deve considerar:<br>
-            • Mídia paga (Google, Facebook, etc.)<br>
-            • Ferramentas e tecnologia<br>
-            • Criação de conteúdo
-          </div>
-        </div>
-      </div>
-
       <!-- Seção de Confirmação -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-success text-white">
@@ -310,17 +293,6 @@
           </h6>
         </div>
         <div class="card-body">
-          <div class="alert alert-info">
-            <h6><i class="fas fa-trophy me-2"></i>Parabéns! Você está finalizando o briefing estratégico!</h6>
-            <p class="mb-2">Ao finalizar, você poderá:</p>
-            <ul class="mb-0">
-              <li><strong>Preencher o checklist operacional</strong> - Verificar acessos e configurações</li>
-              <li><strong>Criar campanhas de marketing</strong> - Usar todas as informações coletadas</li>
-              <li><strong>Acompanhar resultados</strong> - Dashboard com métricas personalizadas</li>
-              <li><strong>Editar informações</strong> - Atualizar dados a qualquer momento</li>
-            </ul>
-          </div>
-          
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="confirmarDados" required>
             <label class="form-check-label" for="confirmarDados">
@@ -348,53 +320,12 @@
           <button type="button" class="btn btn-outline-primary me-2" id="saveDraft">
             <i class="fas fa-save me-1"></i> Salvar Rascunho
           </button>
-          <button type="submit" class="btn btn-success btn-lg" name="action" value="finish" id="finishBtn">
+          <button type="button" class="btn btn-success btn-lg" id="finishBtn">
             <i class="fas fa-check-circle me-1"></i> Finalizar Briefing
           </button>
         </div>
       </div>
     </form>
-  </div>
-</div>
-
-<!-- Modal de Confirmação -->
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmModalLabel">
-          <i class="fas fa-check-circle me-2"></i>Finalizar Briefing Estratégico
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="text-center mb-3">
-          <i class="fas fa-trophy fa-3x text-success mb-3"></i>
-          <h6>Briefing de <strong>{{ cliente.nome_empresa }}</strong></h6>
-        </div>
-        
-        <p>Você está prestes a finalizar o briefing estratégico completo!</p>
-        
-        <div class="alert alert-success">
-          <h6><i class="fas fa-check me-2"></i>Próximos passos:</h6>
-          <ol class="mb-0">
-            <li>Checklist operacional</li>
-            <li>Criação de campanhas</li>
-            <li>Monitoramento de resultados</li>
-          </ol>
-        </div>
-        
-        <p class="mb-0"><strong>Confirma a finalização do briefing?</strong></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="fas fa-times me-1"></i> Cancelar
-        </button>
-        <button type="button" class="btn btn-success" id="confirmFinish">
-          <i class="fas fa-check-circle me-1"></i> Sim, Finalizar
-        </button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -409,7 +340,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const requiredFields = ['equipe_marketing', 'recursos_tecnologicos', 'expectativas_agencia', 'resultados_esperados'];
   const confirmarCheckbox = document.getElementById('confirmarDados');
   const finishBtn = document.getElementById('finishBtn');
-  const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
   
   // ===== VALIDAÇÃO EM TEMPO REAL =====
   function validateRequiredFields() {
@@ -494,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // ===== FINALIZAR BRIEFING =====
+  // ===== FINALIZAR BRIEFING (DIRETO) =====
   finishBtn.addEventListener('click', function(e) {
     e.preventDefault();
     
@@ -513,14 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
-    confirmModal.show();
-  });
-  
-  // Confirmar finalização
-  document.getElementById('confirmFinish').addEventListener('click', function() {
-    confirmModal.hide();
-    
-    // Submeter formulário via AJAX
+    // Finalizar diretamente sem modal
     const formData = new FormData(form);
     formData.set('action', 'finish');
     
@@ -643,7 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
   form.addEventListener('submit', function(e) {
     const action = e.submitter?.value;
     
-    // Para ação de finalizar, sempre prevenir e usar o modal
+    // Para ação de finalizar, sempre prevenir e usar o handler personalizado
     if (action === 'finish') {
       e.preventDefault();
       finishBtn.click();

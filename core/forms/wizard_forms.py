@@ -1,4 +1,4 @@
-# core/forms/wizard_forms.py - VERSÃO REFATORADA (4 STEPS)
+# core/forms/wizard_forms.py - VERSÃO REFATORADA (4 STEPS) - SEM PLACEHOLDERS
 
 from django import forms
 from core.models import Cliente
@@ -17,13 +17,13 @@ class ClienteWizardStep1Form(forms.ModelForm):
         ]
         
         widgets = {
-            'descricao_publico': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Descreva quem é o público-alvo: idade, gênero, interesses, comportamentos, localização...'}),
-            'necessidades_desejos': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'O que o público busca? Quais são suas dores, necessidades e desejos principais?'}),
-            'comportamento_compra': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Como o público costuma comprar? Onde pesquisa? Quais são os critérios de decisão?'}),
-            'consideracoes_demograficas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Onde está localizado? Onde quer atingir com seu produto/serviço?'}),
-            'niveis_consciencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Nível de conhecimento sobre o produto/serviço (Eugene Schwartz)'}),
-            'objecoes_comuns': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Quais objeções seu público geralmente apresenta antes da compra? (ex: preço, tempo, confiança)'}),
-            'tentativas_passadas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Que soluções o público já tentou no passado e não deram certo?'}),
+            'descricao_publico': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'necessidades_desejos': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'comportamento_compra': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'consideracoes_demograficas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'niveis_consciencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'objecoes_comuns': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'tentativas_passadas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
     def clean_descricao_publico(self):
@@ -73,13 +73,13 @@ class ClienteWizardStep2Form(forms.ModelForm):
         ]
         
         widgets = {
-            'posicionamento_atual': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Como a marca está posicionada hoje no mercado?'}),
-            'objetivos_posicionamento': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Como querem ser percebidos pelo público?'}),
-            'diferenciacao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'O que os diferencia dos concorrentes?'}),
-            'tom_voz': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Formal, descontraído, técnico, amigável...'}),
-            'mensagem_principal': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Qual mensagem principal querem transmitir?'}),
-            'manifesto_marca': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Manifesto ou propósito da marca (opcional)'}),
-            'canais_comunicacao': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Redes sociais, site, email... (inclua links/perfis)'}),
+            'posicionamento_atual': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'objetivos_posicionamento': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'diferenciacao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'tom_voz': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'mensagem_principal': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'manifesto_marca': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'canais_comunicacao': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'manual_marca': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
@@ -132,11 +132,11 @@ class ClienteWizardStep3Form(forms.ModelForm):
         ]
         
         widgets = {
-            'objetivos_marketing': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Quais são os objetivos de marketing da empresa?'}),
-            'metas_especificas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Metas mensuráveis e específicas que a empresa deseja alcançar'}),
-            'kpis_empresa': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Principais indicadores de performance (ex: vendas, leads, tráfego)'}),
-            'analise_concorrencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Liste os principais concorrentes diretos e indiretos'}),
-            'pontos_fortes_fracos_concorrencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'O que eles fazem bem? Onde eles falham?'}),
+            'objetivos_marketing': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'metas_especificas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'kpis_empresa': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'analise_concorrencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'pontos_fortes_fracos_concorrencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
 
     def clean_objetivos_marketing(self):
@@ -177,10 +177,7 @@ class ClienteWizardStep4Form(forms.ModelForm):
     orcamento_marketing = forms.CharField(
         label='Orçamento de Marketing (R$)',
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ex: 50.000,00'
-        }),
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
         help_text='Digite o valor em qualquer formato'
     )
     
@@ -196,20 +193,20 @@ class ClienteWizardStep4Form(forms.ModelForm):
         ]
         
         widgets = {
-            'equipe_marketing': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Quem é a equipe responsável pelo marketing?'}),
-            'recursos_tecnologicos': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ferramentas e tecnologias disponíveis'}),
-            'expectativas_agencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'O que esperam da parceria com a agência?'}),
-            'resultados_esperados': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Que resultados esperam da campanha de marketing?'}),
-            'experiencia_agencias': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Já trabalharam com outras agências? Como foi a experiência?'}),
-            'criativos_performaram': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Quais materiais funcionaram bem? Tem prints ou vídeos de referência?'}),
-            'analise_campanhas_anteriores': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'O que acreditam que funcionou ou não funcionou nessas campanhas?'}),
+            'equipe_marketing': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'recursos_tecnologicos': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'expectativas_agencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'resultados_esperados': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'experiencia_agencias': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'criativos_performaram': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'analise_campanhas_anteriores': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'google_analytics': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'tag_manager': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'pixel_facebook': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'crm_utilizado': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Pipedrive, Salesforce, RD Station'}),
-            'principais_desafios': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Principais desafios do mercado atual'}),
-            'sazonalidades': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Períodos de alta/baixa, datas importantes'}),
-            'certificacoes_diferenciais': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Certificações, prêmios, diferenciais técnicos'}),
+            'crm_utilizado': forms.TextInput(attrs={'class': 'form-control'}),
+            'principais_desafios': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'sazonalidades': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'certificacoes_diferenciais': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
     def clean_orcamento_marketing(self):
@@ -278,7 +275,6 @@ class ClienteWizardConfirmForm(forms.Form):
         label="Observações Finais",
         widget=forms.Textarea(attrs={
             'class': 'form-control',
-            'rows': 4,
-            'placeholder': 'Alguma observação adicional ou informação importante sobre o briefing?'
+            'rows': 4
         })
     )

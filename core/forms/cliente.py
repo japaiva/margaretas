@@ -1,4 +1,4 @@
-# core/forms/cliente.py - VERSÃO CORRIGIDA E SIMPLIFICADA
+# core/forms/cliente.py
 
 from django import forms
 from core.models import Cliente, Campanha  # ❌ REMOVIDO: ProdutoServicoEvento
@@ -6,17 +6,23 @@ from core.utils.view_utils import DateAwareModelForm
 from decimal import Decimal, InvalidOperation
 import re
 
-
 class ClienteForm(DateAwareModelForm):
-    """Formulário SIMPLES para cadastro rápido de clientes - APENAS DADOS BÁSICOS"""
     
     # Campos monetários como CharField com validação customizada
     faturamento_anual = forms.CharField(
         label='Faturamento Anual Estimado (R$)',
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ex: 1.000.000,00'
+            'class': 'form-control'
+        }),
+        help_text='Digite o valor em qualquer formato'
+    )
+    
+    orcamento_marketing = forms.CharField(
+        label='Orçamento de Marketing (R$)',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control'
         }),
         help_text='Digite o valor em qualquer formato'
     )
@@ -36,7 +42,7 @@ class ClienteForm(DateAwareModelForm):
             'pessoa_contato_tecnico', 'contato_tecnico',
             
             # === INFORMAÇÕES FINANCEIRAS ===
-            'faturamento_anual',
+            'faturamento_anual', 'orcamento_marketing',
             
             # === INFORMAÇÕES DIGITAIS BÁSICAS ===
             'website_principal', 'outros_dominios', 'crm_utilizado',
@@ -50,64 +56,53 @@ class ClienteForm(DateAwareModelForm):
             # === CAMPO OBRIGATÓRIO ===
             'nome_empresa': forms.TextInput(attrs={
                 'class': 'form-control', 
-                'placeholder': 'Nome da empresa ou marca',
                 'required': True
             }),
             
             # === INFORMAÇÕES BÁSICAS ===
             'cnpj_cpf': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': '00.000.000/0000-00 ou 000.000.000-00'
+                'class': 'form-control'
             }),
             'endereco_completo': forms.Textarea(attrs={
                 'class': 'form-control', 
-                'rows': 3, 
-                'placeholder': 'Endereço completo da empresa'
+                'rows': 3
             }),
             
             # === HISTÓRICO DA EMPRESA ===
             'historia_empresa': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 4, 
-                'placeholder': 'Conte a história da empresa, marcos importantes...'
+                'rows': 4
             }),
             'missao': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 3, 
-                'placeholder': 'Qual é a missão da empresa?'
+                'rows': 3
             }),
             'visao': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 3, 
-                'placeholder': 'Qual é a visão da empresa?'
+                'rows': 3
             }),
             'valores': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 3, 
-                'placeholder': 'Quais são os valores da empresa?'
+                'rows': 3
             }),
             'lista_produtos_servicos': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 4, 
-                'placeholder': 'Descreva os produtos ou serviços oferecidos'
+                'rows': 4
             }),
             
             # === RESPONSÁVEIS ===
             'responsavel_contrato': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nome completo'
+                'class': 'form-control'
             }),
             'cargo_responsavel': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Cargo na empresa'
+                'class': 'form-control'
             }),
             'contato_responsavel': forms.TextInput(attrs={
                 'class': 'form-control', 
                 'placeholder': 'Email ou telefone'
             }),
             'pessoa_contato_tecnico': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nome completo'
+                'class': 'form-control'
             }),
             'contato_tecnico': forms.TextInput(attrs={
                 'class': 'form-control', 
@@ -116,17 +111,14 @@ class ClienteForm(DateAwareModelForm):
             
             # === DIGITAL ===
             'website_principal': forms.URLInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'https://exemplo.com.br'
+                'class': 'form-control'
             }),
             'outros_dominios': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 2, 
-                'placeholder': 'Outros sites ou domínios da empresa'
+                'rows': 2
             }),
             'crm_utilizado': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ex: Pipedrive, Salesforce, RD Station'
+                'class': 'form-control'
             }),
             
             # === CONTEXTO ADICIONAL ===
@@ -172,6 +164,7 @@ class ClienteForm(DateAwareModelForm):
             'pessoa_contato_tecnico': 'Pessoa de Contato Técnico',
             'contato_tecnico': 'Contato da Pessoa Técnica',
             'faturamento_anual': 'Faturamento Anual Estimado (R$)',
+            'orcamento_marketing': 'Orçamento de Marketing (R$)',
             'website_principal': 'Website Principal',
             'outros_dominios': 'Outros Domínios',
             'crm_utilizado': 'CRM Utilizado',
@@ -192,6 +185,19 @@ class ClienteForm(DateAwareModelForm):
             raise forms.ValidationError(
                 'Por favor, insira um valor numérico válido para o faturamento anual. '
                 'Exemplos: 1000000, 1000000.50, 1.000.000,50'
+            )
+        
+        return converted
+
+    def clean_orcamento_marketing(self):
+        """Limpa e converte o campo de orçamento de marketing"""
+        value = self.cleaned_data.get('orcamento_marketing')
+        converted = self._convert_money_value(value)
+        
+        if converted is None and value and value.strip():
+            raise forms.ValidationError(
+                'Por favor, insira um valor numérico válido para o orçamento de marketing. '
+                'Exemplos: 50000, 50000.50, 50.000,00'
             )
         
         return converted
