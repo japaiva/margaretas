@@ -6,16 +6,12 @@
 <div class="card shadow">
   <div class="card-header bg-light d-flex justify-content-between align-items-center">
     <h5 class="card-title mb-0">
-      Clientes
+      Clientes de Marketing
     </h5>
     <div>
-      {# Existing "Novo Cliente" button - Renomeado para "Rápido" #}
+      {# CADASTRO RÁPIDO - Form Simples #}
       <a href="{% url 'gestor:cliente_create' %}" class="btn btn-primary btn-sm me-1">
-        <i class="fas fa-plus me-1"></i> Novo Cliente (Rápido)
-      </a>
-      {# ADICIONE ESTE BOTÃO PARA O WIZARD DE CRIAÇÃO #}
-      <a href="{% url 'gestor:cliente_wizard_new' %}" class="btn btn-info btn-sm me-1" title="Adicionar novo cliente via Wizard">
-        <i class="fas fa-magic me-1"></i> Novo Cliente (Wizard)
+        <i class="fas fa-plus me-1"></i> Cadastro Rápido
       </a>
       <a href="{% url 'gestor:dashboard' %}" class="btn btn-outline-secondary btn-sm">
         <i class="fas fa-arrow-left me-1"></i> Voltar
@@ -45,16 +41,16 @@
       </div>
       <div class="col-md-3">
         <div class="d-flex align-items-center justify-content-center">
-          <i class="fas fa-pause-circle fa-2x text-warning me-2"></i>
+          <i class="fas fa-clipboard-check fa-2x text-info me-2"></i>
           <div>
-            <div class="h5 mb-0">{{ stats.inativos }}</div>
-            <small class="text-muted">Inativos</small>
+            <div class="h5 mb-0">{{ stats.briefing_completo }}</div>
+            <small class="text-muted">Briefing Completo</small>
           </div>
         </div>
       </div>
       <div class="col-md-3">
         <div class="d-flex align-items-center justify-content-center">
-          <i class="fas fa-bullhorn fa-2x text-info me-2"></i>
+          <i class="fas fa-bullhorn fa-2x text-warning me-2"></i>
           <div>
             <div class="h5 mb-0">{{ stats.com_campanhas }}</div>
             <small class="text-muted">Com Campanhas</small>
@@ -75,10 +71,19 @@
         </select>
       </div>
       
-      <div class="col-md-6">
+      <div class="col-md-2">
+        <label for="briefing" class="form-label small">Briefing</label>
+        <select name="briefing" id="briefing" class="form-select form-select-sm">
+          <option value="" {% if not briefing_filter %}selected{% endif %}>Todos</option>
+          <option value="completo" {% if briefing_filter == 'completo' %}selected{% endif %}>Completo</option>
+          <option value="incompleto" {% if briefing_filter == 'incompleto' %}selected{% endif %}>Incompleto</option>
+        </select>
+      </div>
+      
+      <div class="col-md-4">
         <label for="search" class="form-label small">Buscar</label>
         <input type="text" name="search" id="search" class="form-control form-control-sm" 
-               placeholder="Nome da empresa, responsável, email..." value="{{ search|default:'' }}">
+               placeholder="Nome da empresa, responsável..." value="{{ search|default:'' }}">
       </div>
       
       <div class="col-md-2">
@@ -101,12 +106,11 @@
         <thead class="table-light">
           <tr>
             <th style="width: 250px;">Empresa</th>
-            <th style="width: 200px;">Responsável</th>
-            <th style="width: 150px;">Contato</th>
+            <th style="width: 150px;">Responsável</th>
+            <th style="width: 120px;" class="text-center">Briefing</th>
             <th style="width: 100px;" class="text-center">Status</th>
-            <th style="width: 80px;" class="text-center">Produtos</th>
             <th style="width: 80px;" class="text-center">Campanhas</th>
-            <th style="width: 120px;" class="text-end">Ações</th>
+            <th style="width: 150px;" class="text-end">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -124,21 +128,26 @@
                 {% endif %}
               </td>
               <td>
-                <div>{{ cliente.responsavel_contrato }}</div>
+                <div>{{ cliente.responsavel_contrato|default:"-" }}</div>
                 {% if cliente.cargo_responsavel %}
                   <small class="text-muted">{{ cliente.cargo_responsavel }}</small>
                 {% endif %}
               </td>
-              <td>
-                {% if cliente.contato_responsavel %}
-                  <div class="small">
-                    <i class="fas fa-envelope me-1"></i>{{ cliente.contato_responsavel }}
+              <td class="text-center">
+                {% if cliente.briefing_completo %}
+                  <span class="badge bg-success">
+                    <i class="fas fa-check-circle me-1"></i>Completo
+                  </span>
+                  <div class="small text-muted">{{ cliente.data_briefing|date:"d/m/Y" }}</div>
+                {% else %}
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-warning" role="progressbar" 
+                         style="width: {{ cliente.briefing_progress }}%" 
+                         aria-valuenow="{{ cliente.briefing_progress }}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                    </div>
                   </div>
-                {% endif %}
-                {% if cliente.pessoa_contato_tecnico %}
-                  <div class="small text-muted">
-                    <i class="fas fa-user-cog me-1"></i>{{ cliente.pessoa_contato_tecnico }}
-                  </div>
+                  <small class="text-muted">{{ cliente.briefing_progress|floatformat:0 }}%</small>
                 {% endif %}
               </td>
               <td class="text-center">
@@ -147,9 +156,6 @@
                 {% else %}
                   <span class="badge bg-warning">Inativo</span>
                 {% endif %}
-              </td>
-              <td class="text-center">
-                <span class="badge bg-info">{{ cliente.produtos_servicos.count }}</span>
               </td>
               <td class="text-center">
                 <span class="badge bg-primary">{{ cliente.campanhas.count }}</span>
@@ -161,11 +167,21 @@
                      title="Detalhes">
                     <i class="fas fa-eye"></i>
                   </a>
+                  
+                  {% if not cliente.briefing_completo %}
+                    <a href="{% url 'gestor:cliente_briefing' cliente.pk %}" 
+                       class="btn btn-sm btn-outline-info" 
+                       title="Completar Briefing">
+                      <i class="fas fa-clipboard-list"></i>
+                    </a>
+                  {% endif %}
+                  
                   <a href="{% url 'gestor:cliente_update' cliente.pk %}" 
                      class="btn btn-sm btn-outline-primary" 
                      title="Editar">
                     <i class="fas fa-edit"></i>
                   </a>
+                  
                   <button type="button" 
                           class="btn btn-sm btn-outline-danger" 
                           title="Excluir"
@@ -177,8 +193,8 @@
             </tr>
           {% empty %}
             <tr>
-              <td colspan="7" class="text-center py-4 text-muted">
-                {% if search or status_filter %}
+              <td colspan="6" class="text-center py-4 text-muted">
+                {% if search or status_filter or briefing_filter %}
                   <i class="fas fa-search fa-2x mb-2 text-muted"></i>
                   <div>Nenhum cliente encontrado com os filtros aplicados.</div>
                   <a href="{% url 'gestor:cliente_list' %}" class="btn btn-sm btn-outline-primary mt-2">
@@ -187,12 +203,8 @@
                 {% else %}
                   <i class="fas fa-users fa-2x mb-2 text-muted"></i>
                   <div>Nenhum cliente cadastrado.</div>
-                  {# Adicionar botões para criar cliente rápido ou com wizard aqui #}
-                  <a href="{% url 'gestor:cliente_create' %}" class="btn btn-sm btn-primary mt-2 me-1">
-                    <i class="fas fa-plus me-1"></i> Cadastrar primeiro cliente (Rápido)
-                  </a>
-                  <a href="{% url 'gestor:cliente_wizard_new' %}" class="btn btn-sm btn-info mt-2" title="Cadastrar primeiro cliente via Wizard">
-                    <i class="fas fa-magic me-1"></i> Cadastrar primeiro cliente (Wizard)
+                  <a href="{% url 'gestor:cliente_create' %}" class="btn btn-sm btn-primary mt-2">
+                    <i class="fas fa-plus me-1"></i> Cadastrar primeiro cliente
                   </a>
                 {% endif %}
               </td>
@@ -207,9 +219,6 @@
       <div class="col-md-6">
         <small class="text-muted">
           Mostrando {{ page_obj.start_index }} a {{ page_obj.end_index }} de {{ page_obj.paginator.count }} cliente{{ page_obj.paginator.count|pluralize }}
-          {% if search or status_filter %}
-            (filtrado{{ page_obj.paginator.count|pluralize }})
-          {% endif %}
         </small>
       </div>
     </div>
@@ -222,12 +231,12 @@
       <ul class="pagination pagination-sm justify-content-center mb-0">
         {% if page_obj.has_previous %}
           <li class="page-item">
-            <a class="page-link" href="?page=1{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}" aria-label="Primeiro">
+            <a class="page-link" href="?page=1{% if status_filter %}&status={{ status_filter }}{% endif %}{% if briefing_filter %}&briefing={{ briefing_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}" aria-label="Primeiro">
               <span aria-hidden="true">&laquo;&laquo;</span>
             </a>
           </li>
           <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}" aria-label="Anterior">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if briefing_filter %}&briefing={{ briefing_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}" aria-label="Anterior">
               <span aria-hidden="true">&laquo;</span>
             </a>
           </li>
@@ -245,19 +254,19 @@
             <li class="page-item active"><span class="page-link">{{ i }}</span></li>
           {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
             <li class="page-item">
-              <a class="page-link" href="?page={{ i }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ i }}</a>
+              <a class="page-link" href="?page={{ i }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if briefing_filter %}&briefing={{ briefing_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ i }}</a>
             </li>
           {% endif %}
         {% endfor %}
         
         {% if page_obj.has_next %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}" aria-label="Próximo">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if briefing_filter %}&briefing={{ briefing_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}" aria-label="Próximo">
               <span aria-hidden="true">&raquo;</span>
             </a>
           </li>
           <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}" aria-label="Último">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if briefing_filter %}&briefing={{ briefing_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}" aria-label="Último">
               <span aria-hidden="true">&raquo;&raquo;</span>
             </a>
           </li>
@@ -291,7 +300,7 @@
         </div>
         <p>Você tem certeza que deseja excluir o cliente <strong id="clienteNome"></strong>?</p>
         <p class="mb-0 small text-muted">
-          Todos os produtos/serviços e campanhas relacionadas também serão removidos.
+          Todas as campanhas relacionadas também serão removidas.
         </p>
       </div>
       <div class="modal-footer">
@@ -314,7 +323,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   
   // ===== AUTO-SUBMIT DOS FILTROS =====
-  const filtros = document.querySelectorAll('#status');
+  const filtros = document.querySelectorAll('#status, #briefing');
   filtros.forEach(filtro => {
     filtro.addEventListener('change', function() {
       this.form.submit();
@@ -343,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
   
-  console.log('📋 Lista de clientes carregada com sucesso!');
+  console.log('📋 Lista de clientes refatorada carregada com sucesso!');
 });
 </script>
 {% endblock %}

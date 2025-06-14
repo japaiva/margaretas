@@ -12,21 +12,105 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from formtools.wizard.views import SessionWizardView
 
-from core.models import Cliente, ProdutoServicoEvento, Campanha
-from core.forms import ClienteForm, ProdutoServicoEventoForm, CampanhaForm
+# ===== IMPORTS ATUALIZADOS =====
+from core.models import Cliente, ClienteChecklist, Campanha
+from core.forms import ClienteForm, CampanhaForm, ClienteChecklistForm
 
 from core.forms.wizard_forms import (
     ClienteWizardStep1Form, 
     ClienteWizardStep2Form, 
     ClienteWizardStep3Form,
-    ClienteWizardStep4Form, 
-    ClienteWizardStep5Form, 
-    ClienteWizardStep6Form
+    ClienteWizardStep4Form,
+    ClienteWizardConfirmForm
 )
 
-
 import logging
-logger = logging.getLogger(__name__) # Garanta que esta linha esteja no topo do arquivo
+logger = logging.getLogger(__name__)
+
+
+@login_required
+def cliente_checklist(request, pk):
+    """
+    View para visualizar checklist operacional de um cliente
+    """
+    cliente = get_object_or_404(Cliente, pk=pk)
+    
+    # Buscar ou criar checklist
+    checklist, created = ClienteChecklist.objects.get_or_create(
+        cliente=cliente,
+        defaults={'updated_by': request.user}
+    )
+    
+    context = {
+        'cliente': cliente,
+        'checklist': checklist,
+        'is_new': created,
+        'completude': checklist.completude_percentual,
+        'page_title': f'Checklist Operacional - {cliente.nome_empresa}',
+        'breadcrumbs': [
+            {'url': 'gestor:cliente_list', 'title': 'Clientes'},
+            {'url': 'gestor:cliente_detail', 'title': cliente.nome_empresa, 'args': [cliente.pk]},
+            {'title': 'Checklist'},
+        ]
+    }
+    
+    return render(request, 'gestor/cliente/checklist_detail.html', context)
+
+@login_required
+def cliente_checklist_update(request, pk):
+    """
+    View para editar checklist operacional de um cliente
+    """
+    cliente = get_object_or_404(Cliente, pk=pk)
+    
+    # Buscar ou criar checklist
+    checklist, created = ClienteChecklist.objects.get_or_create(
+        cliente=cliente,
+        defaults={'updated_by': request.user}
+    )
+    
+    if request.method == 'POST':
+        form = ClienteChecklistForm(request.POST, instance=checklist)
+        if form.is_valid():
+            checklist = form.save(commit=False)
+            checklist.updated_by = request.user
+            checklist.save()
+            
+            messages.success(
+                request, 
+                f'✅ Checklist do cliente {cliente.nome_empresa} atualizado com sucesso!'
+            )
+            return redirect('gestor:cliente_checklist', pk=cliente.pk)
+        else:
+            messages.error(request, '❌ Erro ao salvar checklist. Verifique os campos.')
+    else:
+        form = ClienteChecklistForm(instance=checklist)
+    
+    # Calcular progresso por seção se o método existir
+    progress_data = {}
+    if hasattr(form, 'field_sections'):
+        for section_name in form.field_sections.keys():
+            if hasattr(form, 'get_section_progress'):
+                progress_data[section_name] = form.get_section_progress(section_name)
+    
+    context = {
+        'cliente': cliente,
+        'checklist': checklist,
+        'form': form,
+        'is_edit': True,
+        'is_new': created,
+        'progress_data': progress_data,
+        'page_title': f'Editar Checklist - {cliente.nome_empresa}',
+        'breadcrumbs': [
+            {'url': 'gestor:cliente_list', 'title': 'Clientes'},
+            {'url': 'gestor:cliente_detail', 'title': cliente.nome_empresa, 'args': [cliente.pk]},
+            {'url': 'gestor:cliente_checklist', 'title': 'Checklist', 'args': [cliente.pk]},
+            {'title': 'Editar'},
+        ]
+    }
+    
+    return render(request, 'gestor/cliente/checklist_form.html', context)
+
 
 
 # ===== VIEWS DE CLIENTE =====
@@ -38,6 +122,7 @@ def cliente_list(request):
     # Busca
     search = request.GET.get('search', '')
     status_filter = request.GET.get('status', '')
+    briefing_filter = request.GET.get('briefing', '')
     
     # Query base
     clientes = Cliente.objects.select_related().order_by('-created_at')
@@ -46,11 +131,18 @@ def cliente_list(request):
     if search:
         clientes = clientes.filter(
             Q(nome_empresa__icontains=search) |
-            Q(responsavel_contrato__icontains=search)
+            Q(responsavel_contrato__icontains=search) |
+            Q(cnpj_cpf__icontains=search)
         )
     
     if status_filter:
         clientes = clientes.filter(ativo=(status_filter == 'ativo'))
+    
+    if briefing_filter:
+        if briefing_filter == 'completo':
+            clientes = clientes.filter(briefing_completo=True)
+        elif briefing_filter == 'incompleto':
+            clientes = clientes.filter(briefing_completo=False)
     
     # Paginação
     paginator = Paginator(clientes, 20)
@@ -62,6 +154,8 @@ def cliente_list(request):
         'total': Cliente.objects.count(),
         'ativos': Cliente.objects.filter(ativo=True).count(),
         'inativos': Cliente.objects.filter(ativo=False).count(),
+        'briefing_completo': Cliente.objects.filter(briefing_completo=True).count(),
+        'briefing_incompleto': Cliente.objects.filter(briefing_completo=False).count(),
         'com_campanhas': Cliente.objects.annotate(
             num_campanhas=Count('campanhas')
         ).filter(num_campanhas__gt=0).count(),
@@ -72,6 +166,7 @@ def cliente_list(request):
         'clientes': page_obj,
         'search': search,
         'status_filter': status_filter,
+        'briefing_filter': briefing_filter,
         'stats': stats,
         'title': 'Clientes de Marketing'
     }
@@ -85,24 +180,28 @@ def cliente_detail(request, pk):
     
     cliente = get_object_or_404(Cliente, pk=pk)
     
-    # Buscar produtos/serviços relacionados - CORRIGIDO
-    produtos_servicos = cliente.produtos_servicos_relacionados.filter(ativo=True).order_by('-created_at')
-    
     # Buscar campanhas relacionadas
     campanhas = cliente.campanhas.order_by('-created_at')[:10]  # Últimas 10
     
+    # Buscar ou criar checklist
+    checklist, created = ClienteChecklist.objects.get_or_create(cliente=cliente)
+    if created:
+        logger.info(f'Checklist criado automaticamente para cliente {cliente.nome_empresa}')
+    
     # Estatísticas do cliente
     stats = {
-        'produtos_servicos': produtos_servicos.count(),
         'campanhas_total': cliente.campanhas.count(),
         'campanhas_ativas': cliente.campanhas.filter(status='ativa').count(),
+        'campanhas_planejamento': cliente.campanhas.filter(status='planejamento').count(),
         'campanhas_finalizadas': cliente.campanhas.filter(status='finalizada').count(),
+        'briefing_progress': cliente.briefing_progress,
+        'checklist_progress': checklist.completude_percentual,
     }
     
     context = {
         'cliente': cliente,
-        'produtos_servicos': produtos_servicos,
         'campanhas': campanhas,
+        'checklist': checklist,
         'stats': stats,
         'title': f'Cliente: {cliente.nome_empresa}'
     }
@@ -113,38 +212,42 @@ def cliente_detail(request, pk):
 def cliente_create(request):
     """Criar novo cliente"""
     
-    logger.debug('cliente_create: Requisição recebida. Método: %s', request.method) # NOVO LOG
-    cliente = None  # valor default, usado no render inicial (GET)
+    logger.debug('cliente_create: Requisição recebida. Método: %s', request.method)
+    cliente = None
 
     if request.method == 'POST':
-        logger.debug('cliente_create: Método POST. Tentando processar formulário.') # NOVO LOG
+        logger.debug('cliente_create: Método POST. Tentando processar formulário.')
         form = ClienteForm(request.POST, request.FILES)
         
         if form.is_valid():
-            logger.debug('cliente_create: Formulário é VÁLIDO. Salvando cliente...') # NOVO LOG
+            logger.debug('cliente_create: Formulário é VÁLIDO. Salvando cliente...')
             cliente = form.save(commit=False)
             cliente.created_by = request.user
             cliente.save()
 
+            # Criar checklist automaticamente
+            ClienteChecklist.objects.create(cliente=cliente)
+
             messages.success(request, f'Cliente "{cliente.nome_empresa}" criado com sucesso!')
             logger.info(f'Cliente {cliente.nome_empresa} criado por {request.user.username}')
 
-            action = request.POST.get('action') # Captura a ação do botão
-            logger.debug('cliente_create: Ação do botão: %s', action) # NOVO LOG
+            action = request.POST.get('action')
+            logger.debug('cliente_create: Ação do botão: %s', action)
 
             if action == 'save_and_wizard':
-                logger.debug('cliente_create: Redirecionando para wizard step 1.') # NOVO LOG
-                return redirect('gestor:cliente_wizard_step1', pk=cliente.pk) # Note a mudança para 'gestor:cliente_wizard_step1' para seguir a convenção de namespaces
+                logger.debug('cliente_create: Redirecionando para wizard.')
+                return redirect('gestor:cliente_wizard', pk=cliente.pk)
+            elif action == 'save_and_checklist':
+                logger.debug('cliente_create: Redirecionando para checklist.')
+                return redirect('gestor:cliente_checklist', pk=cliente.pk)
             else:
-                logger.debug('cliente_create: Redirecionando para detalhes do cliente.') # NOVO LOG
+                logger.debug('cliente_create: Redirecionando para detalhes do cliente.')
                 return redirect('gestor:cliente_detail', pk=cliente.pk)
         else:
-            logger.warning('cliente_create: Formulário é INVÁLIDO. Erros: %s', form.errors.as_json()) # NOVO LOG
-            # Aqui, o formulário inválido é renderizado novamente com os erros.
-            # O Django automaticamente injeta os erros de campo no contexto.
-            messages.error(request, 'Por favor, corrija os erros no formulário.') # Adicione uma mensagem de erro geral
-    else: # GET request
-        logger.debug('cliente_create: Método GET. Renderizando formulário vazio.') # NOVO LOG
+            logger.warning('cliente_create: Formulário é INVÁLIDO. Erros: %s', form.errors.as_json())
+            messages.error(request, 'Por favor, corrija os erros no formulário.')
+    else:
+        logger.debug('cliente_create: Método GET. Renderizando formulário vazio.')
         form = ClienteForm()
 
     context = {
@@ -154,7 +257,7 @@ def cliente_create(request):
         'subtitle': 'Cadastro de Cliente de Marketing',
         'action': 'Criar'
     }
-    logger.debug('cliente_create: Renderizando gestor/cliente/form.html com contexto.') # NOVO LOG
+    logger.debug('cliente_create: Renderizando gestor/cliente/form.html com contexto.')
     return render(request, 'gestor/cliente/form.html', context)
 
 @login_required
@@ -163,24 +266,24 @@ def cliente_update(request, pk):
     
     cliente = get_object_or_404(Cliente, pk=pk)
     
-    logger.debug('cliente_update: Requisição recebida. Método: %s. Cliente PK: %s', request.method, pk) # NOVO LOG
+    logger.debug('cliente_update: Requisição recebida. Método: %s. Cliente PK: %s', request.method, pk)
     
     if request.method == 'POST':
-        logger.debug('cliente_update: Método POST. Tentando processar formulário.') # NOVO LOG
+        logger.debug('cliente_update: Método POST. Tentando processar formulário.')
         form = ClienteForm(request.POST, request.FILES, instance=cliente)
         if form.is_valid():
-            logger.debug('cliente_update: Formulário é VÁLIDO. Atualizando cliente...') # NOVO LOG
+            logger.debug('cliente_update: Formulário é VÁLIDO. Atualizando cliente...')
             cliente = form.save()
             
             messages.success(request, f'Cliente "{cliente.nome_empresa}" atualizado com sucesso!')
             logger.info(f'Cliente {cliente.nome_empresa} atualizado por {request.user.username}')
-            logger.debug('cliente_update: Redirecionando para detalhes do cliente.') # NOVO LOG
+            logger.debug('cliente_update: Redirecionando para detalhes do cliente.')
             return redirect('gestor:cliente_detail', pk=cliente.pk)
         else:
-            logger.warning('cliente_update: Formulário é INVÁLIDO. Erros: %s', form.errors.as_json()) # NOVO LOG
+            logger.warning('cliente_update: Formulário é INVÁLIDO. Erros: %s', form.errors.as_json())
             messages.error(request, 'Por favor, corrija os erros no formulário.')
     else:
-        logger.debug('cliente_update: Método GET. Renderizando formulário existente.') # NOVO LOG
+        logger.debug('cliente_update: Método GET. Renderizando formulário existente.')
         form = ClienteForm(instance=cliente)
     
     context = {
@@ -190,7 +293,7 @@ def cliente_update(request, pk):
         'subtitle': 'Edição de Cliente',
         'action': 'Atualizar'
     }
-    logger.debug('cliente_update: Renderizando gestor/cliente/form.html com contexto.') # NOVO LOG
+    logger.debug('cliente_update: Renderizando gestor/cliente/form.html com contexto.')
     return render(request, 'gestor/cliente/form.html', context)
 
 
@@ -222,152 +325,45 @@ def cliente_delete(request, pk):
     return redirect('gestor:cliente_list')
 
 
-# ===== VIEWS DE PRODUTO/SERVIÇO/EVENTO =====
+# ===== VIEWS DE CHECKLIST =====
 
 @login_required
-def produto_servico_list(request, cliente_id):
-    """Lista produtos/serviços de um cliente"""
+def cliente_checklist(request, pk):
+    """Gerenciar checklist operacional do cliente"""
     
-    cliente = get_object_or_404(Cliente, pk=cliente_id)
-    
-    # Filtros
-    tipo_filter = request.GET.get('tipo', '')
-    search = request.GET.get('search', '')
-    
-    # Query - CORRIGIDO
-    produtos = cliente.produtos_servicos_relacionados.filter(ativo=True).order_by('-created_at')
-    
-    if tipo_filter:
-        produtos = produtos.filter(tipo=tipo_filter)
-    
-    if search:
-        produtos = produtos.filter(
-            Q(nome__icontains=search) |
-            Q(descricao__icontains=search)
-        )
-    
-    # Estatísticas por tipo
-    stats = {
-        'total': produtos.count(),
-        'produtos': produtos.filter(tipo='produto').count(),
-        'servicos': produtos.filter(tipo='servico').count(),
-        'cursos': produtos.filter(tipo='curso').count(),
-        'eventos': produtos.filter(tipo='evento').count(),
-    }
-    
-    context = {
-        'cliente': cliente,
-        'produtos': produtos,
-        'tipo_filter': tipo_filter,
-        'search': search,
-        'stats': stats,
-        'title': f'Produtos/Serviços - {cliente.nome_empresa}'
-    }
-    
-    return render(request, 'gestor/produto_servico/list.html', context)
-
-
-@login_required
-def produto_servico_create(request, cliente_id):
-    """Criar novo produto/serviço para cliente"""
-    
-    cliente = get_object_or_404(Cliente, pk=cliente_id)
+    cliente = get_object_or_404(Cliente, pk=pk)
+    checklist, created = ClienteChecklist.objects.get_or_create(cliente=cliente)
     
     if request.method == 'POST':
-        form = ProdutoServicoEventoForm(request.POST)
+        form = ClienteChecklistForm(request.POST, instance=checklist)
         if form.is_valid():
-            produto = form.save(commit=False)
-            produto.cliente = cliente
-            produto.save()
+            checklist = form.save(commit=False)
+            checklist.updated_by = request.user
+            checklist.save()
             
-            messages.success(request, f'{produto.get_tipo_display()} "{produto.nome}" criado com sucesso!')
+            messages.success(request, 'Checklist operacional atualizado com sucesso!')
+            logger.info(f'Checklist do cliente {cliente.nome_empresa} atualizado por {request.user.username}')
             
-            return redirect('gestor:produto_servico_detail', pk=produto.pk)
+            # Redirecionar baseado na ação
+            action = request.POST.get('action', 'stay')
+            if action == 'save_and_return':
+                return redirect('gestor:cliente_detail', pk=cliente.pk)
+            # Senão, permanece na mesma página para continuar editando
+            
+        else:
+            messages.error(request, 'Por favor, corrija os erros no formulário.')
     else:
-        form = ProdutoServicoEventoForm()
+        form = ClienteChecklistForm(instance=checklist)
     
     context = {
         'form': form,
         'cliente': cliente,
-        'title': f'Novo Produto/Serviço - {cliente.nome_empresa}',
-        'action': 'Criar'
+        'checklist': checklist,
+        'title': f'Checklist Operacional - {cliente.nome_empresa}',
+        'progress': checklist.completude_percentual,
     }
     
-    return render(request, 'gestor/produto_servico/form.html', context)
-
-
-@login_required
-def produto_servico_detail(request, pk):
-    """Detalhes de produto/serviço"""
-    
-    produto = get_object_or_404(ProdutoServicoEvento, pk=pk)
-    
-    # Campanhas relacionadas
-    campanhas = produto.campanhas.order_by('-created_at')
-    
-    context = {
-        'produto': produto,
-        'cliente': produto.cliente,
-        'campanhas': campanhas,
-        'title': f'{produto.get_tipo_display()}: {produto.nome}'
-    }
-    
-    return render(request, 'gestor/produto_servico/detail.html', context)
-
-
-@login_required
-def produto_servico_update(request, pk):
-    """Editar produto/serviço"""
-    
-    produto = get_object_or_404(ProdutoServicoEvento, pk=pk)
-    
-    if request.method == 'POST':
-        form = ProdutoServicoEventoForm(request.POST, instance=produto)
-        if form.is_valid():
-            produto = form.save()
-            
-            messages.success(request, f'{produto.get_tipo_display()} "{produto.nome}" atualizado com sucesso!')
-            
-            return redirect('gestor:produto_servico_detail', pk=produto.pk)
-    else:
-        form = ProdutoServicoEventoForm(instance=produto)
-    
-    context = {
-        'form': form,
-        'produto': produto,
-        'cliente': produto.cliente,
-        'title': f'Editar: {produto.nome}',
-        'action': 'Atualizar'
-    }
-    
-    return render(request, 'gestor/produto_servico/form.html', context)
-
-
-@login_required
-@require_http_methods(["POST"])
-def produto_servico_delete(request, pk):
-    """Excluir produto/serviço"""
-    
-    produto = get_object_or_404(ProdutoServicoEvento, pk=pk)
-    cliente_id = produto.cliente.pk
-    
-    # Verificar campanhas ativas
-    campanhas_ativas = produto.campanhas.filter(status__in=['ativa', 'aprovacao'])
-    
-    if campanhas_ativas.exists():
-        messages.error(
-            request,
-            f'Não é possível excluir "{produto.nome}" pois possui campanhas ativas.'
-        )
-        return redirect('gestor:produto_servico_detail', pk=pk)
-    
-    nome = produto.nome
-    produto.ativo = False
-    produto.save()
-    
-    messages.success(request, f'"{nome}" desativado com sucesso!')
-    
-    return redirect('gestor:produto_servico_list', cliente_id=cliente_id)
+    return render(request, 'gestor/cliente/checklist.html', context)
 
 
 # ===== VIEWS DE CAMPANHA =====
@@ -382,7 +378,7 @@ def campanha_list(request):
     search = request.GET.get('search', '')
     
     # Query
-    campanhas = Campanha.objects.select_related('cliente', 'produto_servico').order_by('-created_at')
+    campanhas = Campanha.objects.select_related('cliente').order_by('-created_at')
     
     if status_filter:
         campanhas = campanhas.filter(status=status_filter)
@@ -408,6 +404,7 @@ def campanha_list(request):
         'ativas': Campanha.objects.filter(status='ativa').count(),
         'planejamento': Campanha.objects.filter(status='planejamento').count(),
         'finalizadas': Campanha.objects.filter(status='finalizada').count(),
+        'pausadas': Campanha.objects.filter(status='pausada').count(),
     }
     
     # Lista de clientes para filtro
@@ -436,7 +433,6 @@ def campanha_detail(request, pk):
     context = {
         'campanha': campanha,
         'cliente': campanha.cliente,
-        'produto_servico': campanha.produto_servico,
         'title': f'Campanha: {campanha.nome_campanha}'
     }
     
@@ -459,6 +455,16 @@ def campanha_create(request):
             return redirect('gestor:campanha_detail', pk=campanha.pk)
     else:
         form = CampanhaForm()
+        
+        # Pré-selecionar cliente se vier da URL
+        cliente_id = request.GET.get('cliente_id')
+        if cliente_id:
+            try:
+                cliente = Cliente.objects.get(pk=cliente_id, ativo=True)
+                form.fields['cliente'].initial = cliente
+                form.fields['cliente'].widget.attrs['readonly'] = True
+            except Cliente.DoesNotExist:
+                pass
     
     context = {
         'form': form,
@@ -510,11 +516,42 @@ def campanha_delete(request, pk):
         return redirect('gestor:campanha_detail', pk=pk)
     
     nome = campanha.nome_campanha
+    cliente_id = campanha.cliente.pk
     campanha.delete()
     
     messages.success(request, f'Campanha "{nome}" excluída com sucesso!')
     
     return redirect('gestor:campanha_list')
+
+
+@login_required
+@require_http_methods(["POST"])
+def campanha_change_status(request, pk):
+    """Alterar status da campanha via AJAX"""
+    
+    campanha = get_object_or_404(Campanha, pk=pk)
+    new_status = request.POST.get('status')
+    
+    if new_status in dict(Campanha.STATUS_CHOICES):
+        old_status = campanha.get_status_display()
+        campanha.status = new_status
+        campanha.save()
+        
+        messages.success(
+            request, 
+            f'Status da campanha "{campanha.nome_campanha}" alterado de {old_status} para {campanha.get_status_display()}'
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Status alterado com sucesso',
+            'new_status': campanha.get_status_display()
+        })
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Status inválido'
+    })
 
 
 # ===== VIEWS DE API =====
@@ -529,38 +566,59 @@ def cliente_api_search(request):
         return JsonResponse({'results': []})
     
     clientes = Cliente.objects.filter(
-        Q(nome_empresa__icontains=term),
+        Q(nome_empresa__icontains=term) |
+        Q(responsavel_contrato__icontains=term),
         ativo=True
     )[:10]
     
     results = []
     for cliente in clientes:
         results.append({
-            'id': cliente.pk,
+            'id': str(cliente.pk),  # UUID precisa ser string
             'text': cliente.nome_empresa,
-            'responsavel': cliente.responsavel_contrato or ''
+            'responsavel': cliente.responsavel_contrato or '',
+            'briefing_completo': cliente.briefing_completo,
+            'briefing_progress': cliente.briefing_progress
         })
     
     return JsonResponse({'results': results})
 
 
 @login_required
-def produto_servico_api_by_cliente(request, cliente_id):
-    """API para buscar produtos/serviços de um cliente"""
+def cliente_api_stats(request, pk):
+    """API para estatísticas de um cliente"""
     
-    produtos = ProdutoServicoEvento.objects.filter(
-        cliente_id=cliente_id,
-        ativo=True
-    ).order_by('nome')
+    cliente = get_object_or_404(Cliente, pk=pk)
+    checklist, _ = ClienteChecklist.objects.get_or_create(cliente=cliente)
     
-    results = []
-    for produto in produtos:
-        results.append({
-            'id': produto.pk,
-            'nome': produto.nome,
-            'tipo': produto.get_tipo_display(),
-            'preco': float(produto.preco) if produto.preco else None
-        })
+    stats = {
+        'nome_empresa': cliente.nome_empresa,
+        'ativo': cliente.ativo,
+        'briefing_completo': cliente.briefing_completo,
+        'briefing_progress': cliente.briefing_progress,
+        'checklist_progress': checklist.completude_percentual,
+        'campanhas': {
+            'total': cliente.campanhas.count(),
+            'ativas': cliente.campanhas.filter(status='ativa').count(),
+            'planejamento': cliente.campanhas.filter(status='planejamento').count(),
+            'finalizadas': cliente.campanhas.filter(status='finalizada').count(),
+        },
+        'created_at': cliente.created_at.isoformat(),
+        'updated_at': cliente.updated_at.isoformat(),
+    }
     
-    return JsonResponse({'results': results})
+    return JsonResponse(stats)
 
+
+# ===== WIZARD PARA BRIEFING DETALHADO =====
+# Nota: A implementação completa do wizard está em gestor/views/cliente_wizard.py
+
+@login_required 
+def cliente_wizard(request, pk):
+    """Wrapper para o wizard de briefing estratégico"""
+    # Redireciona para a view wizard separada
+    from .cliente_wizard import ClienteWizardView
+    
+    cliente = get_object_or_404(Cliente, pk=pk)
+    wizard_view = ClienteWizardView.as_view()
+    return wizard_view(request, pk=pk)

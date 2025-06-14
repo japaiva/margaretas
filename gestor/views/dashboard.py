@@ -3,7 +3,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
-from core.models import Cliente, ProdutoServicoEvento, Campanha
+from core.models import Cliente,  Campanha
 from core.models.base import Usuario
 
 @login_required
@@ -18,7 +18,6 @@ def dashboard(request):
     """View para o dashboard do gestor"""
     context = {
         'total_clientes': Cliente.objects.filter(ativo=True).count(),
-        'total_produtos_servicos': ProdutoServicoEvento.objects.filter(ativo=True).count(),
         'total_campanhas': Campanha.objects.count(),
         'campanhas_ativas': Campanha.objects.filter(status='ativa').count(),
         'total_usuarios': Usuario.objects.filter(is_active=True).count(),

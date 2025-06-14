@@ -18,14 +18,10 @@
     </div>
     
     <div class="progress mb-3" style="height: 8px;">
-      <div class="progress-bar bg-primary" role="progressbar" style="width: 83.33%" aria-valuenow="5" aria-valuemin="0" aria-valuemax="6"></div>
+      <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="4" aria-valuemin="0" aria-valuemax="4"></div>
     </div>
-    
+
     <div class="d-flex justify-content-between text-center">
-      <div class="flex-fill">
-        <div class="badge bg-success rounded-pill mb-1">✓</div>
-        <div class="small text-success">Básicas</div>
-      </div>
       <div class="flex-fill">
         <div class="badge bg-success rounded-pill mb-1">✓</div>
         <div class="small text-success">Público</div>
@@ -39,20 +35,29 @@
         <div class="small text-success">Objetivos</div>
       </div>
       <div class="flex-fill">
-        <div class="badge bg-primary rounded-pill mb-1">5</div>
-        <div class="small fw-bold text-primary">Recursos</div>
-      </div>
-      <div class="flex-fill">
-        <div class="badge bg-light text-muted rounded-pill mb-1">6</div>
-        <div class="small text-muted">Revisão</div>
+        <div class="badge bg-success rounded-pill mb-1">4</div>
+        <div class="small fw-bold text-success">Recursos</div>
       </div>
     </div>
   </div>
   
   <div class="card-body">
-    <form method="post" novalidate id="step5Form">
+    <form method="post" novalidate id="recursosForm">
       {% csrf_token %}
-      {{ wizard.management_form }} {# <-- ADICIONE ESTA LINHA AQUI #}
+      {{ wizard.management_form }}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger alert-dismissible fade show">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Erros de Validação:</strong>
+          <ul class="mb-0 mt-2">
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endif %}
 
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">
@@ -296,6 +301,43 @@
         </div>
       </div>
 
+      <!-- Seção de Confirmação -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-check-circle me-2"></i>
+            Confirmação Final
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <h6><i class="fas fa-trophy me-2"></i>Parabéns! Você está finalizando o briefing estratégico!</h6>
+            <p class="mb-2">Ao finalizar, você poderá:</p>
+            <ul class="mb-0">
+              <li><strong>Preencher o checklist operacional</strong> - Verificar acessos e configurações</li>
+              <li><strong>Criar campanhas de marketing</strong> - Usar todas as informações coletadas</li>
+              <li><strong>Acompanhar resultados</strong> - Dashboard com métricas personalizadas</li>
+              <li><strong>Editar informações</strong> - Atualizar dados a qualquer momento</li>
+            </ul>
+          </div>
+          
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="confirmarDados" required>
+            <label class="form-check-label" for="confirmarDados">
+              <strong>Confirmo que todas as informações do briefing estratégico estão corretas</strong>
+            </label>
+          </div>
+          
+          <div class="mt-3">
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i>
+              Você poderá editar essas informações posteriormente, se necessário.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botões de Navegação -->
       <div class="d-flex justify-content-between mt-4">
         <div>
           <button type="submit" class="btn btn-outline-secondary" name="action" value="previous">
@@ -306,13 +348,53 @@
           <button type="button" class="btn btn-outline-primary me-2" id="saveDraft">
             <i class="fas fa-save me-1"></i> Salvar Rascunho
           </button>
-          <button type="submit" class="btn btn-primary" name="action" value="next">
-            Próximo: Revisão Final
-            <i class="fas fa-arrow-right ms-1"></i>
+          <button type="submit" class="btn btn-success btn-lg" name="action" value="finish" id="finishBtn">
+            <i class="fas fa-check-circle me-1"></i> Finalizar Briefing
           </button>
         </div>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">
+          <i class="fas fa-check-circle me-2"></i>Finalizar Briefing Estratégico
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center mb-3">
+          <i class="fas fa-trophy fa-3x text-success mb-3"></i>
+          <h6>Briefing de <strong>{{ cliente.nome_empresa }}</strong></h6>
+        </div>
+        
+        <p>Você está prestes a finalizar o briefing estratégico completo!</p>
+        
+        <div class="alert alert-success">
+          <h6><i class="fas fa-check me-2"></i>Próximos passos:</h6>
+          <ol class="mb-0">
+            <li>Checklist operacional</li>
+            <li>Criação de campanhas</li>
+            <li>Monitoramento de resultados</li>
+          </ol>
+        </div>
+        
+        <p class="mb-0"><strong>Confirma a finalização do briefing?</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i> Cancelar
+        </button>
+        <button type="button" class="btn btn-success" id="confirmFinish">
+          <i class="fas fa-check-circle me-1"></i> Sim, Finalizar
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -322,13 +404,18 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   
-  // ===== VALIDAÇÃO EM TEMPO REAL =====
-  const form = document.getElementById('step5Form');
+  // ===== ELEMENTOS =====
+  const form = document.getElementById('recursosForm');
   const requiredFields = ['equipe_marketing', 'recursos_tecnologicos', 'expectativas_agencia', 'resultados_esperados'];
+  const confirmarCheckbox = document.getElementById('confirmarDados');
+  const finishBtn = document.getElementById('finishBtn');
+  const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
   
+  // ===== VALIDAÇÃO EM TEMPO REAL =====
   function validateRequiredFields() {
     let allValid = true;
     
+    // Validar campos obrigatórios
     requiredFields.forEach(fieldName => {
       const field = document.getElementById(`id_${fieldName}`);
       if (field) {
@@ -348,16 +435,20 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
     
-    const nextBtn = document.querySelector('button[value="next"]');
-    if (nextBtn) {
-      nextBtn.disabled = !allValid;
-      if (allValid) {
-        nextBtn.classList.remove('btn-outline-primary');
-        nextBtn.classList.add('btn-primary');
-      } else {
-        nextBtn.classList.remove('btn-primary');
-        nextBtn.classList.add('btn-outline-primary');
-      }
+    // Validar checkbox de confirmação
+    const checkboxValid = confirmarCheckbox.checked;
+    if (!checkboxValid) {
+      allValid = false;
+    }
+    
+    // Habilitar/desabilitar botão de finalizar
+    finishBtn.disabled = !allValid;
+    if (allValid) {
+      finishBtn.classList.remove('btn-outline-success');
+      finishBtn.classList.add('btn-success');
+    } else {
+      finishBtn.classList.remove('btn-success');
+      finishBtn.classList.add('btn-outline-success');
     }
     
     return allValid;
@@ -375,6 +466,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
+  // Event listener para checkbox
+  confirmarCheckbox.addEventListener('change', function() {
+    validateRequiredFields();
+    
+    if (this.checked) {
+      this.parentElement.classList.add('text-success');
+      this.parentElement.classList.remove('text-danger');
+    } else {
+      this.parentElement.classList.remove('text-success');
+      this.parentElement.classList.add('text-danger');
+    }
+  });
+  
   // ===== MÁSCARA PARA ORÇAMENTO =====
   const orcamentoField = document.getElementById('id_orcamento_marketing');
   if (orcamentoField) {
@@ -384,11 +488,84 @@ document.addEventListener('DOMContentLoaded', function() {
         value = (parseFloat(value) / 100).toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
-        }).replace('R, ').trim();
+        }).replace('R$ ', '');
       }
       this.value = value;
     });
   }
+  
+  // ===== FINALIZAR BRIEFING =====
+  finishBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    if (!validateRequiredFields()) {
+      showToast('Preencha todos os campos obrigatórios e confirme os dados antes de finalizar', 'warning');
+      
+      // Focar no primeiro campo inválido
+      const firstInvalid = form.querySelector('.is-invalid');
+      if (firstInvalid) {
+        firstInvalid.focus();
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (!confirmarCheckbox.checked) {
+        confirmarCheckbox.focus();
+        confirmarCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+    
+    confirmModal.show();
+  });
+  
+  // Confirmar finalização
+  document.getElementById('confirmFinish').addEventListener('click', function() {
+    confirmModal.hide();
+    
+    // Submeter formulário via AJAX
+    const formData = new FormData(form);
+    formData.set('action', 'finish');
+    
+    finishBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Finalizando...';
+    finishBtn.disabled = true;
+    
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showToast('Briefing estratégico finalizado com sucesso!', 'success');
+        
+        // Efeito visual de sucesso
+        document.querySelectorAll('.card').forEach(card => {
+          card.style.opacity = '0.7';
+          card.style.transform = 'scale(0.98)';
+        });
+        
+        setTimeout(() => {
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            window.location.href = `/gestor/clientes/${data.cliente_id || '{{ cliente.pk }}'}/`;
+          }
+        }, 2000);
+        
+      } else {
+        showToast('Erro ao finalizar briefing: ' + (data.message || 'Erro desconhecido'), 'danger');
+        finishBtn.innerHTML = '<i class="fas fa-check-circle me-1"></i> Finalizar Briefing';
+        finishBtn.disabled = false;
+      }
+    })
+    .catch(error => {
+      console.error('Erro:', error);
+      showToast('Erro ao finalizar briefing', 'danger');
+      finishBtn.innerHTML = '<i class="fas fa-check-circle me-1"></i> Finalizar Briefing';
+      finishBtn.disabled = false;
+    });
+  });
   
   // ===== SALVAR RASCUNHO =====
   const saveDraftBtn = document.getElementById('saveDraft');
@@ -433,7 +610,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
           <div class="toast-body">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
             ${message}
           </div>
           <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -452,7 +629,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     toastContainer.insertAdjacentHTML('beforeend', toastHtml);
     const toastElement = toastContainer.lastElementChild;
-    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    const toast = new bootstrap.Toast(toastElement, { 
+      delay: type === 'success' ? 4000 : 3000 
+    });
     toast.show();
     
     toastElement.addEventListener('hidden.bs.toast', () => {
@@ -464,22 +643,65 @@ document.addEventListener('DOMContentLoaded', function() {
   form.addEventListener('submit', function(e) {
     const action = e.submitter?.value;
     
+    // Para ação de finalizar, sempre prevenir e usar o modal
+    if (action === 'finish') {
+      e.preventDefault();
+      finishBtn.click();
+      return;
+    }
+    
+    // Para outras ações, validar apenas se necessário
     if (action === 'next' && !validateRequiredFields()) {
       e.preventDefault();
       showToast('Preencha todos os campos obrigatórios antes de continuar', 'warning');
-      
-      const firstInvalid = form.querySelector('.is-invalid');
-      if (firstInvalid) {
-        firstInvalid.focus();
-        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
     }
   });
   
-  // Inicialização
-  setTimeout(validateRequiredFields, 100);
+  // ===== CONTADOR DE CARACTERES =====
+  requiredFields.forEach(fieldName => {
+    const field = document.getElementById(`id_${fieldName}`);
+    if (field && field.tagName.toLowerCase() === 'textarea') {
+      const counter = document.createElement('div');
+      counter.className = 'form-text text-end';
+      counter.id = `${fieldName}_counter`;
+      field.parentNode.appendChild(counter);
+      
+      function updateCounter() {
+        const length = field.value.length;
+        const minLength = 5;
+        const maxLength = field.getAttribute('maxlength') || 1000;
+        
+        if (length < minLength) {
+          counter.innerHTML = `<span class="text-danger">${length}/${maxLength} (mínimo ${minLength})</span>`;
+        } else {
+          counter.innerHTML = `<span class="text-success">${length}/${maxLength}</span>`;
+        }
+      }
+      
+      field.addEventListener('input', updateCounter);
+      updateCounter(); // Inicial
+    }
+  });
   
-  console.log('💰 Cliente Form Step 5 carregado com sucesso!');
+  // ===== INICIALIZAÇÃO =====
+  setTimeout(() => {
+    validateRequiredFields();
+    
+    // Animação de entrada
+    const cards = document.querySelectorAll('.card.shadow-sm');
+    cards.forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      card.style.transition = 'all 0.3s ease';
+      
+      setTimeout(() => {
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, index * 100);
+    });
+  }, 100);
+  
+  console.log('🎉 Cliente Form Recursos (Final) carregado com sucesso!');
 });
 </script>
 {% endblock %}

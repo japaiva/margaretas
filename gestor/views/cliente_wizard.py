@@ -1,4 +1,4 @@
-# gestor/views/cliente.py - SUBSTITUIR A CLASSE ClienteWizardView EXISTENTE
+# gestor/views/cliente_wizard.py - VERSÃO REFATORADA (4 STEPS)
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
@@ -6,16 +6,16 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.urls import reverse_lazy
 from django.http import JsonResponse
+from django.utils import timezone
 from formtools.wizard.views import SessionWizardView
 
 from core.models import Cliente
 from core.forms.wizard_forms import (
-    ClienteWizardStep1Form, 
-    ClienteWizardStep2Form, 
-    ClienteWizardStep3Form,
-    ClienteWizardStep4Form, 
-    ClienteWizardStep5Form, 
-    ClienteWizardStep6Form
+    ClienteWizardStep1Form,  # Público-Alvo
+    ClienteWizardStep2Form,  # Posicionamento e Comunicação
+    ClienteWizardStep3Form,  # Objetivos e Estratégia
+    ClienteWizardStep4Form,  # Recursos e Expectativas
+    ClienteWizardConfirmForm  # Confirmação final
 )
 
 import logging
@@ -24,15 +24,13 @@ logger = logging.getLogger(__name__)
 
 @method_decorator(login_required, name='dispatch')
 class ClienteWizardView(SessionWizardView):
-    """Wizard completo para cadastro detalhado de cliente em 6 steps"""
+    """Wizard para briefing estratégico de cliente em 4 steps focados"""
     
     form_list = [
-        ('step1', ClienteWizardStep1Form),
-        ('step2', ClienteWizardStep2Form), 
-        ('step3', ClienteWizardStep3Form),
-        ('step4', ClienteWizardStep4Form),
-        ('step5', ClienteWizardStep5Form),
-        ('step6', ClienteWizardStep6Form),
+        ('publico_alvo', ClienteWizardStep1Form),
+        ('posicionamento', ClienteWizardStep2Form), 
+        ('objetivos', ClienteWizardStep3Form),
+        ('recursos', ClienteWizardStep4Form),
     ]
     
     def dispatch(self, request, *args, **kwargs):
@@ -41,7 +39,9 @@ class ClienteWizardView(SessionWizardView):
         if self.cliente_id:
             self.cliente = get_object_or_404(Cliente, pk=self.cliente_id)
         else:
-            self.cliente = None
+            # Para wizard de briefing, cliente deve existir (foi criado no form simples)
+            messages.error(request, 'Cliente deve ser criado primeiro usando o cadastro rápido.')
+            return redirect('gestor:cliente_list')
         
         return super().dispatch(request, *args, **kwargs)
     
@@ -50,15 +50,13 @@ class ClienteWizardView(SessionWizardView):
         current_step = self.steps.current
         
         template_mapping = {
-            'step1': 'gestor/cliente/wizard/step1.html',
-            'step2': 'gestor/cliente/wizard/step2.html',
-            'step3': 'gestor/cliente/wizard/step3.html',
-            'step4': 'gestor/cliente/wizard/step4.html',
-            'step5': 'gestor/cliente/wizard/step5.html',
-            'step6': 'gestor/cliente/wizard/step6.html',
+            'publico_alvo': 'gestor/cliente/wizard/publico_alvo.html',
+            'posicionamento': 'gestor/cliente/wizard/posicionamento.html',
+            'objetivos': 'gestor/cliente/wizard/objetivos.html',
+            'recursos': 'gestor/cliente/wizard/recursos.html',
         }
         
-        return [template_mapping.get(current_step, 'gestor/cliente/wizard/step1.html')]
+        return [template_mapping.get(current_step, 'gestor/cliente/wizard/publico_alvo.html')]
     
     def get_form_initial(self, step):
         """Preencher form com dados existentes do cliente"""
@@ -67,34 +65,28 @@ class ClienteWizardView(SessionWizardView):
         if self.cliente:
             # Mapear campos para cada step
             field_mapping = {
-                'step1': [
-                    'nome_empresa', 'ativo', 'cnpj_cpf', 'endereco_completo',
-                    'responsavel_contrato', 'cargo_responsavel', 'contato_responsavel',
-                    'pessoa_contato_tecnico', 'contato_tecnico', 'faturamento_anual',
-                    'lista_produtos_servicos', 'website_principal', 'outros_dominios'
+                'publico_alvo': [
+                    'descricao_publico', 'necessidades_desejos', 'comportamento_compra',
+                    'consideracoes_demograficas', 'niveis_consciencia', 
+                    'objecoes_comuns', 'tentativas_passadas'
                 ],
-                'step2': [
-                    'descricao_publico', 'consideracoes_demograficas', 'niveis_consciencia',
-                    'necessidades_desejos', 'comportamento_compra', 'objecoes_comuns',
-                    'tentativas_passadas'
-                ],
-                'step3': [
+                'posicionamento': [
                     'posicionamento_atual', 'objetivos_posicionamento', 'diferenciacao',
                     'tom_voz', 'mensagem_principal', 'manifesto_marca', 
                     'canais_comunicacao', 'manual_marca', 'arquetipos'
                 ],
-                'step4': [
+                'objetivos': [
                     'objetivos_marketing', 'metas_especificas', 'kpis_empresa',
                     'analise_concorrencia', 'pontos_fortes_fracos_concorrencia'
                 ],
-                'step5': [
-                    'orcamento_marketing', 'crm_utilizado', 'equipe_marketing', 
-                    'recursos_tecnologicos', 'google_analytics', 'tag_manager', 
-                    'pixel_facebook', 'expectativas_agencia', 'resultados_esperados',
-                    'experiencia_agencias', 'criativos_performaram', 'analise_campanhas_anteriores',
+                'recursos': [
+                    'orcamento_marketing', 'equipe_marketing', 'recursos_tecnologicos',
+                    'expectativas_agencia', 'resultados_esperados',
+                    'experiencia_agencias', 'criativos_performaram', 
+                    'analise_campanhas_anteriores', 'google_analytics', 
+                    'tag_manager', 'pixel_facebook', 'crm_utilizado',
                     'principais_desafios', 'sazonalidades', 'certificacoes_diferenciais'
                 ]
-                # step6 não precisa de initial pois é só confirmação
             }
             
             # Preencher campos do step atual
@@ -104,7 +96,7 @@ class ClienteWizardView(SessionWizardView):
                         value = getattr(self.cliente, field)
                         if value is not None:
                             # Converter valores monetários para string para exibição
-                            if field in ['faturamento_anual', 'orcamento_marketing'] and value:
+                            if field == 'orcamento_marketing' and value:
                                 initial[field] = f"{value:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
                             else:
                                 initial[field] = value
@@ -116,7 +108,7 @@ class ClienteWizardView(SessionWizardView):
         
         # Adicionar informações do cliente
         context['cliente'] = self.cliente
-        context['title'] = f'Wizard: {self.cliente.nome_empresa}' if self.cliente else 'Novo Cliente'
+        context['title'] = f'Briefing Estratégico: {self.cliente.nome_empresa}'
         
         # Progress e step info
         current_step = self.steps.current
@@ -129,14 +121,15 @@ class ClienteWizardView(SessionWizardView):
             'step_index': step_index,
             'progress_percent': ((step_index + 1) / total_steps) * 100,
             'step_names': {
-                'step1': 'Informações Básicas',
-                'step2': 'Público-Alvo', 
-                'step3': 'Posicionamento',
-                'step4': 'Objetivos',
-                'step5': 'Recursos',
-                'step6': 'Confirmação'
+                'publico_alvo': 'Público-Alvo',
+                'posicionamento': 'Posicionamento', 
+                'objetivos': 'Objetivos',
+                'recursos': 'Recursos'
             }
         })
+        
+        # Progresso do briefing
+        context['briefing_progress'] = self.cliente.briefing_progress
         
         return context
     
@@ -170,15 +163,15 @@ class ClienteWizardView(SessionWizardView):
                     if form.is_valid():
                         all_data.update(form.cleaned_data)
             
-            # Se não tem cliente, criar um novo
-            if not self.cliente:
-                self.cliente = Cliente()
-                self.cliente.created_by = request.user
-            
-            # Aplicar dados coletados
+            # Aplicar dados coletados ao cliente existente
             for field, value in all_data.items():
-                if hasattr(self.cliente, field) and field != 'confirmar_dados':
+                if hasattr(self.cliente, field):
                     setattr(self.cliente, field, value)
+            
+            # Se está finalizando, marcar briefing como completo
+            if action == 'finish':
+                self.cliente.briefing_completo = True
+                self.cliente.data_briefing = timezone.now()
             
             # Salvar cliente
             self.cliente.save()
@@ -186,8 +179,9 @@ class ClienteWizardView(SessionWizardView):
             if action == 'save_draft':
                 return JsonResponse({
                     'success': True,
-                    'message': 'Rascunho salvo com sucesso!',
-                    'cliente_id': str(self.cliente.pk)
+                    'message': 'Rascunho do briefing salvo com sucesso!',
+                    'cliente_id': str(self.cliente.pk),
+                    'progress': self.cliente.briefing_progress
                 })
             
             elif action == 'finish':
@@ -196,45 +190,43 @@ class ClienteWizardView(SessionWizardView):
                 
                 messages.success(
                     request, 
-                    f'Cliente "{self.cliente.nome_empresa}" salvo com sucesso! '
-                    f'Briefing completo finalizado.'
+                    f'Briefing estratégico de "{self.cliente.nome_empresa}" finalizado com sucesso! '
+                    f'Agora você pode criar campanhas de marketing.'
                 )
                 
                 return JsonResponse({
                     'success': True,
-                    'message': 'Cliente cadastrado com sucesso!',
+                    'message': 'Briefing estratégico finalizado com sucesso!',
                     'redirect_url': f'/gestor/clientes/{self.cliente.pk}/'
                 })
         
         except Exception as e:
-            logger.error(f"Erro ao salvar cliente: {e}")
+            logger.error(f"Erro ao salvar briefing do cliente: {e}")
             return JsonResponse({
                 'success': False,
-                'message': f'Erro ao salvar: {str(e)}'
+                'message': f'Erro ao salvar briefing: {str(e)}'
             })
     
     def done(self, form_list, **kwargs):
         """Processar dados finais do wizard - método obrigatório"""
         
-        # Se não tem cliente, criar um novo
-        if not self.cliente:
-            self.cliente = Cliente()
-            self.cliente.created_by = self.request.user
-        
-        # Aplicar dados de todos os forms (exceto step6 que é só confirmação)
+        # Aplicar dados de todos os forms
         for step, form in zip(self.form_list.keys(), form_list):
-            if step != 'step6':  # Pular step6 pois é só confirmação
-                for field, value in form.cleaned_data.items():
-                    if hasattr(self.cliente, field):
-                        setattr(self.cliente, field, value)
+            for field, value in form.cleaned_data.items():
+                if hasattr(self.cliente, field):
+                    setattr(self.cliente, field, value)
+        
+        # Marcar briefing como completo
+        self.cliente.briefing_completo = True
+        self.cliente.data_briefing = timezone.now()
         
         # Salvar cliente
         self.cliente.save()
         
         messages.success(
             self.request, 
-            f'Cliente "{self.cliente.nome_empresa}" salvo com sucesso! '
-            f'Briefing completo finalizado em 6 etapas.'
+            f'Briefing estratégico de "{self.cliente.nome_empresa}" finalizado com sucesso! '
+            f'Todas as informações foram salvas e agora você pode criar campanhas de marketing.'
         )
         
         return redirect('gestor:cliente_detail', pk=self.cliente.pk)

@@ -1,4 +1,4 @@
-# gestor/urls.py - IMPORT CORRIGIDO
+# gestor/urls.py - VERSÃO REFATORADA
 
 from django.urls import path
 
@@ -9,7 +9,7 @@ from .views.dashboard import (
     relatorio_clientes, relatorio_campanhas, relatorio_performance
 )
 from .views import usuario, cliente
-# IMPORT DIRETO DA CLASSE WIZARD
+# IMPORT DIRETO DA CLASSE WIZARD REFATORADA
 from .views.cliente_wizard import ClienteWizardView
 
 app_name = 'gestor'
@@ -19,32 +19,27 @@ urlpatterns = [
     path('', home, name='home'),
     path('dashboard/', dashboard, name='dashboard'),
 
-    # ===== CLIENTE DE MARKETING =====
+    # ===== CLIENTE DE MARKETING - ESTRUTURA SIMPLIFICADA =====
     path('clientes/', cliente.cliente_list, name='cliente_list'),
-    path('clientes/novo/', cliente.cliente_create, name='cliente_create'),
-    path('clientes/<uuid:pk>/', cliente.cliente_detail, name='cliente_detail'),
-    path('clientes/<uuid:pk>/editar/', cliente.cliente_update, name='cliente_update'),
-    path('clientes/<uuid:pk>/excluir/', cliente.cliente_delete, name='cliente_delete'),
-
-    # ===== WIZARD DE CLIENTE =====
-    # Novo cliente via wizard
-    path('clientes/wizard/novo/',
-         ClienteWizardView.as_view(),
-         name='cliente_wizard_new'),
     
-    # Editar cliente existente via wizard
-    path('clientes/<uuid:pk>/wizard/',
+    # CADASTRO RÁPIDO (Form Simples)
+    path('clientes/novo/', cliente.cliente_create, name='cliente_create'),
+    path('clientes/<uuid:pk>/editar/', cliente.cliente_update, name='cliente_update'),
+    
+    # BRIEFING ESTRATÉGICO (Wizard 4 Steps)
+    path('clientes/<uuid:pk>/briefing/',
          ClienteWizardView.as_view(),
-         name='cliente_wizard_edit'),
+         name='cliente_briefing'),
+    
+    # VISUALIZAÇÃO E EXCLUSÃO
+    path('clientes/<uuid:pk>/', cliente.cliente_detail, name='cliente_detail'),
+    path('clientes/<uuid:pk>/excluir/', cliente.cliente_delete, name='cliente_delete'),
+    
+    # CHECKLIST OPERACIONAL
+    path('clientes/<uuid:pk>/checklist/', cliente.cliente_checklist, name='cliente_checklist'),
+    path('clientes/<uuid:pk>/checklist/editar/', cliente.cliente_checklist_update, name='cliente_checklist_update'),
 
-    # ===== PRODUTOS/SERVIÇOS/EVENTOS =====
-    path('clientes/<uuid:cliente_id>/produtos/', cliente.produto_servico_list, name='produto_servico_list'),
-    path('clientes/<uuid:cliente_id>/produtos/novo/', cliente.produto_servico_create, name='produto_servico_create'),
-    path('produtos/<uuid:pk>/', cliente.produto_servico_detail, name='produto_servico_detail'),
-    path('produtos/<uuid:pk>/editar/', cliente.produto_servico_update, name='produto_servico_update'),
-    path('produtos/<uuid:pk>/excluir/', cliente.produto_servico_delete, name='produto_servico_delete'),
-
-    # ===== CAMPANHAS =====
+    # ===== CAMPANHAS - SIMPLIFICADAS =====
     path('campanhas/', cliente.campanha_list, name='campanha_list'),
     path('campanhas/nova/', cliente.campanha_create, name='campanha_create'),
     path('campanhas/<uuid:pk>/', cliente.campanha_detail, name='campanha_detail'),
@@ -67,7 +62,6 @@ urlpatterns = [
 
     # ===== APIs INTERNAS =====
     path('api/clientes/search/', cliente.cliente_api_search, name='api_cliente_search'),
-    path('api/produtos-servicos/<uuid:cliente_id>/', cliente.produto_servico_api_by_cliente, name='api_produto_servico_by_cliente'),
 
     # ===== RELATÓRIOS =====
     path('relatorios/', relatorios, name='relatorios'),
