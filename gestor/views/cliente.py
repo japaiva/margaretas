@@ -9,11 +9,24 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 
+from django.utils.decorators import method_decorator
+from formtools.wizard.views import SessionWizardView
+
 from core.models import Cliente, ProdutoServicoEvento, Campanha
 from core.forms import ClienteForm, ProdutoServicoEventoForm, CampanhaForm
 
+from core.forms.wizard_forms import (
+    ClienteWizardStep1Form, 
+    ClienteWizardStep2Form, 
+    ClienteWizardStep3Form,
+    ClienteWizardStep4Form, 
+    ClienteWizardStep5Form, 
+    ClienteWizardStep6Form
+)
+
+
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) # Garanta que esta linha esteja no topo do arquivo
 
 
 # ===== VIEWS DE CLIENTE =====
@@ -100,11 +113,15 @@ def cliente_detail(request, pk):
 def cliente_create(request):
     """Criar novo cliente"""
     
+    logger.debug('cliente_create: Requisição recebida. Método: %s', request.method) # NOVO LOG
     cliente = None  # valor default, usado no render inicial (GET)
 
     if request.method == 'POST':
+        logger.debug('cliente_create: Método POST. Tentando processar formulário.') # NOVO LOG
         form = ClienteForm(request.POST, request.FILES)
+        
         if form.is_valid():
+            logger.debug('cliente_create: Formulário é VÁLIDO. Salvando cliente...') # NOVO LOG
             cliente = form.save(commit=False)
             cliente.created_by = request.user
             cliente.save()
@@ -112,11 +129,22 @@ def cliente_create(request):
             messages.success(request, f'Cliente "{cliente.nome_empresa}" criado com sucesso!')
             logger.info(f'Cliente {cliente.nome_empresa} criado por {request.user.username}')
 
-            if request.POST.get('action') == 'save_and_wizard':
-                return redirect('cliente_wizard_step1', pk=cliente.pk)
+            action = request.POST.get('action') # Captura a ação do botão
+            logger.debug('cliente_create: Ação do botão: %s', action) # NOVO LOG
+
+            if action == 'save_and_wizard':
+                logger.debug('cliente_create: Redirecionando para wizard step 1.') # NOVO LOG
+                return redirect('gestor:cliente_wizard_step1', pk=cliente.pk) # Note a mudança para 'gestor:cliente_wizard_step1' para seguir a convenção de namespaces
             else:
+                logger.debug('cliente_create: Redirecionando para detalhes do cliente.') # NOVO LOG
                 return redirect('gestor:cliente_detail', pk=cliente.pk)
-    else:
+        else:
+            logger.warning('cliente_create: Formulário é INVÁLIDO. Erros: %s', form.errors.as_json()) # NOVO LOG
+            # Aqui, o formulário inválido é renderizado novamente com os erros.
+            # O Django automaticamente injeta os erros de campo no contexto.
+            messages.error(request, 'Por favor, corrija os erros no formulário.') # Adicione uma mensagem de erro geral
+    else: # GET request
+        logger.debug('cliente_create: Método GET. Renderizando formulário vazio.') # NOVO LOG
         form = ClienteForm()
 
     context = {
@@ -126,7 +154,7 @@ def cliente_create(request):
         'subtitle': 'Cadastro de Cliente de Marketing',
         'action': 'Criar'
     }
-
+    logger.debug('cliente_create: Renderizando gestor/cliente/form.html com contexto.') # NOVO LOG
     return render(request, 'gestor/cliente/form.html', context)
 
 @login_required
@@ -135,16 +163,24 @@ def cliente_update(request, pk):
     
     cliente = get_object_or_404(Cliente, pk=pk)
     
+    logger.debug('cliente_update: Requisição recebida. Método: %s. Cliente PK: %s', request.method, pk) # NOVO LOG
+    
     if request.method == 'POST':
+        logger.debug('cliente_update: Método POST. Tentando processar formulário.') # NOVO LOG
         form = ClienteForm(request.POST, request.FILES, instance=cliente)
         if form.is_valid():
+            logger.debug('cliente_update: Formulário é VÁLIDO. Atualizando cliente...') # NOVO LOG
             cliente = form.save()
             
             messages.success(request, f'Cliente "{cliente.nome_empresa}" atualizado com sucesso!')
             logger.info(f'Cliente {cliente.nome_empresa} atualizado por {request.user.username}')
-            
+            logger.debug('cliente_update: Redirecionando para detalhes do cliente.') # NOVO LOG
             return redirect('gestor:cliente_detail', pk=cliente.pk)
+        else:
+            logger.warning('cliente_update: Formulário é INVÁLIDO. Erros: %s', form.errors.as_json()) # NOVO LOG
+            messages.error(request, 'Por favor, corrija os erros no formulário.')
     else:
+        logger.debug('cliente_update: Método GET. Renderizando formulário existente.') # NOVO LOG
         form = ClienteForm(instance=cliente)
     
     context = {
@@ -154,7 +190,7 @@ def cliente_update(request, pk):
         'subtitle': 'Edição de Cliente',
         'action': 'Atualizar'
     }
-    
+    logger.debug('cliente_update: Renderizando gestor/cliente/form.html com contexto.') # NOVO LOG
     return render(request, 'gestor/cliente/form.html', context)
 
 
@@ -528,53 +564,3 @@ def produto_servico_api_by_cliente(request, cliente_id):
     
     return JsonResponse({'results': results})
 
-# ===== FUNÇÕES WIZARD FALTANDO =====
-
-@login_required
-def cliente_wizard_step1(request, pk):
-    """Wizard Step 1 - Placeholder"""
-    cliente = get_object_or_404(Cliente, pk=pk)
-    return redirect('gestor:cliente_detail', pk=pk)
-
-
-@login_required
-def cliente_wizard_step2(request, pk):
-    """Wizard Step 2 - Placeholder"""
-    cliente = get_object_or_404(Cliente, pk=pk)
-    return redirect('gestor:cliente_detail', pk=pk)
-
-@login_required
-def cliente_wizard_step3(request, pk):
-    """Wizard Step 3 - Placeholder"""
-    cliente = get_object_or_404(Cliente, pk=pk)
-    return redirect('gestor:cliente_detail', pk=pk)
-
-@login_required
-def cliente_wizard_step4(request, pk):
-    """Wizard Step 4 - Placeholder"""
-    cliente = get_object_or_404(Cliente, pk=pk)
-    return redirect('gestor:cliente_detail', pk=pk)
-
-@login_required
-def cliente_wizard_step5(request, pk):
-    """Wizard Step 5 - Placeholder"""
-    cliente = get_object_or_404(Cliente, pk=pk)
-    return redirect('gestor:cliente_detail', pk=pk)
-
-@login_required
-def cliente_wizard_step6(request, pk):
-    """Wizard Step 6 - Placeholder"""
-    cliente = get_object_or_404(Cliente, pk=pk)
-    return redirect('gestor:cliente_detail', pk=pk)
-
-# ===== FUNÇÕES HTMX FALTANDO =====
-
-@login_required
-def cliente_form_htmx(request):
-    """Form HTMX para cliente - Placeholder"""
-    return JsonResponse({'status': 'ok'})
-
-@login_required
-def campanha_form_htmx(request):
-    """Form HTMX para campanha - Placeholder"""
-    return JsonResponse({'status': 'ok'})

@@ -5,6 +5,13 @@ from django.conf import settings  # ← MUDANÇA 1: Trocar User por settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 import uuid
 
+# core/models/cliente.py
+
+from django.db import models
+from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
+import uuid
+
 class Cliente(models.Model):
     """Modelo para cadastro completo de clientes"""
     
@@ -12,7 +19,7 @@ class Cliente(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     # === INFORMAÇÕES BÁSICAS DA EMPRESA ===
-    nome_empresa = models.CharField(max_length=200, verbose_name="Nome da Empresa/Marca")
+    nome_empresa = models.CharField(max_length=200, verbose_name="Nome da Empresa/Marca")  # ÚNICO CAMPO OBRIGATÓRIO
     cnpj_cpf = models.CharField(max_length=18, verbose_name="CNPJ/CPF", blank=True, null=True)
     endereco_completo = models.TextField(verbose_name="Endereço Completo", blank=True, null=True)
     
@@ -21,35 +28,35 @@ class Cliente(models.Model):
     missao = models.TextField(verbose_name="Missão", blank=True, null=True)
     visao = models.TextField(verbose_name="Visão", blank=True, null=True)
     valores = models.TextField(verbose_name="Valores", blank=True, null=True)
-    lista_produtos_servicos = models.TextField(verbose_name="Produtos ou Serviços")  # ← MUDANÇA 2: Renomeado
+    lista_produtos_servicos = models.TextField(verbose_name="Produtos ou Serviços", blank=True, null=True)  # AGORA OPCIONAL
     
-    # === RESPONSÁVEIS E CONTATOS ===
-    responsavel_contrato = models.CharField(max_length=200, verbose_name="Responsável pelo Contrato")
-    cargo_responsavel = models.CharField(max_length=100, verbose_name="Cargo do Responsável")
-    contato_responsavel = models.CharField(max_length=100, verbose_name="Contato do Responsável")
+    # === RESPONSÁVEIS E CONTATOS === (TODOS OPCIONAIS)
+    responsavel_contrato = models.CharField(max_length=200, verbose_name="Responsável pelo Contrato", blank=True, null=True)
+    cargo_responsavel = models.CharField(max_length=100, verbose_name="Cargo do Responsável", blank=True, null=True)
+    contato_responsavel = models.CharField(max_length=100, verbose_name="Contato do Responsável", blank=True, null=True)
     pessoa_contato_tecnico = models.CharField(max_length=200, verbose_name="Pessoa de Contato Técnico", blank=True, null=True)
     contato_tecnico = models.CharField(max_length=100, verbose_name="Contato Técnico", blank=True, null=True)
     
     # === INFORMAÇÕES FINANCEIRAS ===
     faturamento_anual = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Faturamento Anual Estimado", blank=True, null=True)
     
-    # === PÚBLICO-ALVO ===
-    descricao_publico = models.TextField(verbose_name="Descrição do Público-Alvo")
-    necessidades_desejos = models.TextField(verbose_name="Necessidades e Desejos do Público")
-    comportamento_compra = models.TextField(verbose_name="Comportamento de Compra")
+    # === PÚBLICO-ALVO === (TODOS OPCIONAIS)
+    descricao_publico = models.TextField(verbose_name="Descrição do Público-Alvo", blank=True, null=True)
+    necessidades_desejos = models.TextField(verbose_name="Necessidades e Desejos do Público", blank=True, null=True)
+    comportamento_compra = models.TextField(verbose_name="Comportamento de Compra", blank=True, null=True)
     consideracoes_demograficas = models.TextField(verbose_name="Considerações Demográficas", blank=True, null=True)
     niveis_consciencia = models.TextField(verbose_name="Níveis de Consciência", blank=True, null=True)
     objecoes_comuns = models.TextField(verbose_name="Objeções Comuns", blank=True, null=True)
     tentativas_passadas = models.TextField(verbose_name="Tentativas Passadas que Não Funcionaram", blank=True, null=True)
     
-    # === POSICIONAMENTO DA MARCA ===
-    posicionamento_atual = models.TextField(verbose_name="Posicionamento Atual")
-    objetivos_posicionamento = models.TextField(verbose_name="Objetivos de Posicionamento")
+    # === POSICIONAMENTO DA MARCA === (TODOS OPCIONAIS)
+    posicionamento_atual = models.TextField(verbose_name="Posicionamento Atual", blank=True, null=True)
+    objetivos_posicionamento = models.TextField(verbose_name="Objetivos de Posicionamento", blank=True, null=True)
     diferenciacao = models.TextField(verbose_name="Diferenciação vs Concorrência", blank=True, null=True)
     
-    # === COMUNICAÇÃO ===
-    tom_voz = models.TextField(verbose_name="Tom de Voz da Marca")
-    mensagem_principal = models.TextField(verbose_name="Mensagem Principal")
+    # === COMUNICAÇÃO === (TODOS OPCIONAIS)
+    tom_voz = models.TextField(verbose_name="Tom de Voz da Marca", blank=True, null=True)
+    mensagem_principal = models.TextField(verbose_name="Mensagem Principal", blank=True, null=True)
     manual_marca = models.BooleanField(default=False, verbose_name="Possui Manual de Marca?")
     manifesto_marca = models.TextField(verbose_name="Manifesto da Marca", blank=True, null=True)
     
@@ -64,30 +71,30 @@ class Cliente(models.Model):
     ]
     arquetipos = models.JSONField(default=list, verbose_name="Arquétipos da Marca", blank=True)
     
-    canais_comunicacao = models.TextField(verbose_name="Canais de Comunicação e Perfis")
+    canais_comunicacao = models.TextField(verbose_name="Canais de Comunicação e Perfis", blank=True, null=True)
     
-    # === OBJETIVOS ===
-    objetivos_marketing = models.TextField(verbose_name="Objetivos de Marketing")
-    metas_especificas = models.TextField(verbose_name="Metas Específicas")
-    kpis_empresa = models.TextField(verbose_name="KPIs da Empresa")
+    # === OBJETIVOS === (TODOS OPCIONAIS)
+    objetivos_marketing = models.TextField(verbose_name="Objetivos de Marketing", blank=True, null=True)
+    metas_especificas = models.TextField(verbose_name="Metas Específicas", blank=True, null=True)
+    kpis_empresa = models.TextField(verbose_name="KPIs da Empresa", blank=True, null=True)
     
-    # === CONCORRÊNCIA ===
-    analise_concorrencia = models.TextField(verbose_name="Análise da Concorrência")
-    pontos_fortes_fracos_concorrencia = models.TextField(verbose_name="Pontos Fortes e Fracos da Concorrência")
+    # === CONCORRÊNCIA === (TODOS OPCIONAIS)
+    analise_concorrencia = models.TextField(verbose_name="Análise da Concorrência", blank=True, null=True)
+    pontos_fortes_fracos_concorrencia = models.TextField(verbose_name="Pontos Fortes e Fracos da Concorrência", blank=True, null=True)
     
-    # === RECURSOS ===
+    # === RECURSOS === (TODOS OPCIONAIS)
     orcamento_marketing = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Orçamento Marketing", blank=True, null=True)
-    equipe_marketing = models.TextField(verbose_name="Equipe de Marketing")
-    recursos_tecnologicos = models.TextField(verbose_name="Recursos Tecnológicos")
+    equipe_marketing = models.TextField(verbose_name="Equipe de Marketing", blank=True, null=True)
+    recursos_tecnologicos = models.TextField(verbose_name="Recursos Tecnológicos", blank=True, null=True)
     
-    # === EXPECTATIVAS ===
-    expectativas_agencia = models.TextField(verbose_name="Expectativas da Agência")
-    resultados_esperados = models.TextField(verbose_name="Resultados Esperados")
+    # === EXPECTATIVAS === (TODOS OPCIONAIS)
+    expectativas_agencia = models.TextField(verbose_name="Expectativas da Agência", blank=True, null=True)
+    resultados_esperados = models.TextField(verbose_name="Resultados Esperados", blank=True, null=True)
     experiencia_agencias = models.TextField(verbose_name="Experiência com Agências de Tráfego", blank=True, null=True)
     criativos_performaram = models.TextField(verbose_name="Criativos que Performaram Melhor", blank=True, null=True)
     analise_campanhas_anteriores = models.TextField(verbose_name="O que Funcionou/Não Funcionou", blank=True, null=True)
     
-    # === INFORMAÇÕES DIGITAIS ===
+    # === INFORMAÇÕES DIGITAIS === (TODOS OPCIONAIS)
     website_principal = models.URLField(verbose_name="Website Principal", blank=True, null=True)
     outros_dominios = models.TextField(verbose_name="Outros Domínios", blank=True, null=True)
     google_analytics = models.BooleanField(default=False, verbose_name="Google Analytics Configurado?")
@@ -95,7 +102,7 @@ class Cliente(models.Model):
     pixel_facebook = models.BooleanField(default=False, verbose_name="Pixel Facebook Instalado?")
     crm_utilizado = models.CharField(max_length=100, verbose_name="CRM Utilizado", blank=True, null=True)
     
-    # === CONTEXTO ADICIONAL ===
+    # === CONTEXTO ADICIONAL === (TODOS OPCIONAIS)
     principais_desafios = models.TextField(verbose_name="Principais Desafios do Mercado", blank=True, null=True)
     sazonalidades = models.TextField(verbose_name="Sazonalidades do Negócio", blank=True, null=True)
     certificacoes_diferenciais = models.TextField(verbose_name="Certificações ou Diferenciais", blank=True, null=True)
@@ -103,7 +110,7 @@ class Cliente(models.Model):
     # === METADADOS ===
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Atualizado em")
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, verbose_name="Criado por")  # ← MUDANÇA 3
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, verbose_name="Criado por")
     ativo = models.BooleanField(default=True, verbose_name="Ativo")
     
     class Meta:
@@ -113,7 +120,6 @@ class Cliente(models.Model):
     
     def __str__(self):
         return self.nome_empresa
-
 
 class ProdutoServicoEvento(models.Model):
     """Modelo para produtos, serviços, cursos e eventos específicos"""

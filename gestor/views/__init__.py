@@ -1,7 +1,5 @@
 # gestor/views/__init__.py
 
-# Importar todas as views dos módulos para que possam ser acessadas via import
-
 # Views do dashboard
 from .dashboard import (
     home,
@@ -33,11 +31,6 @@ from .cliente import (
     cliente_create,
     cliente_update,
     cliente_delete,
-    cliente_wizard_step2,
-    cliente_wizard_step3,
-    cliente_wizard_step4,
-    cliente_wizard_step5,
-    cliente_wizard_step6,
     produto_servico_list,
     produto_servico_create,
     produto_servico_detail,
@@ -50,11 +43,14 @@ from .cliente import (
     campanha_delete,
     cliente_api_search,
     produto_servico_api_by_cliente,
-    cliente_form_htmx,
-    campanha_form_htmx,
 )
 
-# Definir what pode ser importado quando usar "from gestor.views import *"
+# Views do wizard
+from .cliente_wizard import (
+    ClienteWizardView,
+)
+
+# Definir o que pode ser importado quando usar "from gestor.views import *"
 __all__ = [
     # Dashboard
     'home',
@@ -82,11 +78,6 @@ __all__ = [
     'cliente_create',
     'cliente_update',
     'cliente_delete',
-    'cliente_wizard_step2',
-    'cliente_wizard_step3',
-    'cliente_wizard_step4',
-    'cliente_wizard_step5',
-    'cliente_wizard_step6',
     'produto_servico_list',
     'produto_servico_create',
     'produto_servico_detail',
@@ -99,6 +90,7 @@ __all__ = [
     'campanha_delete',
     'cliente_api_search',
     'produto_servico_api_by_cliente',
-    'cliente_form_htmx',
-    'campanha_form_htmx',
+    
+    # Wizard
+    'ClienteWizardView',
 ]

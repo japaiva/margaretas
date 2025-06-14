@@ -4,7 +4,6 @@
 
 {% block content %}
 <div class="card shadow">
-  <!-- Header com Progress Bar -->
   <div class="card-header bg-light">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h5 class="card-title mb-0">
@@ -18,12 +17,10 @@
       </div>
     </div>
     
-    <!-- Progress Bar -->
     <div class="progress mb-3" style="height: 8px;">
       <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="6" aria-valuemin="0" aria-valuemax="6"></div>
     </div>
     
-    <!-- Steps Navigation -->
     <div class="d-flex justify-content-between text-center">
       <div class="flex-fill">
         <div class="badge bg-success rounded-pill mb-1">✓</div>
@@ -55,24 +52,21 @@
   <div class="card-body">
     <form method="post" novalidate id="step6Form">
       {% csrf_token %}
-      <input type="hidden" name="wizard_step" value="6">
-
-      <!-- Alerta de Sucesso -->
+      {{ wizard.management_form }}
+      
       <div class="alert alert-success">
         <h5><i class="fas fa-trophy me-2"></i>Parabéns! Briefing Completo</h5>
         <p class="mb-0">Você completou todas as etapas do briefing. Revise as informações abaixo antes de finalizar o cadastro do cliente.</p>
       </div>
 
-      <!-- Seção: Resumo - Informações Básicas -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
           <h6 class="card-title mb-0">
             <i class="fas fa-building me-2"></i>
             Informações Básicas
           </h6>
-          <a href="{% url 'gestor:cliente_wizard_step1' cliente.pk %}" class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-edit me-1"></i> Editar
-          </a>
+          {# REMOVIDO: Link para step1 individual #}
+          <span class="badge bg-info">Step 1 Completo</span>
         </div>
         <div class="card-body">
           <div class="row">
@@ -82,13 +76,13 @@
                 <dd class="col-sm-7">{{ cliente.nome_empresa }}</dd>
                 
                 <dt class="col-sm-5">Responsável:</dt>
-                <dd class="col-sm-7">{{ cliente.responsavel_contrato }}</dd>
+                <dd class="col-sm-7">{{ cliente.responsavel_contrato|default:"-" }}</dd>
                 
                 <dt class="col-sm-5">Cargo:</dt>
-                <dd class="col-sm-7">{{ cliente.cargo_responsavel }}</dd>
+                <dd class="col-sm-7">{{ cliente.cargo_responsavel|default:"-" }}</dd>
                 
                 <dt class="col-sm-5">Contato:</dt>
-                <dd class="col-sm-7">{{ cliente.contato_responsavel }}</dd>
+                <dd class="col-sm-7">{{ cliente.contato_responsavel|default:"-" }}</dd>
               </dl>
             </div>
             <div class="col-md-6">
@@ -119,29 +113,27 @@
         </div>
       </div>
 
-      <!-- Seção: Resumo - Público-Alvo -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
           <h6 class="card-title mb-0">
             <i class="fas fa-users me-2"></i>
             Público-Alvo
           </h6>
-          <a href="{% url 'gestor:cliente_wizard_step2' cliente.pk %}" class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-edit me-1"></i> Editar
-          </a>
+          {# REMOVIDO: Link para step2 individual #}
+          <span class="badge bg-info">Step 2 Completo</span>
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
               <strong>Descrição do Público:</strong>
-              <p class="text-muted">{{ cliente.descricao_publico|truncatewords:20 }}</p>
+              <p class="text-muted">{{ cliente.descricao_publico|truncatewords:20|default:"Não informado" }}</p>
               
               <strong>Necessidades e Desejos:</strong>
-              <p class="text-muted">{{ cliente.necessidades_desejos|truncatewords:20 }}</p>
+              <p class="text-muted">{{ cliente.necessidades_desejos|truncatewords:20|default:"Não informado" }}</p>
             </div>
             <div class="col-md-6">
               <strong>Comportamento de Compra:</strong>
-              <p class="text-muted">{{ cliente.comportamento_compra|truncatewords:20 }}</p>
+              <p class="text-muted">{{ cliente.comportamento_compra|truncatewords:20|default:"Não informado" }}</p>
               
               {% if cliente.objecoes_comuns %}
               <strong>Objeções Comuns:</strong>
@@ -152,29 +144,27 @@
         </div>
       </div>
 
-      <!-- Seção: Resumo - Posicionamento -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
           <h6 class="card-title mb-0">
             <i class="fas fa-bullseye me-2"></i>
             Posicionamento e Comunicação
           </h6>
-          <a href="{% url 'gestor:cliente_wizard_step3' cliente.pk %}" class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-edit me-1"></i> Editar
-          </a>
+          {# REMOVIDO: Link para step3 individual #}
+          <span class="badge bg-info">Step 3 Completo</span>
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
               <strong>Posicionamento Atual:</strong>
-              <p class="text-muted">{{ cliente.posicionamento_atual|truncatewords:15 }}</p>
+              <p class="text-muted">{{ cliente.posicionamento_atual|truncatewords:15|default:"Não informado" }}</p>
               
               <strong>Tom e Voz:</strong>
-              <p class="text-muted">{{ cliente.tom_voz|truncatewords:10 }}</p>
+              <p class="text-muted">{{ cliente.tom_voz|truncatewords:10|default:"Não informado" }}</p>
             </div>
             <div class="col-md-6">
               <strong>Mensagem Principal:</strong>
-              <p class="text-muted">{{ cliente.mensagem_principal|truncatewords:15 }}</p>
+              <p class="text-muted">{{ cliente.mensagem_principal|truncatewords:15|default:"Não informado" }}</p>
               
               {% if cliente.arquetipos %}
               <strong>Arquétipos Selecionados:</strong>
@@ -183,53 +173,52 @@
                   <span class="badge bg-primary me-1">{{ arquetipo|title }}</span>
                 {% endfor %}
               </div>
+              {% else %}
+              <strong>Arquétipos:</strong>
+              <p class="text-muted">Não selecionados</p>
               {% endif %}
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Seção: Resumo - Objetivos -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
           <h6 class="card-title mb-0">
             <i class="fas fa-target me-2"></i>
             Objetivos e Estratégia
           </h6>
-          <a href="{% url 'gestor:cliente_wizard_step4' cliente.pk %}" class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-edit me-1"></i> Editar
-          </a>
+          {# REMOVIDO: Link para step4 individual #}
+          <span class="badge bg-info">Step 4 Completo</span>
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
               <strong>Objetivos de Marketing:</strong>
-              <p class="text-muted">{{ cliente.objetivos_marketing|truncatewords:20 }}</p>
+              <p class="text-muted">{{ cliente.objetivos_marketing|truncatewords:20|default:"Não informado" }}</p>
               
               <strong>Metas Específicas:</strong>
-              <p class="text-muted">{{ cliente.metas_especificas|truncatewords:20 }}</p>
+              <p class="text-muted">{{ cliente.metas_especificas|truncatewords:20|default:"Não informado" }}</p>
             </div>
             <div class="col-md-6">
               <strong>KPIs:</strong>
-              <p class="text-muted">{{ cliente.kpis_empresa|truncatewords:15 }}</p>
+              <p class="text-muted">{{ cliente.kpis_empresa|truncatewords:15|default:"Não informado" }}</p>
               
               <strong>Principais Concorrentes:</strong>
-              <p class="text-muted">{{ cliente.analise_concorrencia|truncatewords:15 }}</p>
+              <p class="text-muted">{{ cliente.analise_concorrencia|truncatewords:15|default:"Não informado" }}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Seção: Resumo - Recursos -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
           <h6 class="card-title mb-0">
             <i class="fas fa-cogs me-2"></i>
             Recursos e Expectativas
           </h6>
-          <a href="{% url 'gestor:cliente_wizard_step5' cliente.pk %}" class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-edit me-1"></i> Editar
-          </a>
+          {# REMOVIDO: Link para step5 individual #}
+          <span class="badge bg-info">Step 5 Completo</span>
         </div>
         <div class="card-body">
           <div class="row">
@@ -244,7 +233,7 @@
               </p>
               
               <strong>Equipe de Marketing:</strong>
-              <p class="text-muted">{{ cliente.equipe_marketing|truncatewords:15 }}</p>
+              <p class="text-muted">{{ cliente.equipe_marketing|truncatewords:15|default:"Não informado" }}</p>
             </div>
             <div class="col-md-6">
               <strong>Ferramentas Digitais:</strong>
@@ -270,7 +259,6 @@
         </div>
       </div>
 
-      <!-- Próximos Passos -->
       <div class="alert alert-info">
         <h6><i class="fas fa-list-ul me-2"></i>Próximos Passos:</h6>
         <ol class="mb-0">
@@ -281,10 +269,9 @@
         </ol>
       </div>
 
-      <!-- Botões de Navegação -->
       <div class="d-flex justify-content-between mt-4">
         <div>
-          <button type="submit" class="btn btn-outline-secondary" name="action" value="previous">
+          <button type="submit" class="btn btn-outline-secondary" name="wizard_goto_step" value="step5">
             <i class="fas fa-arrow-left me-1"></i> Anterior: Recursos
           </button>
         </div>
@@ -301,7 +288,6 @@
   </div>
 </div>
 
-<!-- Modal de Confirmação -->
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -342,9 +328,24 @@ document.addEventListener('DOMContentLoaded', function() {
   const finishBtn = document.getElementById('finishBtn');
   const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
   
+  // Modificar o listener do submit do formulário principal
+  form.addEventListener('submit', function(e) {
+    const submitter = e.submitter; // O botão que disparou o submit
+    
+    // Se o botão clicado foi o de "Finalizar Cadastro" ou "Salvar Rascunho",
+    // a lógica de fetch já está no JavaScript deles.
+    // Para todos os outros botões (como 'Anterior'), permita o submit normal.
+    if (submitter && (submitter.id === 'finishBtn' || submitter.id === 'saveDraft')) {
+      e.preventDefault(); // Previne o submit default, pois o fetch será feito manualmente
+    }
+    // Se o submit não foi pelos botões com ID 'finishBtn' ou 'saveDraft',
+    // permite que o formulário seja submetido normalmente (o que é necessário para 'previous').
+  });
+
   // ===== FINALIZAR CADASTRO =====
   finishBtn.addEventListener('click', function(e) {
-    e.preventDefault();
+    // A prevenção padrão já está no listener do formulário acima, mas reforçar aqui não faz mal
+    // e.preventDefault(); // Comentado, pois já é tratado pelo listener do form
     confirmModal.show();
   });
   
@@ -353,12 +354,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Submeter formulário para finalizar
     const formData = new FormData(form);
-    formData.set('action', 'finish');
+    formData.set('action', 'finish'); // Certifica que a ação 'finish' é enviada
     
     finishBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Finalizando...';
     finishBtn.disabled = true;
     
-    fetch(form.action, {
+    const currentPath = window.location.pathname;
+    
+    fetch(currentPath, { 
       method: 'POST',
       body: formData,
       headers: {
@@ -370,7 +373,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (data.success) {
         showToast('Cliente cadastrado com sucesso!', 'success');
         
-        // Redirecionar após 2 segundos
         setTimeout(() => {
           window.location.href = data.redirect_url || "{% url 'gestor:cliente_detail' cliente.pk %}";
         }, 2000);
@@ -393,14 +395,18 @@ document.addEventListener('DOMContentLoaded', function() {
   const saveDraftBtn = document.getElementById('saveDraft');
   if (saveDraftBtn) {
     saveDraftBtn.addEventListener('click', function() {
+      // A prevenção padrão já está no listener do formulário acima
+      
       const formData = new FormData(form);
-      formData.set('action', 'save_draft');
+      formData.set('action', 'save_draft'); // Certifica que a ação 'save_draft' é enviada
       
       const originalText = this.innerHTML;
       this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Salvando...';
       this.disabled = true;
       
-      fetch(form.action, {
+      const currentPath = window.location.pathname; 
+      
+      fetch(currentPath, { 
         method: 'POST',
         body: formData,
         headers: {

@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'rest_framework',
     'core',
+    'formtools',
     'gestor',
     'api',
 ]

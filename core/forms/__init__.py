@@ -9,6 +9,7 @@ o uso em views e templates.
 Estrutura:
 - base.py: Formulários de infraestrutura (Usuario, PerfilUsuario, Parametro)
 - cliente.py: Formulários de marketing (Cliente, ProdutoServicoEvento, Campanha)
+- wizard_forms.py: Formulários do wizard de cadastro detalhado de cliente
 """
 
 # ===== IMPORTAÇÕES DA BASE =====
@@ -37,10 +38,17 @@ from .cliente import (
     ClienteForm,
     ProdutoServicoEventoForm,
     CampanhaForm,
-    
-    # Formulários futuros para anexos
-    # ClienteAnexoForm,
-    # CampanhaAnexoForm,
+)
+
+# ===== IMPORTAÇÕES DO WIZARD =====
+from .wizard_forms import (
+    # Formulários do wizard de cliente
+    ClienteWizardStep1Form, # Adicionado
+    ClienteWizardStep2Form,
+    ClienteWizardStep3Form,
+    ClienteWizardStep4Form,
+    ClienteWizardStep5Form,
+    ClienteWizardStep6Form, # Adicionado
 )
 
 # ===== LISTA DE EXPORTAÇÃO =====
@@ -65,9 +73,13 @@ __all__ = [
     'ProdutoServicoEventoForm', 
     'CampanhaForm',
     
-    # === FUTUROS FORMULÁRIOS DE ANEXOS ===
-    # 'ClienteAnexoForm',
-    # 'CampanhaAnexoForm',
+    # === FORMULÁRIOS DO WIZARD ===
+    'ClienteWizardStep1Form', # Adicionado
+    'ClienteWizardStep2Form',
+    'ClienteWizardStep3Form',
+    'ClienteWizardStep4Form',
+    'ClienteWizardStep5Form',
+    'ClienteWizardStep6Form', # Adicionado
 ]
 
 # ===== SHORTCUTS PARA IMPORTAÇÃO FÁCIL =====
@@ -80,6 +92,16 @@ MAIN_FORMS = {
     'produto': ProdutoServicoEventoForm,
     'campanha': CampanhaForm,
     'configuracao': ConfiguracoesForm,
+}
+
+# Forms do wizard para facilitar acesso
+WIZARD_FORMS = {
+    'step1': ClienteWizardStep1Form, # Adicionado
+    'step2': ClienteWizardStep2Form,
+    'step3': ClienteWizardStep3Form,
+    'step4': ClienteWizardStep4Form,
+    'step5': ClienteWizardStep5Form,
+    'step6': ClienteWizardStep6Form, # Adicionado
 }
 
 # Widgets mais usados
@@ -100,6 +122,16 @@ def get_form(form_name):
     """
     return MAIN_FORMS.get(form_name.lower())
 
+def get_wizard_form(step):
+    """
+    Retorna um formulário do wizard pelo step
+    
+    Usage:
+        form_class = get_wizard_form('step1')
+        form = form_class()
+    """
+    return WIZARD_FORMS.get(step.lower())
+
 def get_widget(widget_name):
     """
     Retorna um widget pelo nome
@@ -116,7 +148,11 @@ def list_available_forms():
     Returns:
         dict: Dicionário com nomes e classes dos formulários
     """
-    return MAIN_FORMS.copy()
+    return {
+        'main_forms': MAIN_FORMS.copy(),
+        'wizard_forms': WIZARD_FORMS.copy(),
+        'widgets': WIDGETS.copy()
+    }
 
 # ===== METADADOS DO MÓDULO =====
 __version__ = '1.0.0'
@@ -128,7 +164,10 @@ try:
     # Verificar se todas as importações foram bem-sucedidas
     _test_imports = [
         UsuarioForm, ClienteForm, CampanhaForm, 
-        BaseModelForm, CustomDateInput
+        BaseModelForm, CustomDateInput,
+        ClienteWizardStep1Form, # Adicionado
+        ClienteWizardStep2Form,
+        ClienteWizardStep6Form # Adicionado
     ]
     
     # Log de sucesso (opcional)

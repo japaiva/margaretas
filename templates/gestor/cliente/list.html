@@ -6,20 +6,23 @@
 <div class="card shadow">
   <div class="card-header bg-light d-flex justify-content-between align-items-center">
     <h5 class="card-title mb-0">
-      <i class="fas fa-users me-2"></i> Clientes de Marketing
-      <span class="badge bg-primary ms-2">{{ stats.total }}</span>
+      Clientes
     </h5>
     <div>
-      <a href="{% url 'gestor:cliente_create' %}" class="btn btn-primary btn-sm">
-        <i class="fas fa-plus me-1"></i> Novo Cliente
+      {# Existing "Novo Cliente" button - Renomeado para "Rápido" #}
+      <a href="{% url 'gestor:cliente_create' %}" class="btn btn-primary btn-sm me-1">
+        <i class="fas fa-plus me-1"></i> Novo Cliente (Rápido)
+      </a>
+      {# ADICIONE ESTE BOTÃO PARA O WIZARD DE CRIAÇÃO #}
+      <a href="{% url 'gestor:cliente_wizard_new' %}" class="btn btn-info btn-sm me-1" title="Adicionar novo cliente via Wizard">
+        <i class="fas fa-magic me-1"></i> Novo Cliente (Wizard)
       </a>
       <a href="{% url 'gestor:dashboard' %}" class="btn btn-outline-secondary btn-sm">
-        <i class="fas fa-arrow-left me-1"></i> Dashboard
+        <i class="fas fa-arrow-left me-1"></i> Voltar
       </a>
     </div>
   </div>
   
-  <!-- Estatísticas Rápidas -->
   <div class="card-header bg-white border-bottom">
     <div class="row text-center">
       <div class="col-md-3">
@@ -61,7 +64,6 @@
     </div>
   </div>
   
-  <!-- Filtros -->
   <div class="card-header bg-white">
     <form method="get" class="row g-2 align-items-end">
       <div class="col-md-2">
@@ -185,8 +187,12 @@
                 {% else %}
                   <i class="fas fa-users fa-2x mb-2 text-muted"></i>
                   <div>Nenhum cliente cadastrado.</div>
-                  <a href="{% url 'gestor:cliente_create' %}" class="btn btn-sm btn-primary mt-2">
-                    <i class="fas fa-plus me-1"></i> Cadastrar primeiro cliente
+                  {# Adicionar botões para criar cliente rápido ou com wizard aqui #}
+                  <a href="{% url 'gestor:cliente_create' %}" class="btn btn-sm btn-primary mt-2 me-1">
+                    <i class="fas fa-plus me-1"></i> Cadastrar primeiro cliente (Rápido)
+                  </a>
+                  <a href="{% url 'gestor:cliente_wizard_new' %}" class="btn btn-sm btn-info mt-2" title="Cadastrar primeiro cliente via Wizard">
+                    <i class="fas fa-magic me-1"></i> Cadastrar primeiro cliente (Wizard)
                   </a>
                 {% endif %}
               </td>
@@ -196,7 +202,6 @@
       </table>
     </div>
     
-    <!-- Info da Paginação -->
     {% if page_obj.has_other_pages %}
     <div class="row mt-3">
       <div class="col-md-6">
@@ -211,7 +216,6 @@
     {% endif %}
   </div>
   
-  <!-- Paginação -->
   {% if page_obj.has_other_pages %}
   <div class="card-footer bg-white">
     <nav aria-label="Navegação de página">
@@ -271,7 +275,6 @@
   {% endif %}
 </div>
 
-<!-- Modal de Confirmação de Exclusão -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">

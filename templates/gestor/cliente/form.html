@@ -18,21 +18,7 @@
 
   <div class="card-body">
     
-    <!-- Alerta informativo sobre o wizard -->
-    <div class="alert alert-info">
-      <div class="d-flex align-items-center">
-        <i class="fas fa-info-circle fa-2x me-3"></i>
-        <div>
-          <h6 class="mb-1">Briefing Completo Disponível</h6>
-          <p class="mb-2">Para um cadastro mais detalhado com briefing completo de marketing, use nosso assistente em 6 etapas.</p>
-            {% if cliente and cliente.pk %}
-            <a href="{% url 'gestor:cliente_wizard_step1' cliente.pk %}" class="btn btn-primary btn-sm">
-                <i class="fas fa-magic me-1"></i> Usar Wizard Completo
-            </a>
-            {% endif %}
-        </div>
-      </div>
-    </div>
+
 
     <form method="post" novalidate>
       {% csrf_token %}
@@ -51,19 +37,18 @@
         </div>
       {% endif %}
 
-      <!-- Seção: Informações Básicas -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
+      <!-- Seção: Campo Obrigatório -->
+      <div class="card shadow-sm mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
           <h6 class="card-title mb-0">
-            <i class="fas fa-building me-2"></i>
-            Informações Básicas da Empresa
+            Identificação do Cliente
           </h6>
         </div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-8">
               <label for="{{ form.nome_empresa.id_for_label }}" class="form-label">
-                Nome da Empresa/Marca *
+                <span class="text-danger">*</span> Nome da Empresa/Marca
                 {% if form.nome_empresa.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
               </label>
               {{ form.nome_empresa }}
@@ -85,7 +70,20 @@
                 </label>
               </div>
             </div>
-            
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Informações Básicas -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-building me-2"></i>
+            Informações Básicas 
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
             <div class="col-md-6">
               <label for="{{ form.cnpj_cpf.id_for_label }}" class="form-label">CNPJ/CPF</label>
               {{ form.cnpj_cpf }}
@@ -121,25 +119,35 @@
                 </div>
               {% endif %}
             </div>
+            
+            <div class="col-12">
+              <label for="{{ form.lista_produtos_servicos.id_for_label }}" class="form-label">Produtos ou Serviços</label>
+              {{ form.lista_produtos_servicos }}
+              <div class="form-text">Breve descrição dos produtos ou serviços oferecidos</div>
+              {% if form.lista_produtos_servicos.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.lista_produtos_servicos.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Seção: Responsáveis -->
+      <!-- Seção: Contatos  -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">
           <h6 class="card-title mb-0">
             <i class="fas fa-user-tie me-2"></i>
-            Responsáveis e Contatos
+            Contatos 
           </h6>
         </div>
         <div class="card-body">
           <div class="row g-3">
-            <div class="col-md-6">
-              <label for="{{ form.responsavel_contrato.id_for_label }}" class="form-label">
-                Responsável pelo Contrato *
-                {% if form.responsavel_contrato.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
-              </label>
+            <div class="col-md-4">
+              <label for="{{ form.responsavel_contrato.id_for_label }}" class="form-label">Responsável pelo Contrato</label>
               {{ form.responsavel_contrato }}
               {% if form.responsavel_contrato.errors %}
                 <div class="text-danger small mt-1">
@@ -150,11 +158,8 @@
               {% endif %}
             </div>
             
-            <div class="col-md-6">
-              <label for="{{ form.cargo_responsavel.id_for_label }}" class="form-label">
-                Cargo do Responsável *
-                {% if form.cargo_responsavel.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
-              </label>
+            <div class="col-md-4">
+              <label for="{{ form.cargo_responsavel.id_for_label }}" class="form-label">Cargo do Responsável</label>
               {{ form.cargo_responsavel }}
               {% if form.cargo_responsavel.errors %}
                 <div class="text-danger small mt-1">
@@ -165,11 +170,8 @@
               {% endif %}
             </div>
             
-            <div class="col-md-6">
-              <label for="{{ form.contato_responsavel.id_for_label }}" class="form-label">
-                Contato do Responsável *
-                {% if form.contato_responsavel.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
-              </label>
+            <div class="col-md-4">
+              <label for="{{ form.contato_responsavel.id_for_label }}" class="form-label">Contato do Responsável</label>
               {{ form.contato_responsavel }}
               {% if form.contato_responsavel.errors %}
                 <div class="text-danger small mt-1">
@@ -203,7 +205,20 @@
                 </div>
               {% endif %}
             </div>
-            
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Informações Financeiras -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-chart-line me-2"></i>
+            Informações Financeiras 
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
             <div class="col-md-6">
               <label for="{{ form.faturamento_anual.id_for_label }}" class="form-label">Faturamento Anual Estimado (R$)</label>
               {{ form.faturamento_anual }}
@@ -215,34 +230,62 @@
                 </div>
               {% endif %}
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Seção: Produtos/Serviços -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-          <h6 class="card-title mb-0">
-            <i class="fas fa-box me-2"></i>
-            Produtos ou Serviços (Resumo)
-          </h6>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-12">
-              <label for="{{ form.lista_produtos_servicos.id_for_label }}" class="form-label">
-                Produtos ou Serviços Oferecidos *
-                {% if form.lista_produtos_servicos.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
-              </label>
-              {{ form.lista_produtos_servicos }}
-              <div class="form-text">Descreva brevemente os principais produtos ou serviços</div>
-              {% if form.lista_produtos_servicos.errors %}
+            
+            <div class="col-md-6">
+              <label for="{{ form.orcamento_marketing.id_for_label }}" class="form-label">Orçamento de Marketing (R$)</label>
+              {{ form.orcamento_marketing }}
+              {% if form.orcamento_marketing.errors %}
                 <div class="text-danger small mt-1">
-                  {% for error in form.lista_produtos_servicos.errors %}
+                  {% for error in form.orcamento_marketing.errors %}
                     <i class="fas fa-times-circle me-1"></i>{{ error }}
                   {% endfor %}
                 </div>
               {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Configurações Digitais  -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-laptop me-2"></i>
+            Configurações Digitais 
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="form-check form-switch">
+                {{ form.google_analytics }}
+                <label class="form-check-label" for="{{ form.google_analytics.id_for_label }}">
+                  Google Analytics
+                </label>
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <div class="form-check form-switch">
+                {{ form.tag_manager }}
+                <label class="form-check-label" for="{{ form.tag_manager.id_for_label }}">
+                  Tag Manager
+                </label>
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <div class="form-check form-switch">
+                {{ form.pixel_facebook }}
+                <label class="form-check-label" for="{{ form.pixel_facebook.id_for_label }}">
+                  Pixel Facebook
+                </label>
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <label for="{{ form.crm_utilizado.id_for_label }}" class="form-label">CRM</label>
+              {{ form.crm_utilizado }}
             </div>
           </div>
         </div>
@@ -256,17 +299,49 @@
           </a>
         </div>
         <div>
-          <button type="submit" class="btn btn-success" name="action" value="save">
+          <button type="submit" class="btn btn-success btn-lg" name="action" value="save">
             <i class="fas fa-save me-1"></i> {{ action }} Cliente
           </button>
           {% if action == 'Criar' %}
-          <button type="submit" class="btn btn-primary" name="action" value="save_and_wizard">
-            <i class="fas fa-magic me-1"></i> {{ action }} e Ir para Wizard
+          <button type="submit" class="btn btn-primary btn-lg" name="action" value="save_and_wizard">
+            <i class="fas fa-magic me-1"></i> {{ action }} e Completar Detalhes
           </button>
           {% endif %}
         </div>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal de Sucesso para Cadastro Rápido -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="successModalLabel">
+          <i class="fas fa-check-circle me-2"></i>Cliente Criado com Sucesso!
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+          <i class="fas fa-rocket fa-3x text-success mb-3"></i>
+          <h5>Cliente cadastrado rapidamente!</h5>
+          <p>Você pode agora:</p>
+          <ul class="list-unstyled">
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Adicionar produtos/serviços</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Criar campanhas de marketing</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Completar informações depois</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <a href="#" class="btn btn-primary" id="continueToDetails">
+          <i class="fas fa-plus me-1"></i> Adicionar Mais Detalhes
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -276,7 +351,46 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   
-  // ===== MÁSCARA PARA CNPJ/CPF =====
+  // ===== FOCO NO CAMPO OBRIGATÓRIO =====
+  const nomeEmpresaField = document.getElementById('id_nome_empresa');
+  if (nomeEmpresaField && !nomeEmpresaField.value) {
+    nomeEmpresaField.focus();
+  }
+
+  // ===== VALIDAÇÃO SIMPLES =====
+  const form = document.querySelector('form');
+  const requiredField = document.getElementById('id_nome_empresa'); // Apenas este campo é obrigatório
+  
+  function validateForm() {
+    const value = requiredField.value.trim();
+    const isValid = value.length > 0;
+    
+    if (isValid) {
+      requiredField.classList.remove('is-invalid');
+      requiredField.classList.add('is-valid');
+    } else {
+      requiredField.classList.remove('is-valid');
+      if (value.length === 0 && requiredField === document.activeElement) {
+        // Só marca como inválido se estiver focado e vazio
+        requiredField.classList.add('is-invalid');
+      }
+    }
+    
+    return isValid;
+  }
+  
+  // Event listeners para validação
+  requiredField.addEventListener('blur', validateForm);
+  requiredField.addEventListener('input', function() {
+    // Limpar estado de erro enquanto digita
+    this.classList.remove('is-invalid');
+    if (this.value.trim().length > 0) {
+      this.classList.add('is-valid');
+    }
+  });
+
+  // ===== MÁSCARAS DE ENTRADA =====
+  // Máscara para CNPJ/CPF
   const cnpjCpfField = document.getElementById('id_cnpj_cpf');
   if (cnpjCpfField) {
     cnpjCpfField.addEventListener('input', function() {
@@ -299,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // ===== MÁSCARA PARA TELEFONE =====
+  // Máscara para telefone
   const telefoneFields = document.querySelectorAll('input[name*="contato"]');
   telefoneFields.forEach(field => {
     field.addEventListener('input', function() {
@@ -317,39 +431,121 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // ===== MÁSCARA PARA FATURAMENTO =====
+  // ===== MÁSCARA PARA VALORES MONETÁRIOS =====
   const faturamentoField = document.getElementById('id_faturamento_anual');
-  if (faturamentoField) {
-    faturamentoField.addEventListener('input', function() {
-      let value = this.value.replace(/\D/g, '');
-      if (value) {
-        value = (parseFloat(value) / 100).toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        }).replace('R$ ', '');
-      }
-      this.value = value;
-    });
-  }
-
-  // ===== VALIDAÇÃO SIMPLES =====
-  const requiredFields = ['nome_empresa', 'responsavel_contrato', 'cargo_responsavel', 'contato_responsavel', 'lista_produtos_servicos'];
+  const orcamentoField = document.getElementById('id_orcamento_marketing');
   
-  requiredFields.forEach(fieldName => {
-    const field = document.getElementById(`id_${fieldName}`);
+  [faturamentoField, orcamentoField].forEach(field => {
     if (field) {
-      field.addEventListener('blur', function() {
-        if (this.value.trim().length === 0) {
-          this.classList.add('is-invalid');
-        } else {
-          this.classList.remove('is-invalid');
-          this.classList.add('is-valid');
+      field.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        if (value) {
+          // Converter para formato monetário brasileiro
+          const numberValue = parseFloat(value) / 100;
+          value = numberValue.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
         }
+        this.value = value;
       });
     }
   });
 
-  console.log('📝 Formulário básico de cliente carregado!');
+  // ===== SUBMIT VALIDATION =====
+  form.addEventListener('submit', function(e) {
+    if (!validateForm()) {
+      e.preventDefault();
+      
+      // Focar no campo obrigatório
+      requiredField.focus();
+      requiredField.classList.add('is-invalid');
+      
+      // Mostrar toast de erro
+      showToast('Por favor, preencha o nome da empresa antes de continuar', 'warning');
+    }
+  });
+
+  // ===== FUNÇÃO TOAST =====
+  function showToast(message, type = 'info') {
+    const toastHtml = `
+      <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '1056';
+      document.body.appendChild(toastContainer);
+    }
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+
+  const optionalSections = document.querySelectorAll('.card.shadow-sm:not(.border-primary)');
+  optionalSections.forEach(section => {
+    const header = section.querySelector('.card-header');
+    const body = section.querySelector('.card-body');
+    
+    // Adicionar cursor pointer
+    header.style.cursor = 'pointer';
+    
+    // Adicionar ícone de expandir/contrair
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-chevron-down ms-auto';
+    header.appendChild(icon);
+    
+    // Inicialmente collapsed se não tiver dados
+    const inputs = body.querySelectorAll('input, textarea, select');
+    const hasData = Array.from(inputs).some(input => input.value && input.value.trim() !== '');
+    
+    if (!hasData) {
+      body.style.display = 'none';
+      icon.className = 'fas fa-chevron-right ms-auto';
+      section.style.opacity = '0.7';
+    }
+    
+    // Click handler
+    header.addEventListener('click', function() {
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.className = 'fas fa-chevron-down ms-auto';
+        section.style.opacity = '1';
+      } else {
+        body.style.display = 'none';
+        icon.className = 'fas fa-chevron-right ms-auto';
+        section.style.opacity = '0.7';
+      }
+    });
+  });
+
+  // ===== DESTACAR CAMPO OBRIGATÓRIO =====
+  requiredField.addEventListener('focus', function() {
+    this.parentElement.parentElement.classList.add('bg-light');
+  });
+  
+  requiredField.addEventListener('blur', function() {
+    this.parentElement.parentElement.classList.remove('bg-light');
+  });
+
+
 });
 </script>
 {% endblock %}

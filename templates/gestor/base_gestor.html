@@ -18,12 +18,12 @@
 <!-- Menu de Clientes -->
 <li class="nav-item dropdown">
   <a class="nav-link dropdown-toggle {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Clientes
+    Bases Dados
   </a>
   <ul class="dropdown-menu dropdown-menu-dark">
     <li>
       <a class="dropdown-item {% if request.resolver_match.url_name == 'cliente_list' %}active{% endif %}" href="{% url 'gestor:cliente_list' %}">
-        <i class="fas fa-list me-2"></i> Todos os Clientes
+        Clientes
       </a>
     </li>
 
