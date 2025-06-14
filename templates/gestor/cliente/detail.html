@@ -13,21 +13,9 @@
         <span class="badge bg-warning ms-2">Inativo</span>
       {% endif %}
       
-      {# Status do Briefing #}
-      {% if cliente.briefing_completo %}
-        <span class="badge bg-info ms-1">
-          <i class="fas fa-check-circle me-1"></i>Briefing Completo
-        </span>
-      {% else %}
-        <span class="badge bg-warning ms-1">
-          <i class="fas fa-clock me-1"></i>Briefing {{ cliente.briefing_progress|floatformat:0 }}%
-        </span>
-      {% endif %}
     </h5>
     <div>
-      <a href="{% url 'gestor:cliente_update' cliente.pk %}" class="btn btn-outline-primary btn-sm me-1">
-        <i class="fas fa-edit me-1"></i> Editar Dados
-      </a>
+
       
       {% if not cliente.briefing_completo %}
         <a href="{% url 'gestor:cliente_briefing' cliente.pk %}" class="btn btn-info btn-sm me-1" title="Completar Briefing Estratégico">
@@ -43,9 +31,6 @@
         <i class="fas fa-tasks me-1"></i> Checklist
       </a>
       
-      <button type="button" class="btn btn-sm btn-outline-danger me-1" onclick="confirmarExclusao()">
-        <i class="fas fa-trash-alt me-1"></i> Excluir
-      </button>
       <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary btn-sm">
         <i class="fas fa-arrow-left me-1"></i> Voltar
       </a>
@@ -141,52 +126,6 @@
               </li>
               {% endif %}
             </ul>
-          </div>
-        </div>
-
-        <!-- Configurações Digitais -->
-        <div class="card mb-3">
-          <div class="card-header bg-light">
-            <h6 class="card-title mb-0">
-              <i class="fas fa-laptop me-2"></i>Configurações Digitais
-            </h6>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-4 text-center">
-                {% if cliente.google_analytics %}
-                  <i class="fas fa-chart-line fa-2x text-success mb-1"></i>
-                  <div class="small text-success">Google Analytics</div>
-                {% else %}
-                  <i class="fas fa-chart-line fa-2x text-muted mb-1"></i>
-                  <div class="small text-muted">Google Analytics</div>
-                {% endif %}
-              </div>
-              <div class="col-md-4 text-center">
-                {% if cliente.tag_manager %}
-                  <i class="fas fa-tag fa-2x text-success mb-1"></i>
-                  <div class="small text-success">Tag Manager</div>
-                {% else %}
-                  <i class="fas fa-tag fa-2x text-muted mb-1"></i>
-                  <div class="small text-muted">Tag Manager</div>
-                {% endif %}
-              </div>
-              <div class="col-md-4 text-center">
-                {% if cliente.pixel_facebook %}
-                  <i class="fab fa-facebook fa-2x text-success mb-1"></i>
-                  <div class="small text-success">Pixel Facebook</div>
-                {% else %}
-                  <i class="fab fa-facebook fa-2x text-muted mb-1"></i>
-                  <div class="small text-muted">Pixel Facebook</div>
-                {% endif %}
-              </div>
-            </div>
-            
-            {% if cliente.crm_utilizado %}
-            <div class="mt-3 text-center">
-              <strong>CRM:</strong> <span class="badge bg-info">{{ cliente.crm_utilizado }}</span>
-            </div>
-            {% endif %}
           </div>
         </div>
         
@@ -382,7 +321,6 @@
           {% endif %}
         {% else %}
           <div class="text-center py-3 text-muted">
-            <i class="fas fa-bullhorn fa-2x mb-2"></i>
             <p class="mb-0">Nenhuma campanha criada.</p>
             <a href="{% url 'gestor:campanha_create' %}?cliente={{ cliente.pk }}" class="btn btn-sm btn-primary mt-2">
               <i class="fas fa-plus me-1"></i> Criar primeira campanha

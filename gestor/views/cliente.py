@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from formtools.wizard.views import SessionWizardView
 
+
 # ===== IMPORTS ATUALIZADOS =====
 from core.models import Cliente, ClienteChecklist, Campanha
 from core.forms import ClienteForm, CampanhaForm, ClienteChecklistForm
@@ -26,6 +27,9 @@ from core.forms.wizard_forms import (
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+
 
 
 @login_required
@@ -296,11 +300,10 @@ def cliente_update(request, pk):
     logger.debug('cliente_update: Renderizando gestor/cliente/form.html com contexto.')
     return render(request, 'gestor/cliente/form.html', context)
 
-
 @login_required
 @require_http_methods(["POST"])
 def cliente_delete(request, pk):
-    """Excluir cliente (soft delete)"""
+    """Excluir cliente completamente (exclusão real)"""
     
     cliente = get_object_or_404(Cliente, pk=pk)
     
@@ -310,19 +313,39 @@ def cliente_delete(request, pk):
     if campanhas_ativas.exists():
         messages.error(
             request, 
-            f'Não é possível excluir o cliente "{cliente.nome_empresa}" pois possui campanhas ativas.'
+            f'Não é possível excluir o cliente "{cliente.nome_empresa}" pois possui campanhas ativas. '
+            f'Pause ou finalize as campanhas primeiro.'
         )
         return redirect('gestor:cliente_detail', pk=pk)
     
-    # Soft delete
+    # EXCLUSÃO REAL - não apenas desativação
     nome_empresa = cliente.nome_empresa
-    cliente.ativo = False
-    cliente.save()
     
-    messages.success(request, f'Cliente "{nome_empresa}" desativado com sucesso!')
-    logger.info(f'Cliente {nome_empresa} desativado por {request.user.username}')
+    # Opcional: Verificar se tem dependências importantes
+    total_campanhas = cliente.campanhas.count()
+    
+    try:
+        # Excluir cliente e todas as relações CASCADE
+        cliente.delete()
+        
+        messages.success(
+            request, 
+            f'Cliente "{nome_empresa}" excluído permanentemente com sucesso! '
+            f'{"" if total_campanhas == 0 else f"({total_campanhas} campanhas também foram removidas)"}'
+        )
+        
+        logger.info(f'Cliente {nome_empresa} excluído permanentemente por {request.user.username}')
+        
+    except Exception as e:
+        logger.error(f'Erro ao excluir cliente {nome_empresa}: {e}')
+        messages.error(
+            request, 
+            f'Erro ao excluir cliente "{nome_empresa}". Tente novamente ou contate o suporte.'
+        )
+        return redirect('gestor:cliente_detail', pk=pk)
     
     return redirect('gestor:cliente_list')
+
 
 
 # ===== VIEWS DE CHECKLIST =====

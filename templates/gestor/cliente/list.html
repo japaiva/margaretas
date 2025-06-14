@@ -6,12 +6,12 @@
 <div class="card shadow">
   <div class="card-header bg-light d-flex justify-content-between align-items-center">
     <h5 class="card-title mb-0">
-      Clientes de Marketing
+      Clientes
     </h5>
     <div>
       {# CADASTRO RÁPIDO - Form Simples #}
       <a href="{% url 'gestor:cliente_create' %}" class="btn btn-primary btn-sm me-1">
-        <i class="fas fa-plus me-1"></i> Cadastro Rápido
+        <i class="fas fa-plus me-1"></i> Novo Cliente
       </a>
       <a href="{% url 'gestor:dashboard' %}" class="btn btn-outline-secondary btn-sm">
         <i class="fas fa-arrow-left me-1"></i> Voltar
@@ -201,7 +201,6 @@
                     <i class="fas fa-eraser me-1"></i> Limpar filtros
                   </a>
                 {% else %}
-                  <i class="fas fa-users fa-2x mb-2 text-muted"></i>
                   <div>Nenhum cliente cadastrado.</div>
                   <a href="{% url 'gestor:cliente_create' %}" class="btn btn-sm btn-primary mt-2">
                     <i class="fas fa-plus me-1"></i> Cadastrar primeiro cliente
