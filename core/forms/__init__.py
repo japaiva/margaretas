@@ -6,6 +6,7 @@ Módulo de formulários do Portal de Marketing Margaretas
 Estrutura:
 - base.py: Formulários de infraestrutura (Usuario, PerfilUsuario, Parametro)
 - cliente.py: Formulários básicos (Cliente, Campanha)
+- produto_servico_forms.py: Formulários para Produtos/Serviços/Eventos
 - wizard_forms.py: Formulários do wizard de briefing (4 steps)
 - checklist_forms.py: Formulário de checklist operacional
 """
@@ -29,6 +30,12 @@ from .cliente import (
     CampanhaForm,
 )
 
+# ===== IMPORTAÇÕES DE PRODUTOS/SERVIÇOS =====
+from .produto_servico_forms import (
+    ProdutoServicoEventoForm,
+    ProdutoServicoEventoFilterForm,
+)
+
 # ===== IMPORTAÇÕES DO WIZARD =====
 from .wizard_forms import (
     ClienteWizardStep1Form,
@@ -43,7 +50,7 @@ from .checklist_forms import (
     ClienteChecklistForm,
 )
 
-# ===== LISTA DE EXPORTAÇÃO SIMPLIFICADA =====
+# ===== LISTA DE EXPORTAÇÃO ATUALIZADA =====
 __all__ = [
     # Formulários base/infraestrutura
     'UsuarioForm', 
@@ -59,6 +66,10 @@ __all__ = [
     # Formulários básicos de marketing
     'ClienteForm', 
     'CampanhaForm',
+    
+    # Formulários de produtos/serviços/eventos
+    'ProdutoServicoEventoForm',
+    'ProdutoServicoEventoFilterForm',
     
     # Formulários do wizard de briefing (4 steps)
     'ClienteWizardStep1Form',    # Público-Alvo

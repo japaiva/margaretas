@@ -1,7 +1,7 @@
 # core/forms/produto_servico_forms.py
 
 from django import forms
-from core.models.produto_servico import ProdutoServicoEvento
+from core.models import ProdutoServicoEvento
 from core.utils.view_utils import DateAwareModelForm
 from decimal import Decimal, InvalidOperation
 import re

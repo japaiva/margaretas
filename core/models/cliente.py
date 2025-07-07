@@ -88,6 +88,34 @@ class Cliente(models.Model):
     pixel_facebook = models.BooleanField(default=False, verbose_name="Pixel Facebook Instalado?")
     crm_utilizado = models.CharField(max_length=100, verbose_name="CRM Utilizado", blank=True, null=True)
     
+    # 1. HISTÓRIA DA EMPRESA (NOVA ABA - STEP 1)
+    historia_empresa = models.TextField(
+        'História da Empresa',
+        blank=True, null=True,
+        help_text='História da empresa: fundação, evolução, marcos importantes'
+    )
+
+    # 2. MISSÃO (pode já existir)
+    missao = models.TextField(
+        'Missão da Empresa', 
+        blank=True, null=True,
+        help_text='Qual é o propósito da empresa? Por que ela existe?'
+    )
+
+    # 3. VISÃO (pode já existir) 
+    visao = models.TextField(
+        'Visão da Empresa',
+        blank=True, null=True, 
+        help_text='Onde a empresa quer chegar? Como se vê no futuro?'
+    )
+
+    # 4. VALORES (pode já existir)
+    valores = models.TextField(
+        'Valores da Empresa',
+        blank=True, null=True,
+        help_text='Quais são os princípios e valores que norteiam a empresa?'
+    )
+
     # === CONTEXTO ADICIONAL ===
     principais_desafios = models.TextField(verbose_name="Principais Desafios do Mercado", blank=True, null=True)
     sazonalidades = models.TextField(verbose_name="Sazonalidades do Negócio", blank=True, null=True)

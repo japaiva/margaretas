@@ -1,0 +1,377 @@
+{% extends 'gestor/base_gestor.html' %}
+
+{% block title %}Cliente - História da Empresa | Portal Marketing{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+  <div class="card-header bg-light">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="card-title mb-0">
+        <i class="fas fa-history me-2"></i>
+        História da Empresa - {{ cliente.nome_empresa }}
+      </h5>
+      <div>
+        <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-arrow-left me-1"></i> Voltar
+        </a>
+      </div>
+    </div>
+    
+    <!-- Progress bar atualizada para 5 steps -->
+    <div class="progress mb-3" style="height: 8px;">
+      <div class="progress-bar bg-primary" role="progressbar" style="width: 20%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="5"></div>
+    </div>
+
+    <!-- Badges atualizados para 5 steps -->
+    <div class="d-flex justify-content-between text-center">
+      <div class="flex-fill">
+        <div class="badge bg-primary rounded-pill mb-1">1</div>
+        <div class="small fw-bold text-primary">História</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">2</div>
+        <div class="small text-muted">Posicionamento</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">3</div>
+        <div class="small text-muted">Objetivos</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">4</div>
+        <div class="small text-muted">Público-Alvo</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">5</div>
+        <div class="small text-muted">Recursos</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card-body">
+    <form method="post" novalidate id="historiaForm">
+      {% csrf_token %}
+      {{ wizard.management_form }}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger alert-dismissible fade show">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Erros de Validação:</strong>
+          <ul class="mb-0 mt-2">
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endif %}
+
+      <!-- Seção: História da Empresa -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-book me-2"></i>
+            História da Empresa
+            {% if form.historia_empresa.errors %}
+              <span class="badge bg-danger ms-2">
+                <i class="fas fa-exclamation-triangle"></i> 
+                {{ form.historia_empresa.errors|length }} erro(s)
+              </span>
+            {% endif %}
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.historia_empresa.id_for_label }}" class="form-label">
+                História da Empresa *
+                {% if form.historia_empresa.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.historia_empresa }}
+              <div class="form-text">
+                Conte a história da empresa: fundação, evolução, marcos importantes, momentos de crescimento, desafios superados, etc.
+              </div>
+              {% if form.historia_empresa.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.historia_empresa.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Missão, Visão e Valores -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-star me-2"></i>
+            Missão, Visão e Valores
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.missao.id_for_label }}" class="form-label">
+                Missão da Empresa
+                {% if form.missao.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.missao }}
+              <div class="form-text">
+                Qual é o propósito da empresa? Por que ela existe?
+              </div>
+              {% if form.missao.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.missao.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.visao.id_for_label }}" class="form-label">
+                Visão da Empresa
+                {% if form.visao.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.visao }}
+              <div class="form-text">
+                Onde a empresa quer chegar? Como se vê no futuro?
+              </div>
+              {% if form.visao.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.visao.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.valores.id_for_label }}" class="form-label">
+                Valores da Empresa
+                {% if form.valores.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.valores }}
+              <div class="form-text">
+                Quais são os princípios e valores que norteiam a empresa?
+              </div>
+              {% if form.valores.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.valores.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botões de Navegação -->
+      <div class="d-flex justify-content-between mt-4">
+        <div>
+          <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-times me-1"></i> Cancelar
+          </a>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-primary" name="action" value="next">
+            Próximo: Posicionamento
+            <i class="fas fa-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // ===== VALIDAÇÃO EM TEMPO REAL =====
+  const form = document.getElementById('historiaForm');
+  const requiredFields = ['historia_empresa']; // Apenas história é obrigatória
+  
+  // Validar campos obrigatórios
+  function validateRequiredFields() {
+    let allValid = true;
+    
+    requiredFields.forEach(fieldName => {
+      const field = document.getElementById(`id_${fieldName}`);
+      if (field) {
+        const value = field.value.trim();
+        const isValid = value.length >= 20; // Mínimo 20 caracteres para história
+        
+        if (isValid) {
+          field.classList.remove('is-invalid');
+          field.classList.add('is-valid');
+        } else {
+          field.classList.remove('is-valid');
+          if (value.length > 0) { // Só marca como inválido se tiver algum conteúdo
+            field.classList.add('is-invalid');
+          }
+          allValid = false;
+        }
+      }
+    });
+    
+    // Habilitar/desabilitar botão de próximo
+    const nextBtn = document.querySelector('button[value="next"]');
+    if (nextBtn) {
+      nextBtn.disabled = !allValid;
+      if (allValid) {
+        nextBtn.classList.remove('btn-outline-primary');
+        nextBtn.classList.add('btn-primary');
+      } else {
+        nextBtn.classList.remove('btn-primary');
+        nextBtn.classList.add('btn-outline-primary');
+      }
+    }
+    
+    return allValid;
+  }
+  
+  // Event listeners para validação
+  requiredFields.forEach(fieldName => {
+    const field = document.getElementById(`id_${fieldName}`);
+    if (field) {
+      field.addEventListener('blur', validateRequiredFields);
+      field.addEventListener('input', function() {
+        clearTimeout(field.validationTimeout);
+        field.validationTimeout = setTimeout(validateRequiredFields, 800);
+      });
+    }
+  });
+  
+  // ===== CONTADOR DE CARACTERES =====
+  const allFields = ['historia_empresa', 'missao', 'visao', 'valores'];
+  
+  allFields.forEach(fieldName => {
+    const field = document.getElementById(`id_${fieldName}`);
+    if (field && field.tagName.toLowerCase() === 'textarea') {
+      // Criar contador
+      const counter = document.createElement('div');
+      counter.className = 'form-text text-end';
+      counter.id = `${fieldName}_counter`;
+      
+      // Inserir contador após o campo
+      field.parentNode.appendChild(counter);
+      
+      // Atualizar contador
+      function updateCounter() {
+        const length = field.value.length;
+        const minLength = fieldName === 'historia_empresa' ? 20 : 10;
+        const maxLength = field.getAttribute('maxlength') || 2000;
+        
+        if (fieldName === 'historia_empresa' && length < minLength) {
+          counter.innerHTML = `<span class="text-danger">${length}/${maxLength} (mínimo ${minLength})</span>`;
+        } else if (length > 0 && length < minLength) {
+          counter.innerHTML = `<span class="text-warning">${length}/${maxLength} (recomendado mínimo ${minLength})</span>`;
+        } else {
+          counter.innerHTML = `<span class="text-success">${length}/${maxLength}</span>`;
+        }
+      }
+      
+      field.addEventListener('input', updateCounter);
+      updateCounter(); // Inicial
+    }
+  });
+  
+  // ===== SALVAR RASCUNHO =====
+  const saveDraftBtn = document.getElementById('saveDraft');
+  if (saveDraftBtn) {
+    saveDraftBtn.addEventListener('click', function() {
+      const formData = new FormData(form);
+      formData.set('action', 'save_draft');
+      
+      const originalText = this.innerHTML;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Salvando...';
+      this.disabled = true;
+      
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showToast('Rascunho salvo com sucesso!', 'success');
+        } else {
+          showToast('Erro ao salvar rascunho', 'danger');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        showToast('Erro ao salvar rascunho', 'danger');
+      })
+      .finally(() => {
+        this.innerHTML = originalText;
+        this.disabled = false;
+      });
+    });
+  }
+  
+  // ===== FUNÇÃO TOAST =====
+  function showToast(message, type = 'info') {
+    const toastHtml = `
+      <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '1056';
+      document.body.appendChild(toastContainer);
+    }
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+  
+  // ===== SUBMIT VALIDATION =====
+  form.addEventListener('submit', function(e) {
+    const action = e.submitter?.value;
+    
+    if (action === 'next' && !validateRequiredFields()) {
+      e.preventDefault();
+      showToast('Preencha a história da empresa antes de continuar', 'warning');
+      
+      const firstInvalid = form.querySelector('.is-invalid');
+      if (firstInvalid) {
+        firstInvalid.focus();
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  });
+  
+  // Validação inicial
+  setTimeout(validateRequiredFields, 100);
+  
+  console.log('📚 Cliente Form História (Step 1) carregado com sucesso!');
+});
+</script>
+{% endblock %}

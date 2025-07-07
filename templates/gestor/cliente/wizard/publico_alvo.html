@@ -1,6 +1,6 @@
 {% extends 'gestor/base_gestor.html' %}
 
-{% block title %}{% if form.instance.pk %}Editar{% else %}Novo{% endif %} Cliente - Público-Alvo | Portal Marketing{% endblock %}
+{% block title %}Cliente - Público-Alvo | Portal Marketing{% endblock %}
 
 {% block content %}
 <div class="card shadow">
@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h5 class="card-title mb-0">
         <i class="fas fa-users me-2"></i>
-        Público-Alvo - {{ cliente.nome_empresa|default:"Novo Cliente" }}
+        Público-Alvo - {{ cliente.nome_empresa }}
       </h5>
       <div>
         <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary btn-sm">
@@ -16,112 +16,71 @@
         </a>
       </div>
     </div>
-
-
-
-
-
     
-    <!-- Atualizar a progress bar -->
+    <!-- Progress bar atualizada para 5 steps - 80% -->
     <div class="progress mb-3" style="height: 8px;">
-      <div class="progress-bar bg-primary" role="progressbar" style="width: 25%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="4"></div>
+      <div class="progress-bar bg-primary" role="progressbar" style="width: 80%" aria-valuenow="4" aria-valuemin="0" aria-valuemax="5"></div>
     </div>
-    
-    <!-- Atualizar os badges -->
+
+    <!-- Badges atualizados para nova ordem -->
     <div class="d-flex justify-content-between text-center">
       <div class="flex-fill">
-        <div class="badge bg-primary rounded-pill mb-1">1</div>
-        <div class="small fw-bold text-primary">Público</div>
+        <div class="badge bg-success rounded-pill mb-1">✓</div>
+        <div class="small text-success">História</div>
       </div>
       <div class="flex-fill">
-        <div class="badge bg-light text-muted rounded-pill mb-1">2</div>
-        <div class="small text-muted">Posicionamento</div>
+        <div class="badge bg-success rounded-pill mb-1">✓</div>
+        <div class="small text-success">Posicionamento</div>
       </div>
       <div class="flex-fill">
-        <div class="badge bg-light text-muted rounded-pill mb-1">3</div>
-        <div class="small text-muted">Objetivos</div>
+        <div class="badge bg-success rounded-pill mb-1">✓</div>
+        <div class="small text-success">Objetivos</div>
       </div>
       <div class="flex-fill">
-        <div class="badge bg-light text-muted rounded-pill mb-1">4</div>
+        <div class="badge bg-primary rounded-pill mb-1">4</div>
+        <div class="small fw-bold text-primary">Público-Alvo</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">5</div>
         <div class="small text-muted">Recursos</div>
       </div>
     </div>
+  </div>
   
   <div class="card-body">
-    <form method="post" novalidate id="step2Form">
+    <form method="post" novalidate id="publicoAlvoForm">
       {% csrf_token %}
-      {{ wizard.management_form }} {# <-- ADICIONE ESTA LINHA AQUI #}
-
-      {% if form.non_field_errors %}
-        <div class="alert alert-danger alert-dismissible fade show">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          <strong>Erros de Validação:</strong>
-          <ul class="mb-0 mt-2">
-            {% for error in form.non_field_errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      {% endif %}
+      {{ wizard.management_form }}
 
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">
           <h6 class="card-title mb-0">
             <i class="fas fa-crosshairs me-2"></i>
             Descrição do Público-Alvo
-            {% if form.descricao_publico.errors %}
-              <span class="badge bg-danger ms-2">
-                <i class="fas fa-exclamation-triangle"></i> 
-                {{ form.descricao_publico.errors|length }} erro(s)
-              </span>
-            {% endif %}
           </h6>
         </div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-12">
               <label for="{{ form.descricao_publico.id_for_label }}" class="form-label">
-                Descrição do Público-Alvo *
-                {% if form.descricao_publico.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+                Descrição do Público-Alvo
               </label>
               {{ form.descricao_publico }}
               <div class="form-text">
                 Descreva quem é o público-alvo: idade, gênero, interesses, comportamentos, localização, etc.
               </div>
-              {% if form.descricao_publico.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.descricao_publico.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
             
             <div class="col-md-6">
               <label for="{{ form.consideracoes_demograficas.id_for_label }}" class="form-label">Considerações Demográficas</label>
               {{ form.consideracoes_demograficas }}
               <div class="form-text">Onde está localizado? Onde quer atingir com seu produto/serviço?</div>
-              {% if form.consideracoes_demograficas.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.consideracoes_demograficas.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
             
             <div class="col-md-6">
               <label for="{{ form.niveis_consciencia.id_for_label }}" class="form-label">Níveis de Consciência sobre o Serviço</label>
               {{ form.niveis_consciencia }}
               <div class="form-text">Nível de conhecimento sobre o produto/serviço (Eugene Schwartz)</div>
-              {% if form.niveis_consciencia.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.niveis_consciencia.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
           </div>
         </div>
@@ -138,38 +97,22 @@
           <div class="row g-3">
             <div class="col-12">
               <label for="{{ form.necessidades_desejos.id_for_label }}" class="form-label">
-                Necessidades e Desejos do Público *
-                {% if form.necessidades_desejos.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+                Necessidades e Desejos do Público
               </label>
               {{ form.necessidades_desejos }}
               <div class="form-text">
                 O que o público busca? Quais são suas dores, necessidades e desejos principais?
               </div>
-              {% if form.necessidades_desejos.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.necessidades_desejos.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
             
             <div class="col-12">
               <label for="{{ form.comportamento_compra.id_for_label }}" class="form-label">
-                Comportamento de Compra *
-                {% if form.comportamento_compra.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+                Comportamento de Compra
               </label>
               {{ form.comportamento_compra }}
               <div class="form-text">
                 Como o público costuma comprar? Onde pesquisa? Quais são os critérios de decisão?
               </div>
-              {% if form.comportamento_compra.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.comportamento_compra.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
           </div>
         </div>
@@ -190,13 +133,6 @@
               <div class="form-text">
                 Quais objeções seu público geralmente apresenta antes da compra? (ex: preço, tempo, confiança)
               </div>
-              {% if form.objecoes_comuns.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.objecoes_comuns.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
             
             <div class="col-12">
@@ -205,96 +141,26 @@
               <div class="form-text">
                 Que soluções o público já tentou no passado e não deram certo? Isso ajuda a posicionar melhor sua oferta.
               </div>
-              {% if form.tentativas_passadas.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.tentativas_passadas.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
           </div>
         </div>
       </div>
 
-
+      <!-- Botões de Navegação -->
       <div class="d-flex justify-content-between mt-4">
         <div>
-          <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary">
-            <i class="fas fa-times me-1"></i> Cancelar
-          </a>
+          <button type="submit" class="btn btn-outline-secondary" name="action" value="previous">
+            <i class="fas fa-arrow-left me-1"></i> Anterior: Objetivos
+          </button>
         </div>
         <div>
-          <button type="button" class="btn btn-outline-primary me-2" id="saveDraft">
-            <i class="fas fa-save me-1"></i> Salvar Rascunho
-          </button>
           <button type="submit" class="btn btn-primary" name="action" value="next">
-            Próximo: Posicionamento
+            Próximo: Recursos
             <i class="fas fa-arrow-right ms-1"></i>
           </button>
         </div>
       </div>
-
     </form>
-  </div>
-</div>
-
-<div class="modal fade" id="examplesModal" tabindex="-1" aria-labelledby="examplesModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="examplesModalLabel">
-          <i class="fas fa-users me-2"></i>Exemplos de Público-Alvo
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-4">
-            <div class="card h-100">
-              <div class="card-header bg-primary text-white">
-                <h6 class="mb-0">E-commerce de Moda</h6>
-              </div>
-              <div class="card-body">
-                <p><strong>Descrição:</strong> Mulheres, 22-35 anos, classes B/C, que moram em grandes centros urbanos e valorizam estilo e praticidade.</p>
-                <p><strong>Necessidades:</strong> Roupas modernas, entrega rápida, preços acessíveis, facilidade de troca.</p>
-                <p><strong>Comportamento:</strong> Pesquisam no Instagram, compram pelo celular, influenciadas por stories e reels.</p>
-                <p><strong>Objeções:</strong> Tamanho errado, qualidade duvidosa, demora na entrega.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card h-100">
-              <div class="card-header bg-success text-white">
-                <h6 class="mb-0">Consultoria Empresarial</h6>
-              </div>
-              <div class="card-body">
-                <p><strong>Descrição:</strong> Empresários, 35-55 anos, donos de PMEs com faturamento de R$ 500k-5M/ano.</p>
-                <p><strong>Necessidades:</strong> Aumentar lucratividade, otimizar processos, crescer de forma sustentável.</p>
-                <p><strong>Comportamento:</strong> Pesquisam no Google, participam de eventos, pedem indicações.</p>
-                <p><strong>Objeções:</strong> Preço alto, tempo de implementação, resultados não garantidos.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card h-100">
-              <div class="card-header bg-warning text-dark">
-                <h6 class="mb-0">Curso Online</h6>
-              </div>
-              <div class="card-body">
-                <p><strong>Descrição:</strong> Profissionais, 25-40 anos, que querem mudar de área ou se especializar.</p>
-                <p><strong>Necessidades:</strong> Flexibilidade de horários, conteúdo atualizado, certificação reconhecida.</p>
-                <p><strong>Comportamento:</strong> Pesquisam comparações, leem depoimentos, assistem aulas gratuitas.</p>
-                <p><strong>Objeções:</strong> Falta de tempo, curso não ser reconhecido, não conseguir aplicar na prática.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -305,65 +171,11 @@
 document.addEventListener('DOMContentLoaded', function() {
   
   // ===== VALIDAÇÃO EM TEMPO REAL =====
-  const form = document.getElementById('step2Form');
-  const requiredFields = ['descricao_publico', 'necessidades_desejos', 'comportamento_compra'];
-  
-  // Validar campos obrigatórios
-  function validateRequiredFields() {
-    let allValid = true;
-    
-    requiredFields.forEach(fieldName => {
-      const field = document.getElementById(`id_${fieldName}`);
-      if (field) {
-        const value = field.value.trim();
-        const isValid = value.length >= 10; // Mínimo 10 caracteres para campos de texto
-        
-        if (isValid) {
-          field.classList.remove('is-invalid');
-          field.classList.add('is-valid');
-        } else {
-          field.classList.remove('is-valid');
-          if (value.length > 0) { // Só marca como inválido se tiver algum conteúdo
-            field.classList.add('is-invalid');
-          }
-          allValid = false;
-        }
-      }
-    });
-    
-    // Habilitar/desabilitar botão de próximo
-    const nextBtn = document.querySelector('button[value="next"]');
-    if (nextBtn) {
-      nextBtn.disabled = !allValid;
-      if (allValid) {
-        nextBtn.classList.remove('btn-outline-primary');
-        nextBtn.classList.add('btn-primary');
-      } else {
-        nextBtn.classList.remove('btn-primary');
-        nextBtn.classList.add('btn-outline-primary');
-      }
-    }
-    
-    return allValid;
-  }
-  
-  // Event listeners para validação
-  requiredFields.forEach(fieldName => {
-    const field = document.getElementById(`id_${fieldName}`);
-    if (field) {
-      field.addEventListener('blur', validateRequiredFields);
-      field.addEventListener('input', function() {
-        clearTimeout(field.validationTimeout);
-        field.validationTimeout = setTimeout(validateRequiredFields, 800);
-      });
-    }
-  });
-  
-  // Validação inicial
-  setTimeout(validateRequiredFields, 100);
+  const form = document.getElementById('publicoAlvoForm');
+  const optionalFields = ['descricao_publico', 'necessidades_desejos', 'comportamento_compra'];
   
   // ===== CONTADOR DE CARACTERES =====
-  requiredFields.forEach(fieldName => {
+  optionalFields.forEach(fieldName => {
     const field = document.getElementById(`id_${fieldName}`);
     if (field && field.tagName.toLowerCase() === 'textarea') {
       // Criar contador
@@ -380,8 +192,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const minLength = 10;
         const maxLength = field.getAttribute('maxlength') || 1000;
         
-        if (length < minLength) {
-          counter.innerHTML = `<span class="text-danger">${length}/${maxLength} (mínimo ${minLength})</span>`;
+        if (length > 0 && length < minLength) {
+          counter.innerHTML = `<span class="text-warning">${length}/${maxLength} (recomendado mínimo ${minLength})</span>`;
         } else {
           counter.innerHTML = `<span class="text-success">${length}/${maxLength}</span>`;
         }
@@ -462,39 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // ===== SUBMIT VALIDATION =====
-  form.addEventListener('submit', function(e) {
-    const action = e.submitter?.value;
-    
-    if (action === 'next' && !validateRequiredFields()) {
-      e.preventDefault();
-      showToast('Preencha todos os campos obrigatórios antes de continuar', 'warning');
-      
-      const firstInvalid = form.querySelector('.is-invalid');
-      if (firstInvalid) {
-        firstInvalid.focus();
-        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
-  });
-  
-  // ===== BOTÃO DE EXEMPLOS =====
-  if (!document.getElementById('examplesBtn')) {
-    const examplesBtn = document.createElement('button');
-    examplesBtn.id = 'examplesBtn';
-    examplesBtn.type = 'button';
-    examplesBtn.className = 'btn btn-outline-success btn-sm position-fixed';
-    examplesBtn.style.cssText = 'bottom: 80px; right: 20px; z-index: 1050;';
-    examplesBtn.innerHTML = '<i class="fas fa-lightbulb me-1"></i> Exemplos';
-    examplesBtn.setAttribute('data-bs-toggle', 'modal');
-    examplesBtn.setAttribute('data-bs-target', '#examplesModal');
-    examplesBtn.setAttribute('title', 'Ver exemplos de público-alvo');
-    document.body.appendChild(examplesBtn);
-    
-    new bootstrap.Tooltip(examplesBtn);
-  }
-  
-  console.log('🎯 Cliente Form Step 2 carregado com sucesso!');
+  console.log('👥 Cliente Form Público-Alvo (Step 4) carregado com sucesso!');
 });
 </script>
 {% endblock %}

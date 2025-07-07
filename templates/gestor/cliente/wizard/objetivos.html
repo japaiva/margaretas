@@ -17,14 +17,16 @@
       </div>
     </div>
     
+    <!-- Progress bar atualizada para 5 steps - 60% -->
     <div class="progress mb-3" style="height: 8px;">
-      <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" aria-valuenow="3" aria-valuemin="0" aria-valuemax="4"></div>
+      <div class="progress-bar bg-primary" role="progressbar" style="width: 60%" aria-valuenow="3" aria-valuemin="0" aria-valuemax="5"></div>
     </div>
 
+    <!-- Badges atualizados para nova ordem -->
     <div class="d-flex justify-content-between text-center">
       <div class="flex-fill">
         <div class="badge bg-success rounded-pill mb-1">✓</div>
-        <div class="small text-success">Público</div>
+        <div class="small text-success">História</div>
       </div>
       <div class="flex-fill">
         <div class="badge bg-success rounded-pill mb-1">✓</div>
@@ -36,14 +38,19 @@
       </div>
       <div class="flex-fill">
         <div class="badge bg-light text-muted rounded-pill mb-1">4</div>
+        <div class="small text-muted">Público-Alvo</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-light text-muted rounded-pill mb-1">5</div>
         <div class="small text-muted">Recursos</div>
       </div>
     </div>
+  </div>
   
   <div class="card-body">
-    <form method="post" novalidate id="step4Form">
+    <form method="post" novalidate id="objetivosForm">
       {% csrf_token %}
-      {{ wizard.management_form }} {# <-- ADICIONE ESTA LINHA AQUI #}
+      {{ wizard.management_form }}
 
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">
@@ -56,7 +63,7 @@
           <div class="row g-3">
             <div class="col-12">
               <label for="{{ form.objetivos_marketing.id_for_label }}" class="form-label">
-                Objetivos de Marketing *
+                Objetivos de Marketing
                 {% if form.objetivos_marketing.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
               </label>
               {{ form.objetivos_marketing }}
@@ -72,7 +79,7 @@
             
             <div class="col-12">
               <label for="{{ form.metas_especificas.id_for_label }}" class="form-label">
-                Metas Específicas *
+                Metas Específicas
                 {% if form.metas_especificas.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
               </label>
               {{ form.metas_especificas }}
@@ -88,7 +95,7 @@
             
             <div class="col-12">
               <label for="{{ form.kpis_empresa.id_for_label }}" class="form-label">
-                KPIs da Empresa *
+                KPIs da Empresa
                 {% if form.kpis_empresa.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
               </label>
               {{ form.kpis_empresa }}
@@ -116,7 +123,7 @@
           <div class="row g-3">
             <div class="col-12">
               <label for="{{ form.analise_concorrencia.id_for_label }}" class="form-label">
-                Principais Concorrentes *
+                Principais Concorrentes
                 {% if form.analise_concorrencia.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
               </label>
               {{ form.analise_concorrencia }}
@@ -132,7 +139,7 @@
             
             <div class="col-12">
               <label for="{{ form.pontos_fortes_fracos_concorrencia.id_for_label }}" class="form-label">
-                Pontos Fortes e Fracos dos Concorrentes *
+                Pontos Fortes e Fracos dos Concorrentes
                 {% if form.pontos_fortes_fracos_concorrencia.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
               </label>
               {{ form.pontos_fortes_fracos_concorrencia }}
@@ -156,11 +163,8 @@
           </button>
         </div>
         <div>
-          <button type="button" class="btn btn-outline-primary me-2" id="saveDraft">
-            <i class="fas fa-save me-1"></i> Salvar Rascunho
-          </button>
           <button type="submit" class="btn btn-primary" name="action" value="next">
-            Próximo: Recursos
+            Próximo: Público-Alvo
             <i class="fas fa-arrow-right ms-1"></i>
           </button>
         </div>
@@ -176,60 +180,11 @@
 document.addEventListener('DOMContentLoaded', function() {
   
   // ===== VALIDAÇÃO EM TEMPO REAL =====
-  const form = document.getElementById('step4Form');
-  const requiredFields = ['objetivos_marketing', 'metas_especificas', 'kpis_empresa', 'analise_concorrencia', 'pontos_fortes_fracos_concorrencia'];
+  const form = document.getElementById('objetivosForm');
+  const optionalFields = ['objetivos_marketing', 'metas_especificas', 'kpis_empresa', 'analise_concorrencia', 'pontos_fortes_fracos_concorrencia'];
   
-  function validateRequiredFields() {
-    let allValid = true;
-    
-    requiredFields.forEach(fieldName => {
-      const field = document.getElementById(`id_${fieldName}`);
-      if (field) {
-        const value = field.value.trim();
-        const isValid = value.length >= 5; // Mínimo 5 caracteres para estes campos
-        
-        if (isValid) {
-          field.classList.remove('is-invalid');
-          field.classList.add('is-valid');
-        } else {
-          field.classList.remove('is-valid');
-          if (value.length > 0) {
-            field.classList.add('is-invalid');
-          }
-          allValid = false;
-        }
-      }
-    });
-    
-    const nextBtn = document.querySelector('button[value="next"]');
-    if (nextBtn) {
-      nextBtn.disabled = !allValid;
-      if (allValid) {
-        nextBtn.classList.remove('btn-outline-primary');
-        nextBtn.classList.add('btn-primary');
-      } else {
-        nextBtn.classList.remove('btn-primary');
-        nextBtn.classList.add('btn-outline-primary');
-      }
-    }
-    
-    return allValid;
-  }
-  
-  // Event listeners para validação
-  requiredFields.forEach(fieldName => {
-    const field = document.getElementById(`id_${fieldName}`);
-    if (field) {
-      field.addEventListener('blur', validateRequiredFields);
-      field.addEventListener('input', function() {
-        clearTimeout(field.validationTimeout);
-        field.validationTimeout = setTimeout(validateRequiredFields, 500);
-      });
-    }
-  });
-  
-  // ===== CONTADOR DE CARACTERES (para textareas) =====
-  requiredFields.forEach(fieldName => {
+  // ===== CONTADOR DE CARACTERES =====
+  optionalFields.forEach(fieldName => {
     const field = document.getElementById(`id_${fieldName}`);
     if (field && field.tagName.toLowerCase() === 'textarea') {
       const counter = document.createElement('div');
@@ -239,18 +194,18 @@ document.addEventListener('DOMContentLoaded', function() {
       
       function updateCounter() {
         const length = field.value.length;
-        const minLength = 5; // Ajuste conforme necessário
+        const minLength = 5;
         const maxLength = field.getAttribute('maxlength') || 1000;
         
-        if (length < minLength) {
-          counter.innerHTML = `<span class="text-danger">${length}/${maxLength} (mínimo ${minLength})</span>`;
+        if (length > 0 && length < minLength) {
+          counter.innerHTML = `<span class="text-warning">${length}/${maxLength} (recomendado mínimo ${minLength})</span>`;
         } else {
           counter.innerHTML = `<span class="text-success">${length}/${maxLength}</span>`;
         }
       }
       
       field.addEventListener('input', updateCounter);
-      updateCounter(); // Inicial
+      updateCounter();
     }
   });
   
@@ -324,26 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // ===== SUBMIT VALIDATION =====
-  form.addEventListener('submit', function(e) {
-    const action = e.submitter?.value;
-    
-    if (action === 'next' && !validateRequiredFields()) {
-      e.preventDefault();
-      showToast('Preencha todos os campos obrigatórios antes de continuar', 'warning');
-      
-      const firstInvalid = form.querySelector('.is-invalid');
-      if (firstInvalid) {
-        firstInvalid.focus();
-        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
-  });
-  
-  // Inicialização
-  setTimeout(validateRequiredFields, 100);
-  
-  console.log('🎯 Cliente Form Step 4 carregado com sucesso!');
+  console.log('🎯 Cliente Form Objetivos (Step 3) carregado com sucesso!');
 });
 </script>
 {% endblock %}

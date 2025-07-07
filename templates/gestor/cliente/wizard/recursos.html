@@ -17,14 +17,16 @@
       </div>
     </div>
     
+    <!-- Progress bar atualizada para 5 steps - 100% -->
     <div class="progress mb-3" style="height: 8px;">
-      <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="4" aria-valuemin="0" aria-valuemax="4"></div>
+      <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="5" aria-valuemin="0" aria-valuemax="5"></div>
     </div>
 
+    <!-- Badges atualizados para nova ordem -->
     <div class="d-flex justify-content-between text-center">
       <div class="flex-fill">
         <div class="badge bg-success rounded-pill mb-1">✓</div>
-        <div class="small text-success">Público</div>
+        <div class="small text-success">História</div>
       </div>
       <div class="flex-fill">
         <div class="badge bg-success rounded-pill mb-1">✓</div>
@@ -35,7 +37,11 @@
         <div class="small text-success">Objetivos</div>
       </div>
       <div class="flex-fill">
-        <div class="badge bg-success rounded-pill mb-1">4</div>
+        <div class="badge bg-success rounded-pill mb-1">✓</div>
+        <div class="small text-success">Público-Alvo</div>
+      </div>
+      <div class="flex-fill">
+        <div class="badge bg-success rounded-pill mb-1">5</div>
         <div class="small fw-bold text-success">Recursos</div>
       </div>
     </div>
@@ -96,7 +102,7 @@
             
             <div class="col-12">
               <label for="{{ form.equipe_marketing.id_for_label }}" class="form-label">
-                Equipe de Marketing *
+                Equipe de Marketing
                 {% if form.equipe_marketing.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
               </label>
               {{ form.equipe_marketing }}
@@ -112,7 +118,7 @@
             
             <div class="col-12">
               <label for="{{ form.recursos_tecnologicos.id_for_label }}" class="form-label">
-                Recursos Tecnológicos *
+                Recursos Tecnológicos
                 {% if form.recursos_tecnologicos.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
               </label>
               {{ form.recursos_tecnologicos }}
@@ -145,13 +151,6 @@
                   Google Analytics Configurado?
                 </label>
               </div>
-              {% if form.google_analytics.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.google_analytics.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
             
             <div class="col-md-4">
@@ -161,13 +160,6 @@
                   Google Tag Manager Configurado?
                 </label>
               </div>
-              {% if form.tag_manager.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.tag_manager.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
             
             <div class="col-md-4">
@@ -177,13 +169,6 @@
                   Pixel do Facebook Instalado?
                 </label>
               </div>
-              {% if form.pixel_facebook.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.pixel_facebook.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
           </div>
         </div>
@@ -200,7 +185,7 @@
           <div class="row g-3">
             <div class="col-12">
               <label for="{{ form.expectativas_agencia.id_for_label }}" class="form-label">
-                Expectativas da Agência *
+                Expectativas da Agência
                 {% if form.expectativas_agencia.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
               </label>
               {{ form.expectativas_agencia }}
@@ -216,7 +201,7 @@
             
             <div class="col-12">
               <label for="{{ form.resultados_esperados.id_for_label }}" class="form-label">
-                Resultados Esperados *
+                Resultados Esperados
                 {% if form.resultados_esperados.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
               </label>
               {{ form.resultados_esperados }}
@@ -246,39 +231,49 @@
               <label for="{{ form.experiencia_agencias.id_for_label }}" class="form-label">Experiência com Agências de Tráfego</label>
               {{ form.experiencia_agencias }}
               <div class="form-text">Já trabalharam com outras agências? Como foi a experiência?</div>
-              {% if form.experiencia_agencias.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.experiencia_agencias.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
             
             <div class="col-12">
               <label for="{{ form.criativos_performaram.id_for_label }}" class="form-label">Criativos que Performaram Melhor</label>
               {{ form.criativos_performaram }}
               <div class="form-text">Quais materiais funcionaram bem? Tem prints ou vídeos de referência?</div>
-              {% if form.criativos_performaram.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.criativos_performaram.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
             
             <div class="col-12">
               <label for="{{ form.analise_campanhas_anteriores.id_for_label }}" class="form-label">O que Funcionou/Não Funcionou</label>
               {{ form.analise_campanhas_anteriores }}
               <div class="form-text">O que acreditam que funcionou ou não funcionou nessas campanhas?</div>
-              {% if form.analise_campanhas_anteriores.errors %}
-                <div class="text-danger small mt-1">
-                  {% for error in form.analise_campanhas_anteriores.errors %}
-                    <i class="fas fa-times-circle me-1"></i>{{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção de Contexto Adicional -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-lightbulb me-2"></i>
+            Contexto Adicional
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="{{ form.principais_desafios.id_for_label }}" class="form-label">Principais Desafios</label>
+              {{ form.principais_desafios }}
+              <div class="form-text">Principais desafios do mercado atual</div>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="{{ form.sazonalidades.id_for_label }}" class="form-label">Sazonalidades</label>
+              {{ form.sazonalidades }}
+              <div class="form-text">Períodos de alta/baixa, datas importantes</div>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="{{ form.certificacoes_diferenciais.id_for_label }}" class="form-label">Certificações/Diferenciais</label>
+              {{ form.certificacoes_diferenciais }}
+              <div class="form-text">Certificações, prêmios, diferenciais técnicos</div>
             </div>
           </div>
         </div>
@@ -313,14 +308,11 @@
       <div class="d-flex justify-content-between mt-4">
         <div>
           <button type="submit" class="btn btn-outline-secondary" name="action" value="previous">
-            <i class="fas fa-arrow-left me-1"></i> Anterior: Objetivos
+            <i class="fas fa-arrow-left me-1"></i> Anterior: Público-Alvo
           </button>
         </div>
         <div>
-          <button type="button" class="btn btn-outline-primary me-2" id="saveDraft">
-            <i class="fas fa-save me-1"></i> Salvar Rascunho
-          </button>
-          <button type="button" class="btn btn-success btn-lg" id="finishBtn">
+          <button type="submit" class="btn btn-success btn-lg" name="action" value="finish" id="finishBtn">
             <i class="fas fa-check-circle me-1"></i> Finalizar Briefing
           </button>
         </div>
@@ -337,43 +329,16 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // ===== ELEMENTOS =====
   const form = document.getElementById('recursosForm');
-  const requiredFields = ['equipe_marketing', 'recursos_tecnologicos', 'expectativas_agencia', 'resultados_esperados'];
   const confirmarCheckbox = document.getElementById('confirmarDados');
   const finishBtn = document.getElementById('finishBtn');
   
-  // ===== VALIDAÇÃO EM TEMPO REAL =====
-  function validateRequiredFields() {
-    let allValid = true;
-    
-    // Validar campos obrigatórios
-    requiredFields.forEach(fieldName => {
-      const field = document.getElementById(`id_${fieldName}`);
-      if (field) {
-        const value = field.value.trim();
-        const isValid = value.length >= 5;
-        
-        if (isValid) {
-          field.classList.remove('is-invalid');
-          field.classList.add('is-valid');
-        } else {
-          field.classList.remove('is-valid');
-          if (value.length > 0) {
-            field.classList.add('is-invalid');
-          }
-          allValid = false;
-        }
-      }
-    });
-    
-    // Validar checkbox de confirmação
+  // ===== VALIDAÇÃO SIMPLES =====
+  function validateForm() {
     const checkboxValid = confirmarCheckbox.checked;
-    if (!checkboxValid) {
-      allValid = false;
-    }
     
     // Habilitar/desabilitar botão de finalizar
-    finishBtn.disabled = !allValid;
-    if (allValid) {
+    finishBtn.disabled = !checkboxValid;
+    if (checkboxValid) {
       finishBtn.classList.remove('btn-outline-success');
       finishBtn.classList.add('btn-success');
     } else {
@@ -381,24 +346,12 @@ document.addEventListener('DOMContentLoaded', function() {
       finishBtn.classList.add('btn-outline-success');
     }
     
-    return allValid;
+    return checkboxValid;
   }
-  
-  // Event listeners para validação
-  requiredFields.forEach(fieldName => {
-    const field = document.getElementById(`id_${fieldName}`);
-    if (field) {
-      field.addEventListener('blur', validateRequiredFields);
-      field.addEventListener('input', function() {
-        clearTimeout(field.validationTimeout);
-        field.validationTimeout = setTimeout(validateRequiredFields, 500);
-      });
-    }
-  });
   
   // Event listener para checkbox
   confirmarCheckbox.addEventListener('change', function() {
-    validateRequiredFields();
+    validateForm();
     
     if (this.checked) {
       this.parentElement.classList.add('text-success');
@@ -407,6 +360,39 @@ document.addEventListener('DOMContentLoaded', function() {
       this.parentElement.classList.remove('text-success');
       this.parentElement.classList.add('text-danger');
     }
+  });
+  
+  // ===== VALIDAÇÃO DO FORM ANTES DO SUBMIT =====
+  form.addEventListener('submit', function(e) {
+    const action = e.submitter?.value;
+    console.log('Form submit - Action:', action); // Debug
+    console.log('Headers que serão enviados:', {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }); // Debug
+    
+    // Se for finalizar, validar checkbox
+    if (action === 'finish') {
+      if (!confirmarCheckbox.checked) {
+        e.preventDefault();
+        showToast('Confirme os dados antes de finalizar', 'warning');
+        confirmarCheckbox.focus();
+        confirmarCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+      }
+      
+      // Mostrar loading no botão
+      const submitBtn = e.submitter;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Finalizando...';
+      }
+      
+      console.log('✅ Form será submetido normalmente para:', form.action || window.location.pathname); // Debug
+    }
+    
+    // Deixar o form submeter normalmente - não prevenir
+    // O wizard deve processar e fazer redirect HTTP
   });
   
   // ===== MÁSCARA PARA ORÇAMENTO =====
@@ -424,70 +410,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // ===== FINALIZAR BRIEFING (DIRETO) =====
-  finishBtn.addEventListener('click', function(e) {
-    e.preventDefault();
+  // ===== VALIDAÇÃO DO FORM ANTES DO SUBMIT =====
+  form.addEventListener('submit', function(e) {
+    const action = e.submitter?.value;
     
-    if (!validateRequiredFields()) {
-      showToast('Preencha todos os campos obrigatórios e confirme os dados antes de finalizar', 'warning');
-      
-      // Focar no primeiro campo inválido
-      const firstInvalid = form.querySelector('.is-invalid');
-      if (firstInvalid) {
-        firstInvalid.focus();
-        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else if (!confirmarCheckbox.checked) {
+    // Se for finalizar, validar checkbox
+    if (action === 'finish') {
+      if (!confirmarCheckbox.checked) {
+        e.preventDefault();
+        showToast('Confirme os dados antes de finalizar', 'warning');
         confirmarCheckbox.focus();
         confirmarCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
       }
-      return;
+      
+      // Mostrar loading no botão
+      const submitBtn = e.submitter;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Finalizando...';
     }
-    
-    // Finalizar diretamente sem modal
-    const formData = new FormData(form);
-    formData.set('action', 'finish');
-    
-    finishBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Finalizando...';
-    finishBtn.disabled = true;
-    
-    fetch(form.action, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        showToast('Briefing estratégico finalizado com sucesso!', 'success');
-        
-        // Efeito visual de sucesso
-        document.querySelectorAll('.card').forEach(card => {
-          card.style.opacity = '0.7';
-          card.style.transform = 'scale(0.98)';
-        });
-        
-        setTimeout(() => {
-          if (data.redirect_url) {
-            window.location.href = data.redirect_url;
-          } else {
-            window.location.href = `/gestor/clientes/${data.cliente_id || '{{ cliente.pk }}'}/`;
-          }
-        }, 2000);
-        
-      } else {
-        showToast('Erro ao finalizar briefing: ' + (data.message || 'Erro desconhecido'), 'danger');
-        finishBtn.innerHTML = '<i class="fas fa-check-circle me-1"></i> Finalizar Briefing';
-        finishBtn.disabled = false;
-      }
-    })
-    .catch(error => {
-      console.error('Erro:', error);
-      showToast('Erro ao finalizar briefing', 'danger');
-      finishBtn.innerHTML = '<i class="fas fa-check-circle me-1"></i> Finalizar Briefing';
-      finishBtn.disabled = false;
-    });
   });
   
   // ===== SALVAR RASCUNHO =====
@@ -562,26 +503,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // ===== SUBMIT VALIDATION =====
-  form.addEventListener('submit', function(e) {
-    const action = e.submitter?.value;
-    
-    // Para ação de finalizar, sempre prevenir e usar o handler personalizado
-    if (action === 'finish') {
-      e.preventDefault();
-      finishBtn.click();
-      return;
-    }
-    
-    // Para outras ações, validar apenas se necessário
-    if (action === 'next' && !validateRequiredFields()) {
-      e.preventDefault();
-      showToast('Preencha todos os campos obrigatórios antes de continuar', 'warning');
-    }
-  });
+  // ===== CONTADOR DE CARACTERES (OPCIONAL) =====
+  const optionalFields = ['equipe_marketing', 'recursos_tecnologicos', 'expectativas_agencia', 'resultados_esperados'];
   
-  // ===== CONTADOR DE CARACTERES =====
-  requiredFields.forEach(fieldName => {
+  optionalFields.forEach(fieldName => {
     const field = document.getElementById(`id_${fieldName}`);
     if (field && field.tagName.toLowerCase() === 'textarea') {
       const counter = document.createElement('div');
@@ -591,14 +516,8 @@ document.addEventListener('DOMContentLoaded', function() {
       
       function updateCounter() {
         const length = field.value.length;
-        const minLength = 5;
         const maxLength = field.getAttribute('maxlength') || 1000;
-        
-        if (length < minLength) {
-          counter.innerHTML = `<span class="text-danger">${length}/${maxLength} (mínimo ${minLength})</span>`;
-        } else {
-          counter.innerHTML = `<span class="text-success">${length}/${maxLength}</span>`;
-        }
+        counter.innerHTML = `<span class="text-muted">${length}/${maxLength}</span>`;
       }
       
       field.addEventListener('input', updateCounter);
@@ -608,23 +527,12 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // ===== INICIALIZAÇÃO =====
   setTimeout(() => {
-    validateRequiredFields();
-    
-    // Animação de entrada
-    const cards = document.querySelectorAll('.card.shadow-sm');
-    cards.forEach((card, index) => {
-      card.style.opacity = '0';
-      card.style.transform = 'translateY(20px)';
-      card.style.transition = 'all 0.3s ease';
-      
-      setTimeout(() => {
-        card.style.opacity = '1';
-        card.style.transform = 'translateY(0)';
-      }, index * 100);
-    });
+    validateForm();
+    console.log('✅ Form de recursos inicializado com sucesso!'); // Debug
   }, 100);
   
-  console.log('🎉 Cliente Form Recursos (Final) carregado com sucesso!');
+  console.log('🎉 Cliente Form Recursos (Step 5 - Final) carregado com sucesso!');
+});
 });
 </script>
 {% endblock %}

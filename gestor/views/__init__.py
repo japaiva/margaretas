@@ -1,9 +1,9 @@
-# gestor/views/__init__.py
+# gestor/views/__init__.py - VERSÃO CORRIGIDA BASEADA NOS ARQUIVOS EXISTENTES
 
-# Views do dashboard
+# ===== VIEWS DE DASHBOARD =====
 from .dashboard import (
     home,
-    dashboard,
+    dashboard, 
     configuracoes,
     parametro_list,
     parametro_create,
@@ -11,30 +11,65 @@ from .dashboard import (
     relatorios,
     relatorio_clientes,
     relatorio_campanhas,
-    relatorio_performance,
+    relatorio_performance
 )
 
-# Views do usuário
+# ===== VIEWS DE USUÁRIO =====
 from .usuario import (
     usuario_list,
+    usuario_perfil,
     usuario_create,
     usuario_detail,
     usuario_update,
-    usuario_delete,
-    usuario_perfil,
+    usuario_delete
 )
 
-# Views do cliente - ATUALIZADAS (sem produto/serviço)
+# ===== VIEWS DE CLIENTE =====
 from .cliente import (
-    # Cliente CRUD
+    # Views principais
     cliente_list,
     cliente_detail,
     cliente_create,
     cliente_update,
     cliente_delete,
-    cliente_checklist,
     
-    # Campanha CRUD
+    # Checklist
+    cliente_checklist,
+    cliente_checklist_update,
+    
+    # Briefing
+    cliente_briefing,
+    
+    # API
+    cliente_api_search,
+    cliente_api_stats,
+)
+
+# ===== VIEWS DE WIZARD =====
+from .cliente_wizard import (
+    ClienteWizardView,
+)
+
+# ===== VIEWS DE PRODUTOS/SERVIÇOS =====
+# Nota: Arquivo se chama cliente_produto_servico.py (não cliente_produtos_servicos.py)
+from .cliente_produto_servico import (
+    # Views inline
+    produto_servico_create_inline,
+    produto_servico_update_inline,
+    produto_servico_delete_inline,
+    produto_servico_toggle_status_inline,
+    
+    # Views de resposta rápida
+    produto_servico_quick_create,
+    
+    # Relatórios e estatísticas
+    cliente_produtos_servicos_stats,
+    produto_servico_api_search_cliente,
+)
+
+# ===== VIEWS DE CAMPANHAS =====
+from .cliente_campanhas import (
+    # Views principais
     campanha_list,
     campanha_detail,
     campanha_create,
@@ -42,38 +77,72 @@ from .cliente import (
     campanha_delete,
     campanha_change_status,
     
-    # APIs
-    cliente_api_search,
-    cliente_api_stats,
+    # Views inline
+    campanha_create_inline,
+    campanha_update_inline,
+    campanha_delete_inline,
     
-    # Wizard
-    cliente_wizard,
+    # API
+    campanha_api_search,
+    cliente_campanhas_stats,
 )
 
-# Views do wizard
-from .cliente_wizard import (
-    ClienteWizardView,
-)
-
-# Lista do que pode ser importado com "from gestor.views import *"
+# ===== MANTER COMPATIBILIDADE =====
 __all__ = [
     # Dashboard
-    'home', 'dashboard', 'configuracoes', 'parametro_list', 'parametro_create',
-    'parametro_update', 'relatorios', 'relatorio_clientes', 'relatorio_campanhas',
+    'home',
+    'dashboard',
+    'configuracoes',
+    'parametro_list',
+    'parametro_create', 
+    'parametro_update',
+    'relatorios',
+    'relatorio_clientes',
+    'relatorio_campanhas',
     'relatorio_performance',
     
     # Usuário
-    'usuario_list', 'usuario_create', 'usuario_detail', 'usuario_update',
-    'usuario_delete', 'usuario_perfil',
+    'usuario_list',
+    'usuario_perfil',
+    'usuario_create',
+    'usuario_detail',
+    'usuario_update',
+    'usuario_delete',
     
     # Cliente
-    'cliente_list', 'cliente_detail', 'cliente_create', 'cliente_update',
-    'cliente_delete', 'cliente_checklist',
+    'cliente_list',
+    'cliente_detail', 
+    'cliente_create',
+    'cliente_update',
+    'cliente_delete',
+    'cliente_checklist',
+    'cliente_checklist_update',
+    'cliente_briefing',
+    'cliente_api_search',
+    'cliente_api_stats',
     
-    # Campanha
-    'campanha_list', 'campanha_detail', 'campanha_create', 'campanha_update',
-    'campanha_delete', 'campanha_change_status',
+    # Wizard
+    'ClienteWizardView',
     
-    # APIs e Wizard
-    'cliente_api_search', 'cliente_api_stats', 'cliente_wizard', 'ClienteWizardView',
+    # Produtos/Serviços inline
+    'produto_servico_create_inline',
+    'produto_servico_update_inline',
+    'produto_servico_delete_inline',
+    'produto_servico_toggle_status_inline',
+    'produto_servico_quick_create',
+    'cliente_produtos_servicos_stats',
+    'produto_servico_api_search_cliente',
+    
+    # Campanhas
+    'campanha_list',
+    'campanha_detail',
+    'campanha_create',
+    'campanha_update',
+    'campanha_delete',
+    'campanha_change_status',
+    'campanha_create_inline',
+    'campanha_update_inline', 
+    'campanha_delete_inline',
+    'campanha_api_search',
+    'cliente_campanhas_stats',
 ]

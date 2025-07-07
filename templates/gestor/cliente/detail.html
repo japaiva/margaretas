@@ -1,444 +1,592 @@
 {% extends 'gestor/base_gestor.html' %}
+{% load formato_br %}
 
 {% block title %}{{ cliente.nome_empresa }} | Portal Marketing{% endblock %}
 
 {% block content %}
-<div class="card shadow">
-  <div class="card-header bg-light d-flex justify-content-between align-items-center">
-    <h5 class="card-title mb-0">
-      <i class="fas fa-building me-2"></i> {{ cliente.nome_empresa }}
-      {% if cliente.ativo %}
-        <span class="badge bg-success ms-2">Ativo</span>
-      {% else %}
-        <span class="badge bg-warning ms-2">Inativo</span>
-      {% endif %}
-    </h5>
-    <div>
-      <a href="{% url 'gestor:cliente_update' cliente.pk %}" class="btn btn-outline-primary btn-sm me-1">
-        <i class="fas fa-edit me-1"></i> Editar
-      </a>
-      <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary btn-sm">
-        <i class="fas fa-arrow-left me-1"></i> Voltar
-      </a>
-    </div>
-  </div>
-
-  <div class="card-body">
-    
-    <!-- Box Principal com Briefing, Produtos/Serviços e Campanhas -->
-    <div class="row">
-      <!-- Coluna Esquerda - Informações Básicas -->
-      <div class="col-md-6">
-        
-        <!-- Informações Básicas -->
-        <div class="card mb-3">
-          <div class="card-header bg-light">
-            <h6 class="card-title mb-0">
-              <i class="fas fa-info-circle me-2"></i>Informações Básicas
-            </h6>
-          </div>
-          <div class="card-body p-0">
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item">
-                <strong>Nome da Empresa:</strong> {{ cliente.nome_empresa }}
-              </li>
-              {% if cliente.cnpj_cpf %}
-              <li class="list-group-item">
-                <strong>CNPJ/CPF:</strong> 
-                <span class="badge bg-primary">{{ cliente.cnpj_cpf }}</span>
-              </li>
-              {% endif %}
-              {% if cliente.website_principal %}
-              <li class="list-group-item">
-                <strong>Website:</strong> 
-                <a href="{{ cliente.website_principal }}" target="_blank" class="text-decoration-none">
-                  {{ cliente.website_principal }} <i class="fas fa-external-link-alt ms-1"></i>
-                </a>
-              </li>
-              {% endif %}
-              {% if cliente.endereco_completo %}
-              <li class="list-group-item">
-                <strong>Endereço:</strong> {{ cliente.endereco_completo }}
-              </li>
-              {% endif %}
-              <li class="list-group-item">
-                <strong>Data de Cadastro:</strong> {{ cliente.created_at|date:"d/m/Y H:i" }}
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Responsáveis -->
-        {% if cliente.responsavel_contrato or cliente.pessoa_contato_tecnico %}
-        <div class="card mb-3">
-          <div class="card-header bg-light">
-            <h6 class="card-title mb-0">
-              <i class="fas fa-user-tie me-2"></i>Responsáveis
-            </h6>
-          </div>
-          <div class="card-body p-0">
-            <ul class="list-group list-group-flush">
-              {% if cliente.responsavel_contrato %}
-              <li class="list-group-item">
-                <strong>Responsável pelo Contrato:</strong><br>
-                {{ cliente.responsavel_contrato }}
-                {% if cliente.cargo_responsavel %}
-                  <br><small class="text-muted">{{ cliente.cargo_responsavel }}</small>
-                {% endif %}
-                {% if cliente.contato_responsavel %}
-                  <br><small class="text-info">
-                    <i class="fas fa-envelope me-1"></i>{{ cliente.contato_responsavel }}
-                  </small>
-                {% endif %}
-              </li>
-              {% endif %}
-              {% if cliente.pessoa_contato_tecnico %}
-              <li class="list-group-item">
-                <strong>Contato Técnico:</strong><br>
-                {{ cliente.pessoa_contato_tecnico }}
-                {% if cliente.contato_tecnico %}
-                  <br><small class="text-info">
-                    <i class="fas fa-phone me-1"></i>{{ cliente.contato_tecnico }}
-                  </small>
-                {% endif %}
-              </li>
-              {% endif %}
-              {% if cliente.faturamento_anual %}
-              <li class="list-group-item">
-                <strong>Faturamento Anual:</strong> R$ {{ cliente.faturamento_anual|floatformat:2 }}
-              </li>
-              {% endif %}
-            </ul>
-          </div>
-        </div>
-        {% endif %}
-        
-      </div>
-
-      <!-- Coluna Direita - Status e Progresso -->
-      <div class="col-md-6">
-
-        <!-- Progresso do Briefing -->
-        {% if not cliente.briefing_completo %}
-        <div class="card mb-3 border-warning">
-          <div class="card-header bg-warning text-dark">
-            <h6 class="card-title mb-0">
-              <i class="fas fa-clipboard-list me-2"></i>Progresso do Briefing Estratégico
-            </h6>
-          </div>
-          <div class="card-body">
-            <div class="progress mb-2" style="height: 12px;">
-              <div class="progress-bar bg-info" role="progressbar" 
-                   style="width: {{ cliente.briefing_progress }}%" 
-                   aria-valuenow="{{ cliente.briefing_progress }}" 
-                   aria-valuemin="0" aria-valuemax="100">
-                {{ cliente.briefing_progress|floatformat:0 }}%
-              </div>
-            </div>
-            <p class="text-muted mb-2">O briefing estratégico está {{ cliente.briefing_progress|floatformat:0 }}% completo.</p>
-            <a href="{% url 'gestor:cliente_briefing' cliente.pk %}" class="btn btn-info btn-sm">
-              <i class="fas fa-play me-1"></i> Continuar Briefing
-            </a>
-          </div>
-        </div>
-        {% endif %}
-
-        <!-- Status do Checklist -->
-        <div class="card mb-3">
-          <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <h6 class="card-title mb-0">
-              <i class="fas fa-tasks me-2"></i>Checklist Operacional
-            </h6>
-            {% if checklist %}
-              <span class="badge bg-info">{{ checklist.completude_percentual|floatformat:0 }}%</span>
-            {% endif %}
-          </div>
-          <div class="card-body">
-            {% if checklist %}
-              <div class="progress mb-2" style="height: 8px;">
-                <div class="progress-bar bg-success" role="progressbar" 
-                     style="width: {{ checklist.completude_percentual }}%" 
-                     aria-valuenow="{{ checklist.completude_percentual }}" 
-                     aria-valuemin="0" aria-valuemax="100">
-                </div>
-              </div>
-              <p class="text-muted mb-2">{{ checklist.completude_percentual|floatformat:0 }}% dos itens operacionais estão configurados.</p>
-            {% else %}
-              <p class="text-muted mb-2">Checklist operacional ainda não iniciado.</p>
-            {% endif %}
-            <a href="{% url 'gestor:cliente_checklist' cliente.pk %}" class="btn btn-outline-success btn-sm">
-              <i class="fas fa-tasks me-1"></i> {% if checklist %}Visualizar{% else %}Iniciar{% endif %} Checklist
-            </a>
-          </div>
-        </div>
-
-        <!-- Resumo do Briefing (se completo) -->
-        {% if cliente.briefing_completo %}
-        <div class="card mb-3">
-          <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-            <h6 class="card-title mb-0">
-              <i class="fas fa-check-circle me-2"></i>Briefing Estratégico
-            </h6>
-            <a href="{% url 'gestor:cliente_briefing' cliente.pk %}" class="btn btn-outline-light btn-sm">
-              <i class="fas fa-edit me-1"></i> Editar
-            </a>
-          </div>
-          <div class="card-body">
-            {% if cliente.descricao_publico %}
-            <div class="mb-2">
-              <strong>Público-Alvo:</strong>
-              <p class="text-muted small mt-1">{{ cliente.descricao_publico|truncatewords:15 }}</p>
-            </div>
-            {% endif %}
-            
-            {% if cliente.posicionamento_atual %}
-            <div class="mb-2">
-              <strong>Posicionamento:</strong>
-              <p class="text-muted small mt-1">{{ cliente.posicionamento_atual|truncatewords:15 }}</p>
-            </div>
-            {% endif %}
-            
-            {% if cliente.objetivos_marketing %}
-            <div class="mb-0">
-              <strong>Objetivos:</strong>
-              <p class="text-muted small mt-1 mb-0">{{ cliente.objetivos_marketing|truncatewords:15 }}</p>
-            </div>
-            {% endif %}
-            
-            <div class="mt-3">
-              <small class="text-muted">
-                <i class="fas fa-calendar me-1"></i>Concluído em {{ cliente.data_briefing|date:"d/m/Y" }}
-              </small>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-
-      </div>
-    </div>
-
-    <!-- ===== SEÇÃO: PRODUTOS/SERVIÇOS/EVENTOS ===== -->
-    <div class="card mt-4">
-      <div class="card-header bg-light d-flex justify-content-between align-items-center">
-        <h6 class="card-title mb-0">
-          <i class="fas fa-box me-2"></i>Produtos/Serviços/Eventos
-          <span class="badge bg-primary ms-2">{{ stats.produtos_servicos_total|default:0 }}</span>
-        </h6>
-        <div class="btn-group" role="group">
-          <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-            <i class="fas fa-plus me-1"></i> Novo
-          </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=produto">
-              <i class="fas fa-box me-2"></i> Produto
-            </a></li>
-            <li><a class="dropdown-item" href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=servico">
-              <i class="fas fa-cogs me-2"></i> Serviço
-            </a></li>
-            <li><a class="dropdown-item" href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=curso">
-              <i class="fas fa-graduation-cap me-2"></i> Curso
-            </a></li>
-            <li><a class="dropdown-item" href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=evento">
-              <i class="fas fa-calendar-alt me-2"></i> Evento
-            </a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="card-body">
-        {% if produtos_servicos %}
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>Tipo</th>
-                  <th>Nome</th>
-                  <th>Preço</th>
-                  <th class="text-center">Status</th>
-                  <th class="text-end">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for item in produtos_servicos %}
-                  <tr>
-                    <td>
-                      {% if item.tipo == 'produto' %}
-                        <span class="badge bg-primary"><i class="fas fa-box me-1"></i>{{ item.get_tipo_display }}</span>
-                      {% elif item.tipo == 'servico' %}
-                        <span class="badge bg-success"><i class="fas fa-cogs me-1"></i>{{ item.get_tipo_display }}</span>
-                      {% elif item.tipo == 'curso' %}
-                        <span class="badge bg-info"><i class="fas fa-graduation-cap me-1"></i>{{ item.get_tipo_display }}</span>
-                      {% elif item.tipo == 'evento' %}
-                        <span class="badge bg-warning text-dark"><i class="fas fa-calendar-alt me-1"></i>{{ item.get_tipo_display }}</span>
-                      {% endif %}
-                    </td>
-                    <td>
-                      <div class="fw-semibold">{{ item.nome }}</div>
-                      {% if item.descricao %}
-                        <small class="text-muted">{{ item.descricao|truncatewords:10 }}</small>
-                      {% endif %}
-                    </td>
-                    <td>
-                      {% if item.preco %}
-                        <span class="text-success fw-semibold">R$ {{ item.preco|floatformat:2 }}</span>
-                      {% else %}
-                        <span class="text-muted">-</span>
-                      {% endif %}
-                    </td>
-                    <td class="text-center">
-                      {% if item.ativo %}
-                        <span class="badge bg-success">Ativo</span>
-                      {% else %}
-                        <span class="badge bg-secondary">Inativo</span>
-                      {% endif %}
-                    </td>
-                    <td class="text-end">
-                      <div class="btn-group" role="group">
-                        <a href="{% url 'gestor:produto_servico_detail' item.pk %}" class="btn btn-sm btn-outline-secondary" title="Detalhes">
-                          <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{% url 'gestor:produto_servico_update' item.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
-                          <i class="fas fa-edit"></i>
-                        </a>
-                        <button type="button" class="btn btn-sm btn-outline-danger" title="Excluir"
-                                onclick="confirmarExclusaoProdutoServico('{{ item.pk }}', '{{ item.nome }}', '{{ item.get_tipo_display }}')">
-                          <i class="fas fa-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          
-          <div class="text-center mt-3">
-            <a href="{% url 'gestor:produto_servico_list' cliente.pk %}" class="btn btn-outline-primary btn-sm">
-              <i class="fas fa-eye me-1"></i> Ver todos ({{ stats.produtos_servicos_total|default:0 }})
-            </a>
-          </div>
+<!-- Layout mais amplo usando container-fluid -->
+<div class="container-fluid px-4">
+  <div class="card shadow">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0">
+        <i class="fas fa-building me-2"></i> {{ cliente.nome_empresa }}
+        {% if cliente.ativo %}
+          <span class="badge bg-success ms-2">Ativo</span>
         {% else %}
-          <div class="text-center py-3 text-muted">
-            <i class="fas fa-box fa-2x mb-2"></i>
-            <p class="mb-0">Nenhum produto/serviço cadastrado.</p>
-            <div class="btn-group mt-2" role="group">
-              <a href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=produto" class="btn btn-sm btn-primary">
-                <i class="fas fa-box me-1"></i> Produto
-              </a>
-              <a href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=servico" class="btn btn-sm btn-success">
-                <i class="fas fa-cogs me-1"></i> Serviço
-              </a>
-              <a href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=curso" class="btn btn-sm btn-info">
-                <i class="fas fa-graduation-cap me-1"></i> Curso
-              </a>
-              <a href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=evento" class="btn btn-sm btn-warning">
-                <i class="fas fa-calendar-alt me-1"></i> Evento
-              </a>
-            </div>
-          </div>
+          <span class="badge bg-warning ms-2">Inativo</span>
         {% endif %}
-      </div>
-    </div>
-
-    <!-- ===== SEÇÃO: CAMPANHAS ===== -->
-    <div class="card mt-4">
-      <div class="card-header bg-light d-flex justify-content-between align-items-center">
-        <h6 class="card-title mb-0">
-          <i class="fas fa-bullhorn me-2"></i>Campanhas de Marketing
-          <span class="badge bg-primary ms-2">{{ stats.campanhas_total }}</span>
-        </h6>
-        <a href="{% url 'gestor:campanha_create' %}?cliente={{ cliente.pk }}" class="btn btn-primary btn-sm">
-          <i class="fas fa-plus me-1"></i> Nova Campanha
+      </h5>
+      <div>
+        <a href="{% url 'gestor:cliente_list' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-arrow-left me-1"></i> Voltar
         </a>
       </div>
-      <div class="card-body">
-        {% if campanhas %}
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>Nome da Campanha</th>
-                  <th>Status</th>
-                  <th>Orçamento</th>
-                  <th>Período</th>
-                  <th class="text-end">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for campanha in campanhas %}
-                  <tr>
-                    <td>
-                      <div class="fw-semibold">{{ campanha.nome_campanha }}</div>
-                      {% if campanha.objetivo_principal %}
-                        <small class="text-muted">{{ campanha.objetivo_principal|truncatewords:10 }}</small>
-                      {% endif %}
-                    </td>
-                    <td>
-                      {% if campanha.status == 'ativa' %}
-                        <span class="badge bg-success">Ativa</span>
-                      {% elif campanha.status == 'planejamento' %}
-                        <span class="badge bg-warning">Planejamento</span>
-                      {% elif campanha.status == 'pausada' %}
-                        <span class="badge bg-secondary">Pausada</span>
-                      {% elif campanha.status == 'finalizada' %}
-                        <span class="badge bg-info">Finalizada</span>
-                      {% else %}
-                        <span class="badge bg-light text-dark">{{ campanha.get_status_display }}</span>
-                      {% endif %}
-                    </td>
-                    <td>
-                      {% if campanha.orcamento_total %}
-                        R$ {{ campanha.orcamento_total|floatformat:2 }}
-                      {% else %}
-                        <span class="text-muted">-</span>
-                      {% endif %}
-                    </td>
-                    <td>
-                      {% if campanha.data_inicio and campanha.data_termino %}
-                        <small>
-                          {{ campanha.data_inicio|date:"d/m/Y" }} <br>
-                          até {{ campanha.data_termino|date:"d/m/Y" }}
-                        </small>
-                      {% else %}
-                        <span class="text-muted">-</span>
-                      {% endif %}
-                    </td>
-                    <td class="text-end">
-                      <div class="btn-group" role="group">
-                        <a href="{% url 'gestor:campanha_detail' campanha.pk %}" class="btn btn-sm btn-outline-secondary">
-                          <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{% url 'gestor:campanha_update' campanha.pk %}" class="btn btn-sm btn-outline-primary">
-                          <i class="fas fa-edit"></i>
-                        </a>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarExclusaoCampanha('{{ campanha.pk }}', '{{ campanha.nome_campanha }}')">
-                          <i class="fas fa-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          
-          {% if stats.campanhas_total > campanhas|length %}
-          <div class="text-center mt-3">
-            <a href="{% url 'gestor:campanha_list' %}?cliente={{ cliente.pk }}" class="btn btn-outline-primary btn-sm">
-              <i class="fas fa-eye me-1"></i> Ver todas as campanhas ({{ stats.campanhas_total }})
-            </a>
-          </div>
-          {% endif %}
-        {% else %}
-          <div class="text-center py-3 text-muted">
-            <p class="mb-0">Nenhuma campanha criada.</p>
-            <a href="{% url 'gestor:campanha_create' %}?cliente={{ cliente.pk }}" class="btn btn-sm btn-primary mt-2">
-              <i class="fas fa-plus me-1"></i> Criar primeira campanha
-            </a>
-          </div>
-        {% endif %}
-      </div>
     </div>
 
+    <div class="card-body">
+      
+      <!-- ===== LAYOUT LADO A LADO: 8/4 ===== -->
+      <div class="row g-4">
+        
+        <!-- ===== COLUNA PRINCIPAL (8/12) ===== -->
+        <div class="col-lg-8">
+          
+          <!-- Informações Básicas -->
+          <div class="card mb-4 border-start border-primary border-3">
+            <div class="card-header bg-light">
+              <h6 class="card-title mb-0">
+                <i class="fas fa-info-circle me-2 text-primary"></i>Informações Básicas
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="border-end pe-3">
+                    <div class="mb-3">
+                      <label class="text-muted small">Empresa</label>
+                      <div class="fw-bold h5 text-primary mb-0">{{ cliente.nome_empresa }}</div>
+                    </div>
+                    
+                    {% if cliente.cnpj_cpf %}
+                    <div class="mb-3">
+                      <label class="text-muted small">CNPJ/CPF</label>
+                      <div class="fw-semibold">
+                        <span class="badge bg-primary fs-6">{{ cliente.cnpj_cpf }}</span>
+                      </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if cliente.website_principal %}
+                    <div class="mb-3">
+                      <label class="text-muted small">Website</label>
+                      <div class="fw-semibold">
+                        <a href="{{ cliente.website_principal }}" target="_blank" class="text-decoration-none">
+                          {{ cliente.website_principal }} <i class="fas fa-external-link-alt ms-1"></i>
+                        </a>
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  {% if cliente.endereco_completo %}
+                  <div class="mb-3">
+                    <label class="text-muted small">Endereço</label>
+                    <div class="fw-semibold">{{ cliente.endereco_completo }}</div>
+                  </div>
+                  {% endif %}
+                  
+                  {% if cliente.faturamento_anual %}
+                  <div class="mb-3">
+                    <label class="text-muted small">Faturamento Anual</label>
+                    <div class="fw-bold h5 text-success mb-0">{{ cliente.faturamento_anual|formato_moeda }}</div>
+                  </div>
+                  {% endif %}
+                  
+                  <div class="mb-0">
+                    <label class="text-muted small">Cadastro</label>
+                    <div class="fw-semibold">{{ cliente.created_at|date:"d/m/Y H:i" }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Responsáveis -->
+          {% if cliente.responsavel_contrato or cliente.pessoa_contato_tecnico %}
+          <div class="card mb-4 border-start border-success border-3">
+            <div class="card-header bg-light">
+              <h6 class="card-title mb-0">
+                <i class="fas fa-user-tie me-2 text-success"></i>Responsáveis
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                {% if cliente.responsavel_contrato %}
+                <div class="col-md-6">
+                  <div class="border-end pe-3">
+                    <label class="text-muted small">Responsável pelo Contrato</label>
+                    <div class="fw-bold h6 mb-1">{{ cliente.responsavel_contrato }}</div>
+                    {% if cliente.cargo_responsavel %}
+                      <div class="text-muted small mb-1">{{ cliente.cargo_responsavel }}</div>
+                    {% endif %}
+                    {% if cliente.contato_responsavel %}
+                      <div class="text-info small">
+                        <i class="fas fa-envelope me-1"></i>{{ cliente.contato_responsavel }}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endif %}
+                
+                {% if cliente.pessoa_contato_tecnico %}
+                <div class="col-md-6">
+                  <label class="text-muted small">Contato Técnico</label>
+                  <div class="fw-bold h6 mb-1">{{ cliente.pessoa_contato_tecnico }}</div>
+                  {% if cliente.contato_tecnico %}
+                    <div class="text-info small">
+                      <i class="fas fa-phone me-1"></i>{{ cliente.contato_tecnico }}
+                    </div>
+                  {% endif %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Configurações Digitais -->
+          {% if cliente.google_analytics or cliente.tag_manager or cliente.pixel_facebook or cliente.crm_utilizado %}
+          <div class="card mb-4 border-start border-info border-3">
+            <div class="card-header bg-light">
+              <h6 class="card-title mb-0">
+                <i class="fas fa-laptop me-2 text-info"></i>Configurações Digitais
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-3 text-center">
+                  {% if cliente.google_analytics %}
+                    <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+                    <div class="small text-success fw-semibold">Google Analytics</div>
+                    <div class="badge bg-success-subtle text-success">Configurado</div>
+                  {% else %}
+                    <i class="fas fa-chart-line fa-2x text-muted mb-2"></i>
+                    <div class="small text-muted">Google Analytics</div>
+                    <div class="badge bg-secondary-subtle text-muted">Não configurado</div>
+                  {% endif %}
+                </div>
+                
+                <div class="col-md-3 text-center">
+                  {% if cliente.tag_manager %}
+                    <i class="fas fa-tag fa-2x text-success mb-2"></i>
+                    <div class="small text-success fw-semibold">Tag Manager</div>
+                    <div class="badge bg-success-subtle text-success">Configurado</div>
+                  {% else %}
+                    <i class="fas fa-tag fa-2x text-muted mb-2"></i>
+                    <div class="small text-muted">Tag Manager</div>
+                    <div class="badge bg-secondary-subtle text-muted">Não configurado</div>
+                  {% endif %}
+                </div>
+                
+                <div class="col-md-3 text-center">
+                  {% if cliente.pixel_facebook %}
+                    <i class="fab fa-facebook fa-2x text-success mb-2"></i>
+                    <div class="small text-success fw-semibold">Pixel Facebook</div>
+                    <div class="badge bg-success-subtle text-success">Configurado</div>
+                  {% else %}
+                    <i class="fab fa-facebook fa-2x text-muted mb-2"></i>
+                    <div class="small text-muted">Pixel Facebook</div>
+                    <div class="badge bg-secondary-subtle text-muted">Não configurado</div>
+                  {% endif %}
+                </div>
+                
+                <div class="col-md-3 text-center">
+                  {% if cliente.crm_utilizado %}
+                    <i class="fas fa-users-cog fa-2x text-primary mb-2"></i>
+                    <div class="small text-primary fw-semibold">CRM</div>
+                    <div class="badge bg-primary-subtle text-primary">{{ cliente.crm_utilizado }}</div>
+                  {% else %}
+                    <i class="fas fa-users-cog fa-2x text-muted mb-2"></i>
+                    <div class="small text-muted">CRM</div>
+                    <div class="badge bg-secondary-subtle text-muted">Não definido</div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Contexto Adicional -->
+          {% if cliente.principais_desafios or cliente.sazonalidades or cliente.certificacoes_diferenciais %}
+          <div class="card mb-4 border-start border-warning border-3">
+            <div class="card-header bg-light">
+              <h6 class="card-title mb-0">
+                <i class="fas fa-lightbulb me-2 text-warning"></i>Contexto Adicional
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                {% if cliente.principais_desafios %}
+                <div class="col-md-4">
+                  <label class="text-muted small">Principais Desafios</label>
+                  <div class="mt-1 p-3 bg-light rounded">{{ cliente.principais_desafios|linebreaksbr }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cliente.sazonalidades %}
+                <div class="col-md-4">
+                  <label class="text-muted small">Sazonalidades</label>
+                  <div class="mt-1 p-3 bg-light rounded">{{ cliente.sazonalidades|linebreaksbr }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cliente.certificacoes_diferenciais %}
+                <div class="col-md-4">
+                  <label class="text-muted small">Certificações/Diferenciais</label>
+                  <div class="mt-1 p-3 bg-light rounded">{{ cliente.certificacoes_diferenciais|linebreaksbr }}</div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          
+        </div>
+
+        <!-- ===== COLUNA LATERAL (4/12) ===== -->
+        <div class="col-lg-4">
+
+
+          <!-- Configurações -->
+          <div class="card mb-4">
+            <div class="card-header bg-light">
+              <h6 class="card-title mb-0">
+                <i class="fas fa-clipboard-check me-2"></i>Configurações
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a href="{% url 'gestor:cliente_briefing' cliente.pk %}" class="btn btn-outline-primary">
+                  <i class="fas fa-clipboard-list me-2"></i>Briefing Estratégico
+                </a>
+                <a href="{% url 'gestor:cliente_checklist_update' cliente.pk %}" class="btn btn-outline-success">
+                  <i class="fas fa-tasks me-2"></i>Checklist
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ações -->
+          <div class="card mb-4">
+            <div class="card-header bg-light">
+              <h6 class="card-title mb-0">
+                <i class="fas fa-bolt me-2"></i>Ações Rápidas
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a href="{% url 'gestor:produto_servico_create_inline' cliente.pk %}" class="btn btn-primary">
+                  <i class="fas fa-plus me-2"></i>Novo Produto/Serviço
+                </a>
+                <a href="{% url 'gestor:campanha_create' %}?cliente={{ cliente.pk }}" class="btn btn-success">
+                  <i class="fas fa-bullhorn me-2"></i>Nova Campanha
+                </a>
+                <a href="{% url 'gestor:cliente_update' cliente.pk %}" class="btn btn-outline-secondary">
+                  <i class="fas fa-edit me-2"></i>Editar Cliente
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Digital -->
+          <div class="card">
+            <div class="card-header bg-light">
+              <h6 class="card-title mb-0">
+                <i class="fas fa-wifi me-2"></i>Status Digital
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="list-group list-group-flush">
+                <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                  <span class="small">Google Analytics</span>
+                  {% if cliente.google_analytics %}
+                    <span class="badge bg-success">Ativo</span>
+                  {% else %}
+                    <span class="badge bg-danger">Inativo</span>
+                  {% endif %}
+                </div>
+                
+                <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                  <span class="small">Tag Manager</span>
+                  {% if cliente.tag_manager %}
+                    <span class="badge bg-success">Ativo</span>
+                  {% else %}
+                    <span class="badge bg-danger">Inativo</span>
+                  {% endif %}
+                </div>
+                
+                <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                  <span class="small">Pixel Facebook</span>
+                  {% if cliente.pixel_facebook %}
+                    <span class="badge bg-success">Ativo</span>
+                  {% else %}
+                    <span class="badge bg-danger">Inativo</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- ===== SEÇÃO: PRODUTOS/SERVIÇOS/EVENTOS (LARGURA TOTAL) ===== -->
+      <div class="card mt-4" id="produtos-servicos">
+        <div class="card-header bg-light">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <h6 class="card-title mb-0">
+                <i class="fas fa-box me-2"></i>Produtos/Serviços/Eventos
+                <span class="badge bg-primary ms-2">{{ stats.produtos_servicos_total|default:0 }}</span>
+              </h6>
+            </div>
+            <div class="col-md-6 text-end">
+              <a href="{% url 'gestor:produto_servico_create_inline' cliente.pk %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i> Novo Produto/Serviço
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtros Inline (se necessário) -->
+        {% if stats.produtos_servicos_total > 5 %}
+        <div class="card-header bg-white">
+          <form method="get" class="row g-2 align-items-end" id="filtrosForm">
+            <div class="col-md-3">
+              <label class="form-label small">Tipo</label>
+              <select name="tipo_ps" class="form-select form-select-sm">
+                <option value="">Todos os tipos</option>
+                {% for tipo_code, tipo_nome in tipo_choices %}
+                  <option value="{{ tipo_code }}" {% if tipo_filter == tipo_code %}selected{% endif %}>
+                    {{ tipo_nome }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <div class="col-md-3">
+              <label class="form-label small">Status</label>
+              <select name="status_ps" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                <option value="ativo" {% if status_filter == 'ativo' %}selected{% endif %}>Ativos</option>
+                <option value="inativo" {% if status_filter == 'inativo' %}selected{% endif %}>Inativos</option>
+              </select>
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label small">Buscar</label>
+              <input type="text" name="search_ps" value="{{ search_filter|default:'' }}" 
+                     class="form-control form-control-sm" placeholder="Nome, descrição...">
+            </div>
+            
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                <i class="fas fa-search me-1"></i> Filtrar
+              </button>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+
+        <div class="card-body">
+          {% if produtos_servicos %}
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Completude</th>
+                    <th class="text-end">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in produtos_servicos %}
+                    <tr id="produto-{{ item.pk }}">
+                      <td>
+                        {% if item.tipo == 'produto' %}
+                          <span class="badge bg-primary">Produto</span>
+                        {% elif item.tipo == 'servico' %}
+                          <span class="badge bg-success">Serviço</span>
+                        {% elif item.tipo == 'curso' %}
+                          <span class="badge bg-info"></i>Curso</span>
+                        {% elif item.tipo == 'evento' %}
+                          <span class="badge bg-warning text-dark">Evento</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <div class="fw-semibold">{{ item.nome }}</div>
+                        {% if item.descricao %}
+                          <small class="text-muted">{{ item.descricao|truncatewords:12 }}</small>
+                        {% endif %}
+                        {% if item.data_lancamento %}
+                          <br><small class="text-info">
+                            <i class="fas fa-calendar me-1"></i>{{ item.data_lancamento|date:"d/m/Y" }}
+                          </small>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if item.preco %}
+                          <span class="text-success fw-bold h6 mb-0">{{ item.preco|formato_moeda }}</span>
+                        {% else %}
+                          <span class="text-muted">-</span>
+                        {% endif %}
+                      </td>
+                      <td class="text-center">
+                        <button type="button" class="btn btn-sm border-0 toggle-status" 
+                                data-id="{{ item.pk }}" 
+                                data-status="{{ item.ativo|yesno:'true,false' }}"
+                                title="Clique para alterar status">
+                          {% if item.ativo %}
+                            <span class="badge bg-success">Ativo</span>
+                          {% else %}
+                            <span class="badge bg-secondary">Inativo</span>
+                          {% endif %}
+                        </button>
+                      </td>
+                      <td class="text-center">
+                        <div class="progress mb-1" style="height: 8px;">
+                          <div class="progress-bar 
+                          {% if item.completude_percentual >= 75 %}bg-success
+                          {% elif item.completude_percentual >= 50 %}bg-warning
+                          {% else %}bg-danger{% endif %}"
+                               style="width: {{ item.completude_percentual }}%">
+                          </div>
+                        </div>
+                        <small class="text-muted fw-semibold">{{ item.completude_percentual|floatformat:0 }}%</small>
+                      </td>
+                      <td class="text-end">
+                        <div class="btn-group" role="group">
+                          <a href="{% url 'gestor:produto_servico_update_inline' item.pk %}" 
+                             class="btn btn-sm btn-outline-primary" title="Editar">
+                            <i class="fas fa-edit"></i>
+                          </a>
+                          <button type="button" class="btn btn-sm btn-outline-danger" title="Excluir"
+                                  onclick="confirmarExclusaoProdutoServico('{{ item.pk }}', '{{ item.nome }}', '{{ item.get_tipo_display }}')">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center py-4 text-muted">
+              {% if tipo_filter or status_filter or search_filter %}
+                <i class="fas fa-search fa-2x mb-2"></i>
+                <h6>Nenhum resultado encontrado</h6>
+                <p class="mb-2">Tente ajustar os filtros de busca.</p>
+                <a href="{% url 'gestor:cliente_detail' cliente.pk %}" class="btn btn-sm btn-outline-secondary">
+                  <i class="fas fa-broom me-1"></i> Limpar Filtros
+                </a>
+              {% else %}
+                <h6>Nenhum produto/serviço cadastrado</h6>
+                <a href="{% url 'gestor:produto_servico_create_inline' cliente.pk %}" class="btn btn-sm btn-primary">
+                  <i class="fas fa-plus me-1"></i> Adicionar Primeiro Produto/Serviço
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- ===== SEÇÃO: CAMPANHAS (LARGURA TOTAL) ===== -->
+      <div class="card mt-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-bullhorn me-2"></i>Campanhas de Marketing
+            <span class="badge bg-primary ms-2">{{ stats.campanhas_total }}</span>
+          </h6>
+          <a href="{% url 'gestor:campanha_create' %}?cliente={{ cliente.pk }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Nova Campanha
+          </a>
+        </div>
+        <div class="card-body">
+          {% if campanhas %}
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Nome da Campanha</th>
+                    <th>Status</th>
+                    <th>Orçamento</th>
+                    <th>Período</th>
+                    <th class="text-end">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for campanha in campanhas %}
+                    <tr>
+                      <td>
+                        <div class="fw-semibold">{{ campanha.nome_campanha }}</div>
+                        {% if campanha.objetivo_principal %}
+                          <small class="text-muted">{{ campanha.objetivo_principal|truncatewords:10 }}</small>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if campanha.status == 'ativa' %}
+                          <span class="badge bg-success">Ativa</span>
+                        {% elif campanha.status == 'planejamento' %}
+                          <span class="badge bg-warning">Planejamento</span>
+                        {% elif campanha.status == 'pausada' %}
+                          <span class="badge bg-secondary">Pausada</span>
+                        {% elif campanha.status == 'finalizada' %}
+                          <span class="badge bg-info">Finalizada</span>
+                        {% else %}
+                          <span class="badge bg-light text-dark">{{ campanha.get_status_display }}</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if campanha.orcamento_total %}
+                          <span class="text-success fw-bold">{{ campanha.orcamento_total|formato_moeda }}</span>
+                        {% else %}
+                          <span class="text-muted">-</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if campanha.data_inicio and campanha.data_termino %}
+                          <small>
+                            {{ campanha.data_inicio|date:"d/m/Y" }} <br>
+                            até {{ campanha.data_termino|date:"d/m/Y" }}
+                          </small>
+                        {% else %}
+                          <span class="text-muted">-</span>
+                        {% endif %}
+                      </td>
+                      <td class="text-end">
+                        <div class="btn-group" role="group">
+                          <a href="{% url 'gestor:campanha_detail' campanha.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-eye"></i>
+                          </a>
+                          <a href="{% url 'gestor:campanha_update' campanha.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit"></i>
+                          </a>
+                          <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarExclusaoCampanha('{{ campanha.pk }}', '{{ campanha.nome_campanha }}')">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            
+            {% if stats.campanhas_total > campanhas|length %}
+            <div class="text-center mt-3">
+              <a href="{% url 'gestor:campanha_list' %}?cliente={{ cliente.pk }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-eye me-1"></i> Ver todas as campanhas ({{ stats.campanhas_total }})
+              </a>
+            </div>
+            {% endif %}
+          {% else %}
+            <div class="text-center py-3 text-muted">
+              <p class="mb-0">Nenhuma campanha criada.</p>
+              <a href="{% url 'gestor:campanha_create' %}?cliente={{ cliente.pk }}" class="btn btn-sm btn-primary mt-2">
+                <i class="fas fa-plus me-1"></i> Criar primeira campanha
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -474,6 +622,147 @@
 
 {% endblock %}
 
+{% block extra_css %}
+<style>
+/* Layout mais amplo */
+.container-fluid {
+  max-width: 1400px;
+}
+
+/* Bordas coloridas para diferentes seções */
+.border-3 {
+  border-width: 3px !important;
+}
+
+/* Cards com hover effect */
+.card:hover {
+  transform: translateY(-2px);
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Melhor espaçamento para labels */
+.text-muted.small {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Status badges melhorados */
+.badge {
+  font-size: 0.75rem;
+  padding: 0.5em 0.75em;
+}
+
+/* Progress bar customizada */
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e9ecef;
+}
+
+.progress-bar {
+  border-radius: 4px;
+}
+
+/* Tabela melhorada */
+.table th {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(13, 110, 253, 0.08);
+}
+
+/* Botões de ação */
+.btn-group .btn {
+  border-radius: 0.375rem;
+}
+
+.btn-group .btn:not(:last-child) {
+  margin-right: 2px;
+}
+
+/* Cards da sidebar */
+.col-lg-4 .card {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Estatísticas */
+.h3 {
+  font-weight: 700;
+}
+
+/* Status digital */
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+/* Responsividade melhorada */
+@media (max-width: 992px) {
+  .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .col-lg-8, .col-lg-4 {
+    margin-bottom: 1rem;
+  }
+  
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .col-md-6 .border-end {
+    border-right: none !important;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Melhoria nos badges de configuração digital */
+.bg-success-subtle {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+}
+
+.bg-secondary-subtle {
+  background-color: rgba(108, 117, 125, 0.1) !important;
+}
+
+.bg-primary-subtle {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.text-primary {
+  color: #0d6efd !important;
+}
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -484,9 +773,50 @@ document.addEventListener('DOMContentLoaded', function() {
   window.confirmarExclusaoProdutoServico = function(produtoId, produtoNome, produtoTipo) {
     document.getElementById('produtoServicoNome').textContent = produtoNome;
     document.getElementById('produtoServicoTipo').textContent = produtoTipo.toLowerCase();
-    document.getElementById('deleteProdutoServicoForm').action = `{% url 'gestor:produto_servico_delete' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', produtoId);
+    document.getElementById('deleteProdutoServicoForm').action = `{% url 'gestor:produto_servico_delete_inline' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', produtoId);
     deleteProdutoServicoModal.show();
   };
+  
+  // ===== TOGGLE STATUS VIA AJAX =====
+  const toggleButtons = document.querySelectorAll('.toggle-status');
+  toggleButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const itemId = this.dataset.id;
+      const currentStatus = this.dataset.status === 'true';
+      
+      // Enviar requisição AJAX
+      fetch(`{% url 'gestor:produto_servico_toggle_status_inline' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', itemId), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Atualizar interface
+          const badge = this.querySelector('.badge');
+          if (data.ativo) {
+            badge.className = 'badge bg-success';
+            badge.textContent = 'Ativo';
+            this.dataset.status = 'true';
+          } else {
+            badge.className = 'badge bg-secondary';
+            badge.textContent = 'Inativo';
+            this.dataset.status = 'false';
+          }
+          
+          // Mostrar toast de sucesso
+          showToast(data.message, 'success');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        showToast('Erro ao alterar status', 'danger');
+      });
+    });
+  });
   
   // ===== FUNÇÕES PARA CAMPANHAS =====
   window.confirmarExclusaoCampanha = function(campanhaId, campanhaNome) {
@@ -506,13 +836,68 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   };
   
-  // ===== TOOLTIPS =====
-  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
-  const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
+  // ===== AUTO-SUBMIT DOS FILTROS =====
+  const filterForm = document.getElementById('filtrosForm');
+  if (filterForm) {
+    const filterInputs = filterForm.querySelectorAll('select');
+    
+    filterInputs.forEach(input => {
+      input.addEventListener('change', function() {
+        setTimeout(() => {
+          filterForm.submit();
+        }, 300);
+      });
+    });
+  }
+  
+  // ===== FUNÇÃO TOAST =====
+  function showToast(message, type = 'info') {
+    const toastHtml = `
+      <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '1056';
+      document.body.appendChild(toastContainer);
+    }
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+  
+  // ===== SMOOTH SCROLLING =====
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
   });
   
-  console.log('🏢 Detalhes do cliente (versão atualizada) carregados com sucesso!');
+  console.log('🏢 Layout amplo 8/4 do cliente carregado com sucesso!');
 });
 </script>
 {% endblock %}

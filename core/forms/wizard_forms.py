@@ -1,4 +1,4 @@
-# core/forms/wizard_forms.py - VERSÃO REFATORADA (4 STEPS) - SEM PLACEHOLDERS
+# core/forms/wizard_forms.py - VERSÃO REFATORADA (5 STEPS) COM NOVA ABA HISTÓRIA
 
 from django import forms
 from core.models import Cliente
@@ -6,42 +6,44 @@ from decimal import Decimal, InvalidOperation
 import re
 
 class ClienteWizardStep1Form(forms.ModelForm):
-    """Step 1: Público-Alvo"""
+    """Step 1: História da Empresa (NOVA ABA)"""
     
     class Meta:
         model = Cliente
         fields = [
-            'descricao_publico', 'necessidades_desejos', 'comportamento_compra',
-            'consideracoes_demograficas', 'niveis_consciencia', 
-            'objecoes_comuns', 'tentativas_passadas'
+            'historia_empresa', 'missao', 'visao', 'valores'
         ]
         
         widgets = {
-            'descricao_publico': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'necessidades_desejos': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'comportamento_compra': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'consideracoes_demograficas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'niveis_consciencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'objecoes_comuns': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'tentativas_passadas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'historia_empresa': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'missao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'visao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'valores': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+        
+        labels = {
+            'historia_empresa': 'História da Empresa *',
+            'missao': 'Missão da Empresa',
+            'visao': 'Visão da Empresa', 
+            'valores': 'Valores da Empresa',
         }
 
-    def clean_descricao_publico(self):
-        value = self.cleaned_data.get('descricao_publico')
-        if value and len(value.strip()) < 10:
-            raise forms.ValidationError('Descrição do público deve ter pelo menos 10 caracteres.')
+    def clean_historia_empresa(self):
+        value = self.cleaned_data.get('historia_empresa')
+        if not value or len(value.strip()) < 20:
+            raise forms.ValidationError('A história da empresa deve ter pelo menos 20 caracteres.')
         return value
 
-    def clean_necessidades_desejos(self):
-        value = self.cleaned_data.get('necessidades_desejos')
+    def clean_missao(self):
+        value = self.cleaned_data.get('missao')
         if value and len(value.strip()) < 10:
-            raise forms.ValidationError('Necessidades e desejos devem ter pelo menos 10 caracteres.')
+            raise forms.ValidationError('A missão deve ter pelo menos 10 caracteres.')
         return value
 
-    def clean_comportamento_compra(self):
-        value = self.cleaned_data.get('comportamento_compra')
+    def clean_visao(self):
+        value = self.cleaned_data.get('visao')
         if value and len(value.strip()) < 10:
-            raise forms.ValidationError('Comportamento de compra deve ter pelo menos 10 caracteres.')
+            raise forms.ValidationError('A visão deve ter pelo menos 10 caracteres.')
         return value
 
 
@@ -171,7 +173,47 @@ class ClienteWizardStep3Form(forms.ModelForm):
 
 
 class ClienteWizardStep4Form(forms.ModelForm):
-    """Step 4: Recursos e Expectativas (Final)"""
+    """Step 4: Público-Alvo"""
+    
+    class Meta:
+        model = Cliente
+        fields = [
+            'descricao_publico', 'necessidades_desejos', 'comportamento_compra',
+            'consideracoes_demograficas', 'niveis_consciencia', 
+            'objecoes_comuns', 'tentativas_passadas'
+        ]
+        
+        widgets = {
+            'descricao_publico': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'necessidades_desejos': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'comportamento_compra': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'consideracoes_demograficas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'niveis_consciencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'objecoes_comuns': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'tentativas_passadas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+    def clean_descricao_publico(self):
+        value = self.cleaned_data.get('descricao_publico')
+        if value and len(value.strip()) < 10:
+            raise forms.ValidationError('Descrição do público deve ter pelo menos 10 caracteres.')
+        return value
+
+    def clean_necessidades_desejos(self):
+        value = self.cleaned_data.get('necessidades_desejos')
+        if value and len(value.strip()) < 10:
+            raise forms.ValidationError('Necessidades e desejos devem ter pelo menos 10 caracteres.')
+        return value
+
+    def clean_comportamento_compra(self):
+        value = self.cleaned_data.get('comportamento_compra')
+        if value and len(value.strip()) < 10:
+            raise forms.ValidationError('Comportamento de compra deve ter pelo menos 10 caracteres.')
+        return value
+
+
+class ClienteWizardStep5Form(forms.ModelForm):
+    """Step 5: Recursos e Expectativas (Final)"""
     
     # Campo monetário como CharField
     orcamento_marketing = forms.CharField(

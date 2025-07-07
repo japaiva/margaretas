@@ -24,6 +24,9 @@ from .cliente import (
     Campanha,
 )
 
+# ===== IMPORTAÇÕES DO CLIENTE/MARKETING =====
+from .produto_servico import ProdutoServicoEvento
+
 # ===== LISTA DE EXPORTAÇÃO =====
 __all__ = [
     # Modelos base

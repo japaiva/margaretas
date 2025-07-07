@@ -1,0 +1,445 @@
+{% extends 'gestor/base_gestor.html' %}
+
+{% block title %}{{ title }} | Portal Marketing{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">
+      <i class="fas {% if action == 'Criar' %}fa-plus-circle{% else %}fa-edit{% endif %} me-2"></i>
+      {{ title }}
+    </h5>
+    <div>
+      <!-- ✅ CORREÇÃO: Usar cancel_url do contexto -->
+      <a href="{{ cancel_url|default:'/gestor/clientes/' }}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left me-1"></i> Voltar ao Cliente
+      </a>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <form method="post" novalidate id="produtoServicoForm">
+      {% csrf_token %}
+
+      <!-- Erros Gerais -->
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger alert-dismissible fade show">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Erros de Validação:</strong>
+          <ul class="mb-0 mt-2">
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endif %}
+
+      <!-- ✅ ALERT DE CONTEXTO INLINE -->
+      <div class="alert alert-info border-0 mb-4">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-info-circle fa-lg me-3 text-info"></i>
+          <div>
+            <h6 class="alert-heading mb-1">Adicionando para: {{ cliente.nome_empresa }}</h6>
+            <p class="mb-0 small">Este produto/serviço será vinculado automaticamente ao cliente.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Informações Básicas -->
+      <div class="card shadow-sm mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i>Informações Básicas
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="{{ form.tipo.id_for_label }}" class="form-label">
+                <span class="text-danger">*</span> Tipo
+                {% if form.tipo.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.tipo }}
+              <div class="form-text">Escolha entre produto, serviço, curso ou evento</div>
+              {% if form.tipo.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.tipo.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.nome.id_for_label }}" class="form-label">
+                <span class="text-danger">*</span> Nome
+                {% if form.nome.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.nome }}
+              {% if form.nome.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.nome.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-2">
+              <label for="{{ form.ativo.id_for_label }}" class="form-label">Status</label>
+              <div class="form-check form-switch mt-2">
+                {{ form.ativo }}
+                <label class="form-check-label" for="{{ form.ativo.id_for_label }}">
+                  Ativo
+                </label>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.descricao.id_for_label }}" class="form-label">Descrição</label>
+              {{ form.descricao }}
+              <div class="form-text">Breve descrição do que é oferecido</div>
+              {% if form.descricao.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.descricao.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Características e Preço (Colapsável) -->
+      <div class="card shadow-sm mb-4" id="caracteristicasSection">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center collapsible-header" style="cursor: pointer;">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-star me-2"></i>Características e Preço
+          </h6>
+          <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="card-body collapsible-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.caracteristicas_beneficios.id_for_label }}" class="form-label">Características e Benefícios</label>
+              {{ form.caracteristicas_beneficios }}
+              <div class="form-text">Principais características e benefícios</div>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="{{ form.preco.id_for_label }}" class="form-label">Preço (R$)</label>
+              {{ form.preco }}
+              <div class="form-text">Digite o valor</div>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="{{ form.data_lancamento.id_for_label }}" class="form-label">Data de Lançamento</label>
+              {{ form.data_lancamento }}
+            </div>
+            
+            <div class="col-md-4">
+              <label for="{{ form.posicionamento_mercado.id_for_label }}" class="form-label">Posicionamento</label>
+              {{ form.posicionamento_mercado }}
+              <div class="form-text">Posicionamento no mercado</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Marketing e Objetivos (Colapsável) -->
+      <div class="card shadow-sm mb-4" id="marketingSection">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center collapsible-header" style="cursor: pointer;">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-bullhorn me-2"></i>Marketing e Objetivos
+          </h6>
+          <i class="fas fa-chevron-right toggle-icon"></i>
+        </div>
+        <div class="card-body collapsible-body" style="display: none;">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.mensagens_materiais_marketing.id_for_label }}" class="form-label">Mensagens e Materiais de Marketing</label>
+              {{ form.mensagens_materiais_marketing }}
+              <div class="form-text">Mensagens para promover</div>
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.objetivos_venda.id_for_label }}" class="form-label">Objetivos da Venda</label>
+              {{ form.objetivos_venda }}
+              <div class="form-text">Ex: gerar leads, aumentar receita</div>
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.metas_especificas.id_for_label }}" class="form-label">Metas Específicas</label>
+              {{ form.metas_especificas }}
+              <div class="form-text">Ex: número de vendas, receita</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Cronograma e Pacotes (Colapsável) -->
+      <div class="card shadow-sm mb-4" id="cronogramaSection">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center collapsible-header" style="cursor: pointer;">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-calendar me-2"></i>Cronograma e Pacotes
+          </h6>
+          <i class="fas fa-chevron-right toggle-icon"></i>
+        </div>
+        <div class="card-body collapsible-body" style="display: none;">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.cronograma_producao.id_for_label }}" class="form-label">Cronograma para Produção</label>
+              {{ form.cronograma_producao }}
+              <div class="form-text">Prazos para produção e distribuição</div>
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.pacotes_opcoes.id_for_label }}" class="form-label">Pacotes e Opções</label>
+              {{ form.pacotes_opcoes }}
+              <div class="form-text">Quais pacotes serão oferecidos?</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Específico para Cursos e Eventos -->
+      <div class="card shadow-sm mb-4" id="cursoEventoSection" style="display: none;">
+        <div class="card-header bg-warning text-dark">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-graduation-cap me-2"></i>Específico para Cursos e Eventos
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="{{ form.formato.id_for_label }}" class="form-label">Formato</label>
+              {{ form.formato }}
+              <div class="form-text">Online, presencial, híbrido</div>
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.duracao.id_for_label }}" class="form-label">Duração</label>
+              {{ form.duracao }}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.agenda.id_for_label }}" class="form-label">Agenda/Programação</label>
+              {{ form.agenda }}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.palestrantes_instrutores.id_for_label }}" class="form-label">Palestrantes/Instrutores</label>
+              {{ form.palestrantes_instrutores }}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.materiais_recursos.id_for_label }}" class="form-label">Materiais e Recursos</label>
+              {{ form.materiais_recursos }}
+              <div class="form-text">Materiais fornecidos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="d-flex justify-content-between mt-4">
+        <div>
+          <!-- ✅ CORREÇÃO: Usar cancel_url -->
+          <a href="{{ cancel_url|default:'/gestor/clientes/' }}" class="btn btn-outline-secondary">
+            <i class="fas fa-times me-1"></i> Cancelar
+          </a>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-success btn-lg" name="action" value="save">
+            <i class="fas fa-save me-1"></i> {{ action }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // ===== FOCO NO CAMPO OBRIGATÓRIO =====
+  const nomeField = document.getElementById('id_nome');
+  if (nomeField && !nomeField.value) {
+    nomeField.focus();
+  }
+
+  // ===== MOSTRAR/ESCONDER SEÇÃO DE CURSO/EVENTO =====
+  const tipoField = document.getElementById('id_tipo');
+  const cursoEventoSection = document.getElementById('cursoEventoSection');
+  
+  function toggleCursoEventoSection() {
+    const tipo = tipoField.value;
+    if (tipo === 'curso' || tipo === 'evento') {
+      cursoEventoSection.style.display = 'block';
+    } else {
+      cursoEventoSection.style.display = 'none';
+    }
+  }
+  
+  tipoField.addEventListener('change', toggleCursoEventoSection);
+  toggleCursoEventoSection();
+
+  // ===== SEÇÕES COLAPSÁVEIS MELHORADAS =====
+  const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+  
+  collapsibleHeaders.forEach(header => {
+    const body = header.nextElementSibling;
+    const icon = header.querySelector('.toggle-icon');
+    
+    // Verificar se tem dados preenchidos para auto-expandir
+    const inputs = body.querySelectorAll('input, textarea, select');
+    const hasData = Array.from(inputs).some(input => input.value && input.value.trim() !== '');
+    
+    // Se tem dados, expandir automaticamente
+    if (hasData && body.style.display === 'none') {
+      body.style.display = 'block';
+      icon.className = 'fas fa-chevron-down toggle-icon';
+    }
+    
+    header.addEventListener('click', function() {
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.className = 'fas fa-chevron-down toggle-icon';
+        // Smooth scroll para a seção
+        setTimeout(() => {
+          body.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      } else {
+        body.style.display = 'none';
+        icon.className = 'fas fa-chevron-right toggle-icon';
+      }
+    });
+  });
+
+  // ===== VALIDAÇÃO EM TEMPO REAL =====
+  const requiredFields = [
+    document.getElementById('id_tipo'),
+    document.getElementById('id_nome')
+  ];
+  
+  function validateField(field) {
+    const value = field.value.trim();
+    const isValid = value.length > 0;
+    
+    field.classList.remove('is-invalid', 'is-valid');
+    
+    if (isValid) {
+      field.classList.add('is-valid');
+    } else if (field.classList.contains('was-validated') || field.hasAttribute('data-touched')) {
+      field.classList.add('is-invalid');
+    }
+    
+    return isValid;
+  }
+  
+  requiredFields.forEach(field => {
+    field.addEventListener('blur', function() {
+      this.setAttribute('data-touched', 'true');
+      validateField(this);
+    });
+    
+    field.addEventListener('input', function() {
+      if (this.hasAttribute('data-touched')) {
+        validateField(this);
+      }
+    });
+  });
+
+  // ===== SUBMIT COM VALIDAÇÃO =====
+  const form = document.querySelector('form');
+  
+  form.addEventListener('submit', function(e) {
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+      field.setAttribute('data-touched', 'true');
+      if (!validateField(field)) {
+        isValid = false;
+      }
+    });
+    
+    if (!isValid) {
+      e.preventDefault();
+      
+      // Focar no primeiro campo inválido
+      const firstInvalid = form.querySelector('.is-invalid');
+      if (firstInvalid) {
+        firstInvalid.focus();
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      
+      showToast('Por favor, preencha todos os campos obrigatórios', 'warning');
+    } else {
+      // Feedback visual de sucesso
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Salvando...';
+      
+      // Caso haja erro no servidor, restaurar o botão após 5 segundos
+      setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }, 5000);
+    }
+  });
+
+  // ===== FUNÇÃO TOAST =====
+  function showToast(message, type = 'info') {
+    const toastHtml = `
+      <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '1056';
+      document.body.appendChild(toastContainer);
+    }
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+
+  // ===== INDICADOR DE CAMPOS OPCIONAIS =====
+  const optionalSections = document.querySelectorAll('.collapsible-header');
+  optionalSections.forEach(header => {
+    if (!header.closest('#caracteristicasSection')) { // Não aplicar na seção sempre visível
+      const badge = document.createElement('span');
+      badge.className = 'badge bg-secondary ms-2 small';
+      badge.textContent = 'Opcional';
+      header.querySelector('.card-title').appendChild(badge);
+    }
+  });
+
+  console.log('📦 Formulário inline CORRIGIDO carregado com sucesso!');
+});
+</script>
+{% endblock %}
