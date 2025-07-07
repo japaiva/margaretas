@@ -1,0 +1,309 @@
+{% extends 'gestor/base_gestor.html' %}
+
+{% block title %}Editar Checklist - {{ cliente.nome_empresa }} | Portal Marketing{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">
+      <i class="fas fa-edit me-2"></i> 
+      Editar Checklist Operacional - {{ cliente.nome_empresa }}
+    </h5>
+    <div>
+      <!-- CORREÇÃO: Botão voltar agora vai para cliente_detail -->
+      <a href="{% url 'gestor:cliente_detail' cliente.pk %}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left me-1"></i> Voltar
+      </a>
+    </div>
+  </div>
+
+  <div class="card-body">
+    
+    <!-- Progresso Atual -->
+    {% if checklist.completude_percentual %}
+    <div class="alert alert-info">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-info-circle fa-2x me-3"></i>
+        <div>
+          <h6 class="alert-heading mb-1">Progresso Atual: {{ checklist.completude_percentual|floatformat:0 }}%</h6>
+          <p class="mb-0">Complete os itens abaixo para liberar a execução de campanhas.</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <!-- Erros Gerais -->
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger alert-dismissible fade show">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Erros de Validação:</strong>
+          <ul class="mb-0 mt-2">
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endif %}
+
+      <!-- Seção: Referências e Materiais -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-images me-2"></i>Referências e Materiais
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                {{ form.banco_imagens_videos }}
+                <label class="form-check-label" for="{{ form.banco_imagens_videos.id_for_label }}">
+                  <strong>{{ form.banco_imagens_videos.label }}</strong>
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.banco_imagens_videos.help_text }}</small>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                {{ form.acesso_criativos }}
+                <label class="form-check-label" for="{{ form.acesso_criativos.id_for_label }}">
+                  <strong>{{ form.acesso_criativos.label }}</strong>
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.acesso_criativos.help_text }}</small>
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.responsavel_conteudo.id_for_label }}" class="form-label">
+                {{ form.responsavel_conteudo.label }}
+              </label>
+              {{ form.responsavel_conteudo }}
+              <small class="form-text text-muted">{{ form.responsavel_conteudo.help_text }}</small>
+              {% if form.responsavel_conteudo.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.responsavel_conteudo.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.pasta_materiais.id_for_label }}" class="form-label">
+                {{ form.pasta_materiais.label }}
+              </label>
+              {{ form.pasta_materiais }}
+              <small class="form-text text-muted">{{ form.pasta_materiais.help_text }}</small>
+              {% if form.pasta_materiais.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.pasta_materiais.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Meta/Facebook -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header text-white" style="background-color: #1877f2;">
+          <h6 class="card-title mb-0">
+            <i class="fab fa-facebook me-2"></i>Meta/Facebook Business
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            
+            <div class="col-md-4">
+              <div class="form-check form-switch">
+                {{ form.liberacao_meta }}
+                <label class="form-check-label" for="{{ form.liberacao_meta.id_for_label }}">
+                  <strong>{{ form.liberacao_meta.label }}</strong>
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.liberacao_meta.help_text }}</small>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="form-check form-switch">
+                {{ form.business_manager_ativo }}
+                <label class="form-check-label" for="{{ form.business_manager_ativo.id_for_label }}">
+                  <strong>{{ form.business_manager_ativo.label }}</strong>
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.business_manager_ativo.help_text }}</small>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="form-check form-switch">
+                {{ form.dominio_verificado }}
+                <label class="form-check-label" for="{{ form.dominio_verificado.id_for_label }}">
+                  <strong>{{ form.dominio_verificado.label }}</strong>
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.dominio_verificado.help_text }}</small>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="form-check form-switch">
+                {{ form.pixel_instalado }}
+                <label class="form-check-label" for="{{ form.pixel_instalado.id_for_label }}">
+                  <strong>{{ form.pixel_instalado.label }}</strong>
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.pixel_instalado.help_text }}</small>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="form-check form-switch">
+                {{ form.conversoes_api_ativas }}
+                <label class="form-check-label" for="{{ form.conversoes_api_ativas.id_for_label }}">
+                  <strong>{{ form.conversoes_api_ativas.label }}</strong>
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.conversoes_api_ativas.help_text }}</small>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="form-check form-switch">
+                {{ form.acesso_conta_anuncios }}
+                <label class="form-check-label" for="{{ form.acesso_conta_anuncios.id_for_label }}">
+                  <strong>{{ form.acesso_conta_anuncios.label }}</strong>
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.acesso_conta_anuncios.help_text }}</small>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Google -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header text-white" style="background-color: #4285f4;">
+          <h6 class="card-title mb-0">
+            <i class="fab fa-google me-2"></i>Google Ads & Ferramentas
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                {{ form.conta_google_ads }}
+                <label class="form-check-label" for="{{ form.conta_google_ads.id_for_label }}">
+                  <strong>{{ form.conta_google_ads.label }}</strong>
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.conta_google_ads.help_text }}</small>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                {{ form.search_console }}
+                <label class="form-check-label" for="{{ form.search_console.id_for_label }}">
+                  <strong>{{ form.search_console.label }}</strong>
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.search_console.help_text }}</small>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Observações -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-sticky-note me-2"></i>Observações
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              <label for="{{ form.observacoes.id_for_label }}" class="form-label">
+                {{ form.observacoes.label }}
+              </label>
+              {{ form.observacoes }}
+              <small class="form-text text-muted">{{ form.observacoes.help_text }}</small>
+              {% if form.observacoes.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.observacoes.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="d-flex justify-content-between mt-4">
+        <div>
+          <!-- CORREÇÃO: Cancelar também vai para cliente_detail -->
+          <a href="{% url 'gestor:cliente_detail' cliente.pk %}" class="btn btn-outline-secondary">
+            <i class="fas fa-times me-1"></i> Cancelar
+          </a>
+        </div>
+        <div>
+          <!-- Botão salvar mantém o mesmo comportamento - vai seguir o redirect da view -->
+          <button type="submit" class="btn btn-primary" name="action" value="save_and_return">
+            <i class="fas fa-save me-1"></i> Salvar e Voltar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // ===== SALVAMENTO AUTOMÁTICO (OPCIONAL) =====
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      // Feedback visual rápido
+      const label = this.nextElementSibling;
+      if (this.checked) {
+        label.classList.add('text-success');
+        setTimeout(() => label.classList.remove('text-success'), 1000);
+      }
+    });
+  });
+  
+  // ===== CONTADOR DE PROGRESSO EM TEMPO REAL =====
+  function updateProgress() {
+    const totalCheckboxes = checkboxes.length;
+    const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked').length;
+    const progress = Math.round((checkedBoxes / totalCheckboxes) * 100);
+    
+    // Atualizar badges se existirem
+    const progressBadges = document.querySelectorAll('.progress-badge');
+    progressBadges.forEach(badge => {
+      badge.textContent = `${progress}%`;
+    });
+  }
+  
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateProgress);
+  });
+  
+  console.log('📝 Formulário de checklist carregado com sucesso!');
+});
+</script>
+{% endblock %}

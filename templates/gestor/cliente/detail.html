@@ -410,14 +410,6 @@
                       </td>
                       <td>
                         <div class="fw-semibold">{{ item.nome }}</div>
-                        {% if item.descricao %}
-                          <small class="text-muted">{{ item.descricao|truncatewords:12 }}</small>
-                        {% endif %}
-                        {% if item.data_lancamento %}
-                          <br><small class="text-info">
-                            <i class="fas fa-calendar me-1"></i>{{ item.data_lancamento|date:"d/m/Y" }}
-                          </small>
-                        {% endif %}
                       </td>
                       <td>
                         {% if item.preco %}
@@ -439,14 +431,6 @@
                         </button>
                       </td>
                       <td class="text-center">
-                        <div class="progress mb-1" style="height: 8px;">
-                          <div class="progress-bar 
-                          {% if item.completude_percentual >= 75 %}bg-success
-                          {% elif item.completude_percentual >= 50 %}bg-warning
-                          {% else %}bg-danger{% endif %}"
-                               style="width: {{ item.completude_percentual }}%">
-                          </div>
-                        </div>
                         <small class="text-muted fw-semibold">{{ item.completude_percentual|floatformat:0 }}%</small>
                       </td>
                       <td class="text-end">

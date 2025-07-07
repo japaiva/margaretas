@@ -80,7 +80,6 @@
                 <div class="fw-semibold">{{ cliente.nome_empresa }}</div>
                 {% if cliente.website_principal %}
                   <small class="text-muted">
-                    <i class="fas fa-globe me-1"></i>
                     <a href="{{ cliente.website_principal }}" target="_blank" class="text-decoration-none">
                       {{ cliente.website_principal|slice:":30" }}
                     </a>
@@ -96,17 +95,9 @@
               <td class="text-center">
                 {% if cliente.briefing_completo %}
                   <span class="badge bg-success">
-                    <i class="fas fa-check-circle me-1"></i>Completo
+                    Completo
                   </span>
-                  <div class="small text-muted">{{ cliente.data_briefing|date:"d/m/Y" }}</div>
                 {% else %}
-                  <div class="progress" style="height: 8px;">
-                    <div class="progress-bar bg-warning" role="progressbar" 
-                         style="width: {{ cliente.briefing_progress }}%" 
-                         aria-valuenow="{{ cliente.briefing_progress }}" 
-                         aria-valuemin="0" aria-valuemax="100">
-                    </div>
-                  </div>
                   <small class="text-muted">{{ cliente.briefing_progress|floatformat:0 }}%</small>
                 {% endif %}
               </td>
