@@ -315,32 +315,29 @@ def cliente_delete(request, pk):
 
 
 # ===== VIEWS DE CHECKLIST =====
+# Correção na view cliente_checklist
+# No arquivo gestor/views/cliente.py
 
 @login_required
 def cliente_checklist(request, pk):
-    """View para visualizar checklist operacional de um cliente"""
-    cliente = get_object_or_404(Cliente, pk=pk)
+    """View para checklist - redireciona para detalhe do cliente"""
     
-    # Buscar ou criar checklist
+    # Como não temos template de detalhe do checklist,
+    # redireciona direto para o detalhe do cliente
+    print(f"🔍 DEBUG: cliente_checklist chamado - redirecionando para cliente_detail")
+    
+    # Garantir que o checklist existe
+    cliente = get_object_or_404(Cliente, pk=pk)
     checklist, created = ClienteChecklist.objects.get_or_create(
         cliente=cliente,
         defaults={'updated_by': request.user}
     )
     
-    context = {
-        'cliente': cliente,
-        'checklist': checklist,
-        'is_new': created,
-        'completude': checklist.completude_percentual,
-        'page_title': f'Checklist Operacional - {cliente.nome_empresa}',
-        'breadcrumbs': [
-            {'url': 'gestor:cliente_list', 'title': 'Clientes'},
-            {'url': 'gestor:cliente_detail', 'title': cliente.nome_empresa, 'args': [cliente.pk]},
-            {'title': 'Checklist'},
-        ]
-    }
+    if created:
+        messages.info(request, f'📋 Checklist criado para {cliente.nome_empresa}')
     
-    return render(request, 'gestor/cliente/checklist_detail.html', context)
+    # Redirecionar sempre para o detalhe do cliente
+    return redirect('gestor:cliente_detail', pk=pk)
 
 
 @login_required
