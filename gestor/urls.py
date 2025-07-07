@@ -1,4 +1,4 @@
-# gestor/urls.py - VERSÃO REFATORADA
+# gestor/urls.py - VERSÃO REFATORADA COM PRODUTOS/SERVIÇOS
 
 from django.urls import path
 
@@ -8,7 +8,7 @@ from .views.dashboard import (
     parametro_create, parametro_update, relatorios,
     relatorio_clientes, relatorio_campanhas, relatorio_performance
 )
-from .views import usuario, cliente
+from .views import usuario, cliente, produto_servico
 # IMPORT DIRETO DA CLASSE WIZARD REFATORADA
 from .views.cliente_wizard import ClienteWizardView
 
@@ -38,6 +38,19 @@ urlpatterns = [
     # CHECKLIST OPERACIONAL
     path('clientes/<uuid:pk>/checklist/', cliente.cliente_checklist, name='cliente_checklist'),
     path('clientes/<uuid:pk>/checklist/editar/', cliente.cliente_checklist_update, name='cliente_checklist_update'),
+
+    # ===== PRODUTOS/SERVIÇOS/EVENTOS =====
+    path('clientes/<uuid:cliente_pk>/produtos-servicos/', produto_servico.produto_servico_list, name='produto_servico_list'),
+    path('clientes/<uuid:cliente_pk>/produtos-servicos/novo/', produto_servico.produto_servico_create, name='produto_servico_create'),
+    path('produtos-servicos/<uuid:pk>/', produto_servico.produto_servico_detail, name='produto_servico_detail'),
+    path('produtos-servicos/<uuid:pk>/editar/', produto_servico.produto_servico_update, name='produto_servico_update'),
+    path('produtos-servicos/<uuid:pk>/excluir/', produto_servico.produto_servico_delete, name='produto_servico_delete'),
+    path('produtos-servicos/<uuid:pk>/toggle-status/', produto_servico.produto_servico_toggle_status, name='produto_servico_toggle_status'),
+    path('produtos-servicos/<uuid:pk>/duplicar/', produto_servico.produto_servico_duplicar, name='produto_servico_duplicar'),
+    
+    # APIs para Produtos/Serviços
+    path('api/produtos-servicos/search/', produto_servico.produto_servico_api_search, name='api_produto_servico_search'),
+    path('api/clientes/<uuid:cliente_pk>/produtos-servicos/stats/', produto_servico.produto_servico_stats, name='api_produto_servico_stats'),
 
     # ===== CAMPANHAS - SIMPLIFICADAS =====
     path('campanhas/', cliente.campanha_list, name='campanha_list'),

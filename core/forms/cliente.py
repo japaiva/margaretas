@@ -1,7 +1,7 @@
-# core/forms/cliente.py
+# core/forms/cliente.py - VERSÃO ATUALIZADA (SEM PRODUTOS/SERVIÇOS)
 
 from django import forms
-from core.models import Cliente, Campanha  # ❌ REMOVIDO: ProdutoServicoEvento
+from core.models import Cliente, Campanha
 from core.utils.view_utils import DateAwareModelForm
 from decimal import Decimal, InvalidOperation
 import re
@@ -35,7 +35,8 @@ class ClienteForm(DateAwareModelForm):
             
             # === INFORMAÇÕES DA EMPRESA ===
             'cnpj_cpf', 'endereco_completo', 'historia_empresa', 
-            'missao', 'visao', 'valores', 'lista_produtos_servicos',
+            'missao', 'visao', 'valores',
+            # ❌ REMOVIDO: 'lista_produtos_servicos',
             
             # === RESPONSÁVEIS E CONTATOS ===
             'responsavel_contrato', 'cargo_responsavel', 'contato_responsavel',
@@ -84,10 +85,6 @@ class ClienteForm(DateAwareModelForm):
             'valores': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3
-            }),
-            'lista_produtos_servicos': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4
             }),
             
             # === RESPONSÁVEIS ===
@@ -157,7 +154,7 @@ class ClienteForm(DateAwareModelForm):
             'missao': 'Missão da Empresa',
             'visao': 'Visão da Empresa',
             'valores': 'Valores da Empresa',
-            'lista_produtos_servicos': 'Produtos ou Serviços',
+            # ❌ REMOVIDO: 'lista_produtos_servicos': 'Produtos ou Serviços',
             'responsavel_contrato': 'Responsável pelo Contrato',
             'cargo_responsavel': 'Cargo do Responsável',
             'contato_responsavel': 'Contato do Responsável',

@@ -1,4 +1,4 @@
-# core/models/cliente.py - VERSÃO REFATORADA
+# core/models/cliente.py - VERSÃO REFATORADA (SEM LISTA_PRODUTOS_SERVICOS)
 
 from django.db import models
 from django.conf import settings
@@ -21,7 +21,7 @@ class Cliente(models.Model):
     missao = models.TextField(verbose_name="Missão", blank=True, null=True)
     visao = models.TextField(verbose_name="Visão", blank=True, null=True)
     valores = models.TextField(verbose_name="Valores", blank=True, null=True)
-    lista_produtos_servicos = models.TextField(verbose_name="Produtos ou Serviços", blank=True, null=True)
+    # ❌ REMOVIDO: lista_produtos_servicos = models.TextField(verbose_name="Produtos ou Serviços", blank=True, null=True)
     
     # === RESPONSÁVEIS E CONTATOS ===
     responsavel_contrato = models.CharField(max_length=200, verbose_name="Responsável pelo Contrato", blank=True, null=True)

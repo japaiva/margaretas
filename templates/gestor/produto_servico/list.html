@@ -1,0 +1,415 @@
+{% extends 'gestor/base_gestor.html' %}
+
+{% block title %}Produtos/Serviços - {{ cliente.nome_empresa }} | Portal Marketing{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">
+      <i class="fas fa-box me-2"></i>Produtos/Serviços - {{ cliente.nome_empresa }}
+    </h5>
+    <div>
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+          <i class="fas fa-plus me-1"></i> Novo
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=produto">
+            <i class="fas fa-box me-2"></i> Produto
+          </a></li>
+          <li><a class="dropdown-item" href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=servico">
+            <i class="fas fa-cogs me-2"></i> Serviço
+          </a></li>
+          <li><a class="dropdown-item" href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=curso">
+            <i class="fas fa-graduation-cap me-2"></i> Curso
+          </a></li>
+          <li><a class="dropdown-item" href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=evento">
+            <i class="fas fa-calendar-alt me-2"></i> Evento
+          </a></li>
+        </ul>
+      </div>
+      <a href="{% url 'gestor:cliente_detail' cliente.pk %}" class="btn btn-outline-secondary btn-sm ms-1">
+        <i class="fas fa-arrow-left me-1"></i> Voltar
+      </a>
+    </div>
+  </div>
+  
+  <!-- Estatísticas -->
+  <div class="card-header bg-white border-bottom">
+    <div class="row text-center">
+      <div class="col-md-2">
+        <div class="d-flex align-items-center justify-content-center">
+          <i class="fas fa-boxes fa-2x text-primary me-2"></i>
+          <div>
+            <div class="h5 mb-0">{{ stats.total }}</div>
+            <small class="text-muted">Total</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="d-flex align-items-center justify-content-center">
+          <i class="fas fa-check-circle fa-2x text-success me-2"></i>
+          <div>
+            <div class="h5 mb-0">{{ stats.ativos }}</div>
+            <small class="text-muted">Ativos</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="d-flex align-items-center justify-content-center">
+          <i class="fas fa-box fa-2x text-info me-2"></i>
+          <div>
+            <div class="h5 mb-0">{{ stats.por_tipo.produto }}</div>
+            <small class="text-muted">Produtos</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="d-flex align-items-center justify-content-center">
+          <i class="fas fa-cogs fa-2x text-warning me-2"></i>
+          <div>
+            <div class="h5 mb-0">{{ stats.por_tipo.servico }}</div>
+            <small class="text-muted">Serviços</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="d-flex align-items-center justify-content-center">
+          <i class="fas fa-graduation-cap fa-2x text-purple me-2"></i>
+          <div>
+            <div class="h5 mb-0">{{ stats.por_tipo.curso }}</div>
+            <small class="text-muted">Cursos</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="d-flex align-items-center justify-content-center">
+          <i class="fas fa-calendar-alt fa-2x text-orange me-2"></i>
+          <div>
+            <div class="h5 mb-0">{{ stats.por_tipo.evento }}</div>
+            <small class="text-muted">Eventos</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Filtros -->
+  <div class="card-header bg-white">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label for="{{ filter_form.tipo.id_for_label }}" class="form-label small">Tipo</label>
+        {{ filter_form.tipo }}
+      </div>
+      
+      <div class="col-md-3">
+        <label for="{{ filter_form.status.id_for_label }}" class="form-label small">Status</label>
+        {{ filter_form.status }}
+      </div>
+      
+      <div class="col-md-4">
+        <label for="{{ filter_form.search.id_for_label }}" class="form-label small">Buscar</label>
+        {{ filter_form.search }}
+      </div>
+      
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-sm btn-primary w-100">
+          <i class="fas fa-search me-1"></i> Buscar
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <div class="card-body">
+    {% if produtos_servicos %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Tipo</th>
+              <th>Nome</th>
+              <th>Preço</th>
+              <th class="text-center">Status</th>
+              <th class="text-center">Completude</th>
+              <th class="text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in produtos_servicos %}
+              <tr>
+                <td>
+                  {% if item.tipo == 'produto' %}
+                    <span class="badge bg-primary"><i class="fas fa-box me-1"></i>Produto</span>
+                  {% elif item.tipo == 'servico' %}
+                    <span class="badge bg-success"><i class="fas fa-cogs me-1"></i>Serviço</span>
+                  {% elif item.tipo == 'curso' %}
+                    <span class="badge bg-info"><i class="fas fa-graduation-cap me-1"></i>Curso</span>
+                  {% elif item.tipo == 'evento' %}
+                    <span class="badge bg-warning text-dark"><i class="fas fa-calendar-alt me-1"></i>Evento</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="fw-semibold">{{ item.nome }}</div>
+                  {% if item.descricao %}
+                    <small class="text-muted">{{ item.descricao|truncatewords:15 }}</small>
+                  {% endif %}
+                  {% if item.data_lancamento %}
+                    <br><small class="text-info">
+                      <i class="fas fa-calendar me-1"></i>{{ item.data_lancamento|date:"d/m/Y" }}
+                    </small>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if item.preco %}
+                    <span class="text-success fw-semibold">R$ {{ item.preco|floatformat:2 }}</span>
+                  {% else %}
+                    <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  <button type="button" class="btn btn-sm border-0 toggle-status" 
+                          data-id="{{ item.pk }}" 
+                          data-status="{{ item.ativo|yesno:'true,false' }}">
+                    {% if item.ativo %}
+                      <span class="badge bg-success">Ativo</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Inativo</span>
+                    {% endif %}
+                  </button>
+                </td>
+                <td class="text-center">
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar 
+                    {% if item.completude_percentual >= 75 %}bg-success
+                    {% elif item.completude_percentual >= 50 %}bg-warning
+                    {% else %}bg-danger{% endif %}"
+                         style="width: {{ item.completude_percentual }}%">
+                    </div>
+                  </div>
+                  <small class="text-muted">{{ item.completude_percentual|floatformat:0 }}%</small>
+                </td>
+                <td class="text-end">
+                  <div class="btn-group" role="group">
+                    <a href="{% url 'gestor:produto_servico_detail' item.pk %}" class="btn btn-sm btn-outline-secondary" title="Detalhes">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{% url 'gestor:produto_servico_update' item.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'gestor:produto_servico_duplicar' item.pk %}" class="btn btn-sm btn-outline-info" title="Duplicar">
+                      <i class="fas fa-copy"></i>
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-danger" title="Excluir"
+                            onclick="confirmarExclusao('{{ item.pk }}', '{{ item.nome }}', '{{ item.get_tipo_display }}')">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Paginação -->
+      {% if page_obj.has_other_pages %}
+      <div class="d-flex justify-content-center mt-3">
+        <nav aria-label="Paginação">
+          <ul class="pagination pagination-sm">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Anterior</a>
+              </li>
+            {% endif %}
+            
+            <li class="page-item active">
+              <span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Próximo</a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+      {% endif %}
+      
+    {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="fas fa-box fa-3x mb-3"></i>
+        <h5>Nenhum produto/serviço encontrado</h5>
+        {% if request.GET.search or request.GET.tipo or request.GET.status %}
+          <p>Tente ajustar os filtros ou limpar a busca.</p>
+          <a href="{% url 'gestor:produto_servico_list' cliente.pk %}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-broom me-1"></i> Limpar Filtros
+          </a>
+        {% else %}
+          <p>Comece adicionando o primeiro produto ou serviço.</p>
+        {% endif %}
+        <div class="btn-group" role="group">
+          <a href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=produto" class="btn btn-primary">
+            <i class="fas fa-box me-1"></i> Produto
+          </a>
+          <a href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=servico" class="btn btn-success">
+            <i class="fas fa-cogs me-1"></i> Serviço
+          </a>
+          <a href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=curso" class="btn btn-info">
+            <i class="fas fa-graduation-cap me-1"></i> Curso
+          </a>
+          <a href="{% url 'gestor:produto_servico_create' cliente.pk %}?tipo=evento" class="btn btn-warning">
+            <i class="fas fa-calendar-alt me-1"></i> Evento
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modal de Exclusão -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">
+          <i class="fas fa-trash-alt me-2"></i>Confirmar Exclusão
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+        </div>
+        <p>Tem certeza que deseja excluir o <span id="tipoItem"></span> <strong id="nomeItem"></strong>?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form method="post" id="deleteForm">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash-alt me-1"></i> Sim, Excluir
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // ===== MODAL DE EXCLUSÃO =====
+  const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+  
+  window.confirmarExclusao = function(id, nome, tipo) {
+    document.getElementById('nomeItem').textContent = nome;
+    document.getElementById('tipoItem').textContent = tipo.toLowerCase();
+    document.getElementById('deleteForm').action = `{% url 'gestor:produto_servico_delete' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', id);
+    deleteModal.show();
+  };
+  
+  // ===== TOGGLE STATUS VIA AJAX =====
+  const toggleButtons = document.querySelectorAll('.toggle-status');
+  toggleButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const itemId = this.dataset.id;
+      const currentStatus = this.dataset.status === 'true';
+      
+      // Enviar requisição AJAX
+      fetch(`{% url 'gestor:produto_servico_toggle_status' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', itemId), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Atualizar interface
+          const badge = this.querySelector('.badge');
+          if (data.ativo) {
+            badge.className = 'badge bg-success';
+            badge.textContent = 'Ativo';
+            this.dataset.status = 'true';
+          } else {
+            badge.className = 'badge bg-secondary';
+            badge.textContent = 'Inativo';
+            this.dataset.status = 'false';
+          }
+          
+          // Mostrar toast de sucesso
+          showToast(data.message, 'success');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        showToast('Erro ao alterar status', 'danger');
+      });
+    });
+  });
+  
+  // ===== FUNÇÃO TOAST =====
+  function showToast(message, type = 'info') {
+    const toastHtml = `
+      <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '1056';
+      document.body.appendChild(toastContainer);
+    }
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+  
+  // ===== AUTO-SUBMIT DOS FILTROS =====
+  const filterForm = document.querySelector('form');
+  const filterInputs = filterForm.querySelectorAll('select');
+  
+  filterInputs.forEach(input => {
+    input.addEventListener('change', function() {
+      // Delay para UX melhor
+      setTimeout(() => {
+        filterForm.submit();
+      }, 300);
+    });
+  });
+  
+  console.log('📦 Lista de produtos/serviços carregada com sucesso!');
+});
+</script>
+
+<style>
+.text-purple { color: #6f42c1 !important; }
+.text-orange { color: #fd7e14 !important; }
+.toggle-status:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s;
+}
+</style>
+{% endblock %}

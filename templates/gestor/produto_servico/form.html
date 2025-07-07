@@ -1,0 +1,541 @@
+{% extends 'gestor/base_gestor.html' %}
+
+{% block title %}{{ title }} | Portal Marketing{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">
+      <i class="fas {% if action == 'Criar' %}fa-plus-circle{% else %}fa-edit{% endif %} me-2"></i>
+      {{ title }}
+    </h5>
+    <div>
+      {% if produto_servico %}
+        <a href="{% url 'gestor:produto_servico_detail' produto_servico.pk %}" class="btn btn-outline-info btn-sm me-1">
+          <i class="fas fa-eye me-1"></i> Ver Detalhes
+        </a>
+      {% endif %}
+      <a href="{% url 'gestor:produto_servico_list' cliente.pk %}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left me-1"></i> Voltar
+      </a>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <form method="post" novalidate id="produtoServicoForm">
+      {% csrf_token %}
+
+      <!-- Erros Gerais -->
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger alert-dismissible fade show">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Erros de Validação:</strong>
+          <ul class="mb-0 mt-2">
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endif %}
+
+      <!-- Seção: Informações Básicas -->
+      <div class="card shadow-sm mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i>Informações Básicas
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label for="{{ form.tipo.id_for_label }}" class="form-label">
+                <span class="text-danger">*</span> Tipo
+                {% if form.tipo.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.tipo }}
+              {% if form.tipo.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.tipo.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-7">
+              <label for="{{ form.nome.id_for_label }}" class="form-label">
+                <span class="text-danger">*</span> Nome
+                {% if form.nome.errors %}<i class="fas fa-exclamation-triangle text-danger ms-1"></i>{% endif %}
+              </label>
+              {{ form.nome }}
+              {% if form.nome.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.nome.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-2">
+              <label for="{{ form.ativo.id_for_label }}" class="form-label">Status</label>
+              <div class="form-check form-switch mt-2">
+                {{ form.ativo }}
+                <label class="form-check-label" for="{{ form.ativo.id_for_label }}">
+                  Ativo
+                </label>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.descricao.id_for_label }}" class="form-label">Descrição</label>
+              {{ form.descricao }}
+              {% if form.descricao.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.descricao.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Características e Posicionamento -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-star me-2"></i>Características e Posicionamento
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.caracteristicas_beneficios.id_for_label }}" class="form-label">Características e Benefícios</label>
+              {{ form.caracteristicas_beneficios }}
+              <div class="form-text">Principais características e benefícios do produto/serviço</div>
+              {% if form.caracteristicas_beneficios.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.caracteristicas_beneficios.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.preco.id_for_label }}" class="form-label">Preço (R$)</label>
+              {{ form.preco }}
+              <div class="form-text">Digite o valor em qualquer formato</div>
+              {% if form.preco.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.preco.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.data_lancamento.id_for_label }}" class="form-label">Data de Lançamento</label>
+              {{ form.data_lancamento }}
+              {% if form.data_lancamento.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.data_lancamento.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.posicionamento_mercado.id_for_label }}" class="form-label">Posicionamento no Mercado</label>
+              {{ form.posicionamento_mercado }}
+              <div class="form-text">Como este produto/serviço está posicionado no mercado?</div>
+              {% if form.posicionamento_mercado.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.posicionamento_mercado.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Marketing e Objetivos -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-bullhorn me-2"></i>Marketing e Objetivos
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.mensagens_materiais_marketing.id_for_label }}" class="form-label">Mensagens e Materiais de Marketing</label>
+              {{ form.mensagens_materiais_marketing }}
+              <div class="form-text">Quais mensagens e materiais serão usados para promover?</div>
+              {% if form.mensagens_materiais_marketing.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.mensagens_materiais_marketing.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.objetivos_venda.id_for_label }}" class="form-label">Objetivos da Venda</label>
+              {{ form.objetivos_venda }}
+              <div class="form-text">Ex: gerar inscrições, aumentar receita</div>
+              {% if form.objetivos_venda.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.objetivos_venda.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.metas_especificas.id_for_label }}" class="form-label">Metas Específicas</label>
+              {{ form.metas_especificas }}
+              <div class="form-text">Ex: número de inscrições, receita esperada</div>
+              {% if form.metas_especificas.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.metas_especificas.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Cronograma e Pacotes -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-calendar me-2"></i>Cronograma e Pacotes
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.cronograma_producao.id_for_label }}" class="form-label">Cronograma para Produção e Distribuição</label>
+              {{ form.cronograma_producao }}
+              <div class="form-text">Prazos para produção e distribuição</div>
+              {% if form.cronograma_producao.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.cronograma_producao.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.pacotes_opcoes.id_for_label }}" class="form-label">Pacotes e Opções de Serviço</label>
+              {{ form.pacotes_opcoes }}
+              <div class="form-text">Quais pacotes e opções serão oferecidos?</div>
+              {% if form.pacotes_opcoes.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.pacotes_opcoes.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção: Específico para Cursos e Eventos -->
+      <div class="card shadow-sm mb-4" id="cursoEventoSection" style="display: none;">
+        <div class="card-header bg-warning text-dark">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-graduation-cap me-2"></i>Específico para Cursos e Eventos
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="{{ form.formato.id_for_label }}" class="form-label">Formato</label>
+              {{ form.formato }}
+              <div class="form-text">Online, presencial, híbrido</div>
+              {% if form.formato.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.formato.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.duracao.id_for_label }}" class="form-label">Duração</label>
+              {{ form.duracao }}
+              {% if form.duracao.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.duracao.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-12">
+              <label for="{{ form.agenda.id_for_label }}" class="form-label">Agenda/Programação</label>
+              {{ form.agenda }}
+              {% if form.agenda.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.agenda.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.palestrantes_instrutores.id_for_label }}" class="form-label">Palestrantes e Instrutores</label>
+              {{ form.palestrantes_instrutores }}
+              {% if form.palestrantes_instrutores.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.palestrantes_instrutores.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label for="{{ form.materiais_recursos.id_for_label }}" class="form-label">Materiais e Recursos</label>
+              {{ form.materiais_recursos }}
+              <div class="form-text">Materiais fornecidos aos participantes</div>
+              {% if form.materiais_recursos.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.materiais_recursos.errors %}
+                    <i class="fas fa-times-circle me-1"></i>{{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="d-flex justify-content-between mt-4">
+        <div>
+          <a href="{% url 'gestor:produto_servico_list' cliente.pk %}" class="btn btn-outline-secondary">
+            <i class="fas fa-times me-1"></i> Cancelar
+          </a>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-success" name="action" value="save">
+            <i class="fas fa-save me-1"></i> {{ action }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // ===== FOCO NO CAMPO OBRIGATÓRIO =====
+  const nomeField = document.getElementById('id_nome');
+  if (nomeField && !nomeField.value) {
+    nomeField.focus();
+  }
+
+  // ===== MOSTRAR/ESCONDER SEÇÃO DE CURSO/EVENTO =====
+  const tipoField = document.getElementById('id_tipo');
+  const cursoEventoSection = document.getElementById('cursoEventoSection');
+  
+  function toggleCursoEventoSection() {
+    const tipo = tipoField.value;
+    if (tipo === 'curso' || tipo === 'evento') {
+      cursoEventoSection.style.display = 'block';
+      // Scroll suave para a seção
+      setTimeout(() => {
+        cursoEventoSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    } else {
+      cursoEventoSection.style.display = 'none';
+    }
+  }
+  
+  // Configurar evento de mudança
+  tipoField.addEventListener('change', toggleCursoEventoSection);
+  
+  // Aplicar estado inicial
+  toggleCursoEventoSection();
+
+  // ===== VALIDAÇÃO SIMPLES =====
+  const form = document.querySelector('form');
+  const requiredFields = [
+    document.getElementById('id_tipo'),
+    document.getElementById('id_nome')
+  ];
+  
+  function validateForm() {
+    let allValid = true;
+    
+    requiredFields.forEach(field => {
+      if (!field.value.trim()) {
+        field.classList.add('is-invalid');
+        allValid = false;
+      } else {
+        field.classList.remove('is-invalid');
+        field.classList.add('is-valid');
+      }
+    });
+    
+    return allValid;
+  }
+  
+  // Event listeners para validação
+  requiredFields.forEach(field => {
+    field.addEventListener('blur', validateForm);
+    field.addEventListener('input', function() {
+      this.classList.remove('is-invalid');
+      if (this.value.trim()) {
+        this.classList.add('is-valid');
+      }
+    });
+  });
+
+  // ===== MÁSCARA PARA PREÇO =====
+  const precoField = document.getElementById('id_preco');
+  if (precoField) {
+    precoField.addEventListener('input', function() {
+      let value = this.value.replace(/\D/g, '');
+      if (value) {
+        const numberValue = parseFloat(value) / 100;
+        value = numberValue.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+      this.value = value;
+    });
+  }
+
+  // ===== SUBMIT VALIDATION =====
+  form.addEventListener('submit', function(e) {
+    if (!validateForm()) {
+      e.preventDefault();
+      
+      // Focar no primeiro campo inválido
+      const firstInvalid = form.querySelector('.is-invalid');
+      if (firstInvalid) {
+        firstInvalid.focus();
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      
+      // Mostrar toast de erro
+      showToast('Por favor, preencha todos os campos obrigatórios antes de continuar', 'warning');
+    }
+  });
+
+  // ===== FUNÇÃO TOAST =====
+  function showToast(message, type = 'info') {
+    const toastHtml = `
+      <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '1056';
+      document.body.appendChild(toastContainer);
+    }
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+
+  // ===== SEÇÕES COLAPSÁVEIS =====
+  const optionalSections = document.querySelectorAll('.card.shadow-sm:not(.border-primary)');
+  optionalSections.forEach(section => {
+    const header = section.querySelector('.card-header');
+    const body = section.querySelector('.card-body');
+    
+    // Adicionar cursor pointer
+    header.style.cursor = 'pointer';
+    
+    // Adicionar ícone de expandir/contrair
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-chevron-down ms-auto';
+    header.appendChild(icon);
+    
+    // Verificar se tem dados preenchidos
+    const inputs = body.querySelectorAll('input, textarea, select');
+    const hasData = Array.from(inputs).some(input => input.value && input.value.trim() !== '');
+    
+    if (!hasData) {
+      body.style.display = 'none';
+      icon.className = 'fas fa-chevron-right ms-auto';
+      section.style.opacity = '0.7';
+    }
+    
+    // Click handler
+    header.addEventListener('click', function(e) {
+      // Não colapsar se clicar em um input dentro do header
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+      
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.className = 'fas fa-chevron-down ms-auto';
+        section.style.opacity = '1';
+      } else {
+        body.style.display = 'none';
+        icon.className = 'fas fa-chevron-right ms-auto';
+        section.style.opacity = '0.7';
+      }
+    });
+  });
+
+  // ===== DESTACAR CAMPOS OBRIGATÓRIOS =====
+  requiredFields.forEach(field => {
+    field.addEventListener('focus', function() {
+      this.closest('.card').classList.add('border-primary');
+    });
+    
+    field.addEventListener('blur', function() {
+      this.closest('.card').classList.remove('border-primary');
+    });
+  });
+
+  console.log('📦 Formulário de Produto/Serviço carregado com sucesso!');
+});
+</script>
+{% endblock %}

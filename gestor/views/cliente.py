@@ -1,4 +1,4 @@
-# gestor/views/cliente.py
+# gestor/views/cliente.py - VERSÃO ATUALIZADA COM PRODUTOS/SERVIÇOS
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
@@ -8,15 +8,13 @@ from django.db.models import Q, Count
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
-
 from django.utils.decorators import method_decorator
 from formtools.wizard.views import SessionWizardView
 
-
 # ===== IMPORTS ATUALIZADOS =====
 from core.models import Cliente, ClienteChecklist, Campanha
+from core.models.produto_servico import ProdutoServicoEvento  # NOVO IMPORT
 from core.forms import ClienteForm, CampanhaForm, ClienteChecklistForm
-
 from core.forms.wizard_forms import (
     ClienteWizardStep1Form, 
     ClienteWizardStep2Form, 
@@ -27,94 +25,6 @@ from core.forms.wizard_forms import (
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-
-
-
-@login_required
-def cliente_checklist(request, pk):
-    """
-    View para visualizar checklist operacional de um cliente
-    """
-    cliente = get_object_or_404(Cliente, pk=pk)
-    
-    # Buscar ou criar checklist
-    checklist, created = ClienteChecklist.objects.get_or_create(
-        cliente=cliente,
-        defaults={'updated_by': request.user}
-    )
-    
-    context = {
-        'cliente': cliente,
-        'checklist': checklist,
-        'is_new': created,
-        'completude': checklist.completude_percentual,
-        'page_title': f'Checklist Operacional - {cliente.nome_empresa}',
-        'breadcrumbs': [
-            {'url': 'gestor:cliente_list', 'title': 'Clientes'},
-            {'url': 'gestor:cliente_detail', 'title': cliente.nome_empresa, 'args': [cliente.pk]},
-            {'title': 'Checklist'},
-        ]
-    }
-    
-    return render(request, 'gestor/cliente/checklist_detail.html', context)
-
-@login_required
-def cliente_checklist_update(request, pk):
-    """
-    View para editar checklist operacional de um cliente
-    """
-    cliente = get_object_or_404(Cliente, pk=pk)
-    
-    # Buscar ou criar checklist
-    checklist, created = ClienteChecklist.objects.get_or_create(
-        cliente=cliente,
-        defaults={'updated_by': request.user}
-    )
-    
-    if request.method == 'POST':
-        form = ClienteChecklistForm(request.POST, instance=checklist)
-        if form.is_valid():
-            checklist = form.save(commit=False)
-            checklist.updated_by = request.user
-            checklist.save()
-            
-            messages.success(
-                request, 
-                f'✅ Checklist do cliente {cliente.nome_empresa} atualizado com sucesso!'
-            )
-            return redirect('gestor:cliente_checklist', pk=cliente.pk)
-        else:
-            messages.error(request, '❌ Erro ao salvar checklist. Verifique os campos.')
-    else:
-        form = ClienteChecklistForm(instance=checklist)
-    
-    # Calcular progresso por seção se o método existir
-    progress_data = {}
-    if hasattr(form, 'field_sections'):
-        for section_name in form.field_sections.keys():
-            if hasattr(form, 'get_section_progress'):
-                progress_data[section_name] = form.get_section_progress(section_name)
-    
-    context = {
-        'cliente': cliente,
-        'checklist': checklist,
-        'form': form,
-        'is_edit': True,
-        'is_new': created,
-        'progress_data': progress_data,
-        'page_title': f'Editar Checklist - {cliente.nome_empresa}',
-        'breadcrumbs': [
-            {'url': 'gestor:cliente_list', 'title': 'Clientes'},
-            {'url': 'gestor:cliente_detail', 'title': cliente.nome_empresa, 'args': [cliente.pk]},
-            {'url': 'gestor:cliente_checklist', 'title': 'Checklist', 'args': [cliente.pk]},
-            {'title': 'Editar'},
-        ]
-    }
-    
-    return render(request, 'gestor/cliente/checklist_form.html', context)
-
 
 
 # ===== VIEWS DE CLIENTE =====
@@ -180,19 +90,22 @@ def cliente_list(request):
 
 @login_required
 def cliente_detail(request, pk):
-    """Detalhes de um cliente específico"""
+    """Detalhes de um cliente específico - VERSÃO ATUALIZADA COM PRODUTOS/SERVIÇOS"""
     
     cliente = get_object_or_404(Cliente, pk=pk)
     
     # Buscar campanhas relacionadas
     campanhas = cliente.campanhas.order_by('-created_at')[:10]  # Últimas 10
     
+    # Buscar produtos/serviços relacionados (NOVO)
+    produtos_servicos = cliente.produtos_servicos.filter(ativo=True).order_by('-created_at')[:5]  # Últimos 5 ativos
+    
     # Buscar ou criar checklist
     checklist, created = ClienteChecklist.objects.get_or_create(cliente=cliente)
     if created:
         logger.info(f'Checklist criado automaticamente para cliente {cliente.nome_empresa}')
     
-    # Estatísticas do cliente
+    # Estatísticas do cliente - ATUALIZADA
     stats = {
         'campanhas_total': cliente.campanhas.count(),
         'campanhas_ativas': cliente.campanhas.filter(status='ativa').count(),
@@ -200,17 +113,29 @@ def cliente_detail(request, pk):
         'campanhas_finalizadas': cliente.campanhas.filter(status='finalizada').count(),
         'briefing_progress': cliente.briefing_progress,
         'checklist_progress': checklist.completude_percentual,
+        
+        # NOVAS ESTATÍSTICAS PARA PRODUTOS/SERVIÇOS
+        'produtos_servicos_total': cliente.produtos_servicos.count(),
+        'produtos_servicos_ativos': cliente.produtos_servicos.filter(ativo=True).count(),
+        'produtos_por_tipo': {
+            'produto': cliente.produtos_servicos.filter(tipo='produto').count(),
+            'servico': cliente.produtos_servicos.filter(tipo='servico').count(),
+            'curso': cliente.produtos_servicos.filter(tipo='curso').count(),
+            'evento': cliente.produtos_servicos.filter(tipo='evento').count(),
+        }
     }
     
     context = {
         'cliente': cliente,
         'campanhas': campanhas,
+        'produtos_servicos': produtos_servicos,  # NOVO
         'checklist': checklist,
         'stats': stats,
         'title': f'Cliente: {cliente.nome_empresa}'
     }
     
     return render(request, 'gestor/cliente/detail.html', context)
+
 
 @login_required
 def cliente_create(request):
@@ -240,7 +165,7 @@ def cliente_create(request):
 
             if action == 'save_and_wizard':
                 logger.debug('cliente_create: Redirecionando para wizard.')
-                return redirect('gestor:cliente_wizard', pk=cliente.pk)
+                return redirect('gestor:cliente_briefing', pk=cliente.pk)
             elif action == 'save_and_checklist':
                 logger.debug('cliente_create: Redirecionando para checklist.')
                 return redirect('gestor:cliente_checklist', pk=cliente.pk)
@@ -263,6 +188,7 @@ def cliente_create(request):
     }
     logger.debug('cliente_create: Renderizando gestor/cliente/form.html com contexto.')
     return render(request, 'gestor/cliente/form.html', context)
+
 
 @login_required
 def cliente_update(request, pk):
@@ -300,6 +226,7 @@ def cliente_update(request, pk):
     logger.debug('cliente_update: Renderizando gestor/cliente/form.html com contexto.')
     return render(request, 'gestor/cliente/form.html', context)
 
+
 @login_required
 @require_http_methods(["POST"])
 def cliente_delete(request, pk):
@@ -321,17 +248,27 @@ def cliente_delete(request, pk):
     # EXCLUSÃO REAL - não apenas desativação
     nome_empresa = cliente.nome_empresa
     
-    # Opcional: Verificar se tem dependências importantes
+    # Verificar dependências - ATUALIZADO
     total_campanhas = cliente.campanhas.count()
+    total_produtos_servicos = cliente.produtos_servicos.count()  # NOVO
     
     try:
         # Excluir cliente e todas as relações CASCADE
         cliente.delete()
         
+        # Mensagem com dependências - ATUALIZADA
+        dependencias_msg = ""
+        if total_campanhas > 0 or total_produtos_servicos > 0:
+            dependencias = []
+            if total_campanhas > 0:
+                dependencias.append(f"{total_campanhas} campanha(s)")
+            if total_produtos_servicos > 0:
+                dependencias.append(f"{total_produtos_servicos} produto(s)/serviço(s)")
+            dependencias_msg = f" ({', '.join(dependencias)} também foram removidos)"
+        
         messages.success(
             request, 
-            f'Cliente "{nome_empresa}" excluído permanentemente com sucesso! '
-            f'{"" if total_campanhas == 0 else f"({total_campanhas} campanhas também foram removidas)"}'
+            f'Cliente "{nome_empresa}" excluído permanentemente com sucesso!{dependencias_msg}'
         )
         
         logger.info(f'Cliente {nome_empresa} excluído permanentemente por {request.user.username}')
@@ -347,15 +284,45 @@ def cliente_delete(request, pk):
     return redirect('gestor:cliente_list')
 
 
-
 # ===== VIEWS DE CHECKLIST =====
 
 @login_required
 def cliente_checklist(request, pk):
-    """Gerenciar checklist operacional do cliente"""
-    
+    """View para visualizar checklist operacional de um cliente"""
     cliente = get_object_or_404(Cliente, pk=pk)
-    checklist, created = ClienteChecklist.objects.get_or_create(cliente=cliente)
+    
+    # Buscar ou criar checklist
+    checklist, created = ClienteChecklist.objects.get_or_create(
+        cliente=cliente,
+        defaults={'updated_by': request.user}
+    )
+    
+    context = {
+        'cliente': cliente,
+        'checklist': checklist,
+        'is_new': created,
+        'completude': checklist.completude_percentual,
+        'page_title': f'Checklist Operacional - {cliente.nome_empresa}',
+        'breadcrumbs': [
+            {'url': 'gestor:cliente_list', 'title': 'Clientes'},
+            {'url': 'gestor:cliente_detail', 'title': cliente.nome_empresa, 'args': [cliente.pk]},
+            {'title': 'Checklist'},
+        ]
+    }
+    
+    return render(request, 'gestor/cliente/checklist_detail.html', context)
+
+
+@login_required
+def cliente_checklist_update(request, pk):
+    """View para editar checklist operacional de um cliente"""
+    cliente = get_object_or_404(Cliente, pk=pk)
+    
+    # Buscar ou criar checklist
+    checklist, created = ClienteChecklist.objects.get_or_create(
+        cliente=cliente,
+        defaults={'updated_by': request.user}
+    )
     
     if request.method == 'POST':
         form = ClienteChecklistForm(request.POST, instance=checklist)
@@ -364,29 +331,40 @@ def cliente_checklist(request, pk):
             checklist.updated_by = request.user
             checklist.save()
             
-            messages.success(request, 'Checklist operacional atualizado com sucesso!')
-            logger.info(f'Checklist do cliente {cliente.nome_empresa} atualizado por {request.user.username}')
-            
-            # Redirecionar baseado na ação
-            action = request.POST.get('action', 'stay')
-            if action == 'save_and_return':
-                return redirect('gestor:cliente_detail', pk=cliente.pk)
-            # Senão, permanece na mesma página para continuar editando
-            
+            messages.success(
+                request, 
+                f'✅ Checklist do cliente {cliente.nome_empresa} atualizado com sucesso!'
+            )
+            return redirect('gestor:cliente_checklist', pk=cliente.pk)
         else:
-            messages.error(request, 'Por favor, corrija os erros no formulário.')
+            messages.error(request, '❌ Erro ao salvar checklist. Verifique os campos.')
     else:
         form = ClienteChecklistForm(instance=checklist)
     
+    # Calcular progresso por seção se o método existir
+    progress_data = {}
+    if hasattr(form, 'field_sections'):
+        for section_name in form.field_sections.keys():
+            if hasattr(form, 'get_section_progress'):
+                progress_data[section_name] = form.get_section_progress(section_name)
+    
     context = {
-        'form': form,
         'cliente': cliente,
         'checklist': checklist,
-        'title': f'Checklist Operacional - {cliente.nome_empresa}',
-        'progress': checklist.completude_percentual,
+        'form': form,
+        'is_edit': True,
+        'is_new': created,
+        'progress_data': progress_data,
+        'page_title': f'Editar Checklist - {cliente.nome_empresa}',
+        'breadcrumbs': [
+            {'url': 'gestor:cliente_list', 'title': 'Clientes'},
+            {'url': 'gestor:cliente_detail', 'title': cliente.nome_empresa, 'args': [cliente.pk]},
+            {'url': 'gestor:cliente_checklist', 'title': 'Checklist', 'args': [cliente.pk]},
+            {'title': 'Editar'},
+        ]
     }
     
-    return render(request, 'gestor/cliente/checklist.html', context)
+    return render(request, 'gestor/cliente/checklist_form.html', context)
 
 
 # ===== VIEWS DE CAMPANHA =====
@@ -609,7 +587,7 @@ def cliente_api_search(request):
 
 @login_required
 def cliente_api_stats(request, pk):
-    """API para estatísticas de um cliente"""
+    """API para estatísticas de um cliente - ATUALIZADA"""
     
     cliente = get_object_or_404(Cliente, pk=pk)
     checklist, _ = ClienteChecklist.objects.get_or_create(cliente=cliente)
@@ -625,6 +603,17 @@ def cliente_api_stats(request, pk):
             'ativas': cliente.campanhas.filter(status='ativa').count(),
             'planejamento': cliente.campanhas.filter(status='planejamento').count(),
             'finalizadas': cliente.campanhas.filter(status='finalizada').count(),
+        },
+        # NOVAS ESTATÍSTICAS PARA PRODUTOS/SERVIÇOS
+        'produtos_servicos': {
+            'total': cliente.produtos_servicos.count(),
+            'ativos': cliente.produtos_servicos.filter(ativo=True).count(),
+            'por_tipo': {
+                'produto': cliente.produtos_servicos.filter(tipo='produto').count(),
+                'servico': cliente.produtos_servicos.filter(tipo='servico').count(),
+                'curso': cliente.produtos_servicos.filter(tipo='curso').count(),
+                'evento': cliente.produtos_servicos.filter(tipo='evento').count(),
+            }
         },
         'created_at': cliente.created_at.isoformat(),
         'updated_at': cliente.updated_at.isoformat(),
